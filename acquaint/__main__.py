@@ -2,7 +2,8 @@
 """``acquaint`` on the command line: ``cw`` over :data:`acquaint.tools.TOOLS`, with ``sync_*`` as a ``sync`` group.
 
 ``--json`` anywhere prints the tool's result dict instead of text; ``-`` as the text
-of ``check`` or ``style-lint`` reads it from stdin.
+of ``check`` or ``style-lint`` reads it from stdin. The exit status is the same either
+way (:func:`acquaint.render.exit_code`).
 """
 
 import functools
@@ -12,7 +13,7 @@ import sys
 import cw
 
 from acquaint import tools
-from acquaint.render import render
+from acquaint.render import exit_code, render
 
 
 def _command(func):
@@ -30,7 +31,7 @@ def _egress(as_json):
     def egress(result, *, out, err):
         if as_json:
             print(json.dumps(result, indent=2, ensure_ascii=False), file=out)
-            return 0 if result.get("ok", True) else 1
+            return exit_code(result)
         stdout, stderr, code = render(result)
         print(stderr, file=err) if stderr else None
         print(stdout, file=out) if stdout else None
