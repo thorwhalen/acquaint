@@ -1,0 +1,4 @@
+acquaint.mcp
+============
+.. automodule:: acquaint.mcp
+   :members:

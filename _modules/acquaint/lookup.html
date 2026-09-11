@@ -1,0 +1,541 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.lookup &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/brief.html">acquaint.brief</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/edit.html">acquaint.edit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lint.html">acquaint.lint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acquaint.lookup</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acquaint.lookup</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Finding the right record: exact references, handle resolution, the conflation check, and channel choice.</span>
+
+<span class="sd">All functions take a :class:`~acquaint.store.Store` and return plain data. Matching is</span>
+<span class="sd">deterministic normalisation (case, punctuation and accents ignored). Nothing here acts</span>
+<span class="sd">on a partial match or picks between candidates: an id and another record's exact alias</span>
+<span class="sd">compete on equal terms, partials are offered as suggestions, and :func:`find_entity`</span>
+<span class="sd">refuses when more than one record fits. One unreadable record is reported and skipped;</span>
+<span class="sd">it never takes a lookup down.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unicodedata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">acquaint.records</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">acquaint.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquaintError</span><span class="p">,</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">Store</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"INACTIVE_RULES"</span><span class="p">,</span>
+    <span class="s2">"TIERS"</span><span class="p">,</span>
+    <span class="s2">"USABLE_STATUSES"</span><span class="p">,</span>
+    <span class="s2">"check_text"</span><span class="p">,</span>
+    <span class="s2">"find_entity"</span><span class="p">,</span>
+    <span class="s2">"match"</span><span class="p">,</span>
+    <span class="s2">"normalize"</span><span class="p">,</span>
+    <span class="s2">"reach_channels"</span><span class="p">,</span>
+    <span class="s2">"resolve_handle"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: Who set a rule, most authoritative first. The operator's instruction for the message</span>
+<span class="c1">#: at hand outranks all of these; it belongs to the caller, not the store.</span>
+<span class="n">TIERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"self"</span><span class="p">,</span> <span class="s2">"operator"</span><span class="p">,</span> <span class="s2">"affiliation"</span><span class="p">,</span> <span class="s2">"observed"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">)</span>
+<span class="c1">#: An identity is usable only with one of these statuses (none recorded means active).</span>
+<span class="c1">#: Anything else (stale, former, unverified, retracted, dead, …) is reported, never acted on.</span>
+<span class="n">USABLE_STATUSES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"active"</span><span class="p">,</span> <span class="s2">"relay"</span><span class="p">}</span>
+<span class="c1">#: A rule is out of use with one of these statuses.</span>
+<span class="n">INACTIVE_RULES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"superseded"</span><span class="p">,</span> <span class="s2">"retracted"</span><span class="p">,</span> <span class="s2">"expired"</span><span class="p">,</span> <span class="s2">"dead"</span><span class="p">,</span> <span class="s2">"draft"</span><span class="p">}</span>
+<span class="n">_SPLIT_HINT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\W*(or|and|aka|a\.k\.a\.?|vs\.?|/|,|&amp;|\+)\W*$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">_NAME_LIKE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\b[A-Z][a-z]+(?:[ '-][A-Z][a-z]+)+\b"</span><span class="p">)</span>
+<span class="n">_SENTENCE_STARTERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"The"</span><span class="p">,</span> <span class="s2">"This"</span><span class="p">,</span> <span class="s2">"That"</span><span class="p">,</span> <span class="s2">"These"</span><span class="p">,</span> <span class="s2">"Those"</span><span class="p">,</span> <span class="s2">"When"</span><span class="p">,</span> <span class="s2">"Where"</span><span class="p">,</span> <span class="s2">"What"</span><span class="p">,</span> <span class="s2">"Why"</span><span class="p">,</span> <span class="s2">"How"</span><span class="p">,</span>
+    <span class="s2">"If"</span><span class="p">,</span> <span class="s2">"In"</span><span class="p">,</span> <span class="s2">"On"</span><span class="p">,</span> <span class="s2">"At"</span><span class="p">,</span> <span class="s2">"For"</span><span class="p">,</span> <span class="s2">"And"</span><span class="p">,</span> <span class="s2">"But"</span><span class="p">,</span> <span class="s2">"So"</span><span class="p">,</span> <span class="s2">"Dear"</span><span class="p">,</span> <span class="s2">"Hi"</span><span class="p">,</span> <span class="s2">"Hello"</span><span class="p">,</span> <span class="s2">"Thanks"</span><span class="p">,</span> <span class="s2">"As"</span><span class="p">,</span> <span class="s2">"See"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="normalize">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.normalize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Lowercase ASCII letters and digits only, for comparing names and handles.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalize("Zoë O'Example")</span>
+<span class="sd">    'zoeoexample'</span>
+<span class="sd">    """</span>
+    <span class="n">folded</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">"NFKD"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">,</span> <span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-z0-9]+"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">folded</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_status</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"status"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"active"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_forms</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">forms</span> <span class="o">=</span> <span class="p">{</span><span class="n">normalize</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">surface_forms</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">identity</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">identities</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"email"</span> <span class="ow">and</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">):</span>
+            <span class="n">email</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="p">[</span><span class="s2">"value"</span><span class="p">])</span>
+            <span class="n">forms</span> <span class="o">|=</span> <span class="p">{</span><span class="n">normalize</span><span class="p">(</span><span class="n">email</span><span class="p">),</span> <span class="n">normalize</span><span class="p">(</span><span class="n">email</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"@"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">forms</span> <span class="k">if</span> <span class="n">f</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_readable</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Entity</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Entities whose identity can be read, and ``{key, error}`` for those that cannot."""</span>
+    <span class="n">good</span><span class="p">,</span> <span class="n">broken</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">store</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="n">_forms</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+            <span class="n">good</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># one bad record must not take down every lookup; it is reported</span>
+            <span class="n">broken</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"key"</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s2">"error"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">good</span><span class="p">,</span> <span class="n">broken</span>
+
+
+<span class="c1"># -------------------------------------------------------------------------- match</span>
+
+
+<div class="viewcode-block" id="match">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.match">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Store keys matching a name, alias, handle, email or id: ``{"exact": [...], "partial": [...], "unreadable": [...]}``.</span>
+
+<span class="sd">    ``partial`` holds entities where the query is part of a longer form (three characters</span>
+<span class="sd">    or more): suggestions for a person, never something to act on.</span>
+<span class="sd">    """</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">entities</span><span class="p">,</span> <span class="n">broken</span> <span class="o">=</span> <span class="n">_readable</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+    <span class="n">exact</span><span class="p">,</span> <span class="n">partial</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">q</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">forms</span> <span class="o">=</span> <span class="n">_forms</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">forms</span> <span class="ow">or</span> <span class="n">q</span> <span class="o">==</span> <span class="n">normalize</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">slug</span><span class="p">):</span>
+                <span class="n">exact</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">q</span> <span class="ow">in</span> <span class="n">form</span> <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">forms</span><span class="p">):</span>
+                <span class="n">partial</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"exact"</span><span class="p">:</span> <span class="n">exact</span><span class="p">,</span> <span class="s2">"partial"</span><span class="p">:</span> <span class="n">partial</span><span class="p">,</span> <span class="s2">"unreadable"</span><span class="p">:</span> <span class="n">broken</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="find_entity">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.find_entity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The one store key a reference names, or an :class:`AcquaintError` saying why not.</span>
+
+<span class="sd">    ``person:ada-lovelace`` and ``people/ada-lovelace`` are exact and decide on their own.</span>
+<span class="sd">    A bare word is looked up as an id (in any kind, any case) and, with ``names``, as an</span>
+<span class="sd">    exact name, alias, handle or email; it resolves only when exactly one record fits all</span>
+<span class="sd">    of these together. A partial match never counts; it is offered as a suggestion.</span>
+<span class="sd">    Operations that rewrite or remove records pass ``names=False`` and need the id.</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">or</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">store</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no entity </span><span class="si">{</span><span class="n">ref</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="n">by_id</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">find_id</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">by_id</span> <span class="o">+</span> <span class="p">(</span><span class="n">found</span><span class="p">[</span><span class="s2">"exact"</span><span class="p">]</span> <span class="k">if</span> <span class="n">names</span> <span class="k">else</span> <span class="p">[])))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ref</span><span class="si">!r}</span><span class="s2"> could be </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2">; say which with its kind and id, e.g. </span><span class="si">{</span><span class="n">Entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span><span class="w"> </span><span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="n">suggestions</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">found</span><span class="p">[</span><span class="s2">"exact"</span><span class="p">]</span> <span class="o">+</span> <span class="n">found</span><span class="p">[</span><span class="s2">"partial"</span><span class="p">])]</span>
+    <span class="n">hint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"; did you mean </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">suggestions</span><span class="p">)</span><span class="si">}</span><span class="s2">?"</span> <span class="k">if</span> <span class="n">suggestions</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="k">if</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no entity named </span><span class="si">{</span><span class="n">ref</span><span class="si">!r}{</span><span class="n">hint</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no entity with the id </span><span class="si">{</span><span class="n">ref</span><span class="si">!r}</span><span class="s2"> (this needs the exact id)</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------ handles</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalise_handle</span><span class="p">(</span><span class="n">platform</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"email"</span> <span class="ow">or</span> <span class="p">(</span><span class="n">platform</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^@\s]+@[^@\s]+"</span><span class="p">,</span> <span class="n">value</span><span class="p">)):</span>
+        <span class="n">local</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">domain</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"@"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"gmail.com"</span><span class="p">,</span> <span class="s2">"googlemail.com"</span><span class="p">}:</span>
+            <span class="n">local</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"+"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"@"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_handle</span><span class="p">(</span><span class="n">handle</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">handle</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[a-z][a-z0-9_-]*:[^/].*"</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">handle</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"http:"</span><span class="p">,</span> <span class="s2">"https:"</span><span class="p">)):</span>
+        <span class="n">platform</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^@\s]+@[^@\s]+\.[^@\s]+"</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"email"</span><span class="p">,</span> <span class="n">handle</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle</span>
+
+
+<div class="viewcode-block" id="resolve_handle">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.resolve_handle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_handle</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span> <span class="n">handle</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Who a channel handle belongs to, with the evidence: ``{"platform", "matches", "inactive", "by_name", "unreadable"}``.</span>
+
+<span class="sd">    ``github:octocat``, ``email:ada@example.org`` and ``ada@example.org`` name a platform;</span>
+<span class="sd">    ``@octocat`` does not, so it matches that handle on any platform. Only identities with</span>
+<span class="sd">    a usable status (see :data:`USABLE_STATUSES`) are matches; the rest are reported under</span>
+<span class="sd">    ``inactive`` with their status. A handle found in no identity file is matched against</span>
+<span class="sd">    names under ``by_name``, which is never enough to act on.</span>
+<span class="sd">    """</span>
+    <span class="n">platform</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_split_handle</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_normalise_handle</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">entities</span><span class="p">,</span> <span class="n">broken</span> <span class="o">=</span> <span class="n">_readable</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+    <span class="n">matches</span><span class="p">,</span> <span class="n">inactive</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">identity</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">identities</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">platform</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">platform</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">_normalise_handle</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)))</span> <span class="o">!=</span> <span class="n">wanted</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"id"</span><span class="p">:</span> <span class="n">entity</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span>
+                <span class="s2">"key"</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="n">entity</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">"platform"</span><span class="p">:</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">),</span>
+                <span class="s2">"value"</span><span class="p">:</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">),</span>
+                <span class="s2">"evidence"</span><span class="p">:</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"evidence"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"unrecorded"</span><span class="p">,</span>
+                <span class="s2">"status"</span><span class="p">:</span> <span class="n">_status</span><span class="p">(</span><span class="n">identity</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="p">(</span><span class="n">matches</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">USABLE_STATUSES</span> <span class="k">else</span> <span class="n">inactive</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">by_name</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">inactive</span> <span class="ow">and</span> <span class="n">platform</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">by_name</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">entities</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span> <span class="s2">"key"</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="n">entities</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"evidence"</span><span class="p">:</span> <span class="s2">"name only"</span><span class="p">}</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">names</span><span class="p">[</span><span class="s2">"exact"</span><span class="p">]</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"platform"</span><span class="p">:</span> <span class="n">platform</span><span class="p">,</span> <span class="s2">"matches"</span><span class="p">:</span> <span class="n">matches</span><span class="p">,</span> <span class="s2">"inactive"</span><span class="p">:</span> <span class="n">inactive</span><span class="p">,</span> <span class="s2">"by_name"</span><span class="p">:</span> <span class="n">by_name</span><span class="p">,</span> <span class="s2">"unreadable"</span><span class="p">:</span> <span class="n">broken</span><span class="p">}</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------- conflations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_citation</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">between</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``Lovelace, Ada``: family name, comma, given name, which is one person in citation order."""</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">between</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">","</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="ow">and</span> <span class="n">normalize</span><span class="p">(</span><span class="n">first</span><span class="p">)</span> <span class="o">==</span> <span class="n">normalize</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="ow">and</span> <span class="n">normalize</span><span class="p">(</span><span class="n">second</span><span class="p">)</span> <span class="o">==</span> <span class="n">normalize</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_text">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.check_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_text</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Scan prose for people errors before it is published.</span>
+
+<span class="sd">    Reports the entities mentioned; **conflations** (one entity written as if it were two:</span>
+<span class="sd">    two different names for it joined by "or", "and", "/", "," …, citation order such as</span>
+<span class="sd">    "Lovelace, Ada" excepted); **ambiguous** forms shared by several entities; and</span>
+<span class="sd">    **unknown** name-like phrases that match nobody.</span>
+<span class="sd">    """</span>
+    <span class="n">entities</span><span class="p">,</span> <span class="n">broken</span> <span class="o">=</span> <span class="n">_readable</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+    <span class="n">hits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">owners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">surface_forms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">form</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"(?&lt;![\w@])</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">form</span><span class="p">)</span><span class="si">}</span><span class="s2">(?!\w)"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+                <span class="n">hits</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">found</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+                <span class="n">owners</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="n">conflations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">spans</span> <span class="ow">in</span> <span class="n">hits</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="n">entities</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">spans</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">spans</span><span class="p">))</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">s1</span><span class="p">),</span> <span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">spans</span><span class="p">,</span> <span class="n">spans</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="k">if</span> <span class="n">normalize</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">==</span> <span class="n">normalize</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span> <span class="ow">or</span> <span class="n">p2</span> <span class="o">&lt;</span> <span class="n">p1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">between</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">p1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="p">:</span> <span class="n">p2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">between</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">12</span> <span class="ow">and</span> <span class="n">_SPLIT_HINT</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">between</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_citation</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">between</span><span class="p">):</span>
+                <span class="n">conflations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">"id"</span><span class="p">:</span> <span class="n">entity</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span>
+                        <span class="s2">"name"</span><span class="p">:</span> <span class="n">entity</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">"forms"</span><span class="p">:</span> <span class="p">[</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">],</span>
+                        <span class="s2">"excerpt"</span><span class="p">:</span> <span class="n">text</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p1</span> <span class="o">-</span> <span class="mi">30</span><span class="p">)</span> <span class="p">:</span> <span class="n">p2</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+    <span class="n">ambiguous</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">"form"</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="s2">"ids"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entities</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">slug</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">form</span><span class="p">,</span> <span class="n">keys</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">owners</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="p">]</span>
+    <span class="n">known</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span> <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">_forms</span><span class="p">(</span><span class="n">entity</span><span class="p">)}</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">phrase</span>
+            <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">_NAME_LIKE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">phrase</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SENTENCE_STARTERS</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="ow">in</span> <span class="n">known</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[ '-]"</span><span class="p">,</span> <span class="n">phrase</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"mentioned"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entities</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">slug</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">hits</span><span class="p">),</span>
+        <span class="s2">"conflations"</span><span class="p">:</span> <span class="n">conflations</span><span class="p">,</span>
+        <span class="s2">"ambiguous"</span><span class="p">:</span> <span class="n">ambiguous</span><span class="p">,</span>
+        <span class="s2">"unknown_candidates"</span><span class="p">:</span> <span class="n">unknown</span><span class="p">,</span>
+        <span class="s2">"unreadable"</span><span class="p">:</span> <span class="n">broken</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1"># -------------------------------------------------------------------------- reach</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_matches</span><span class="p">(</span><span class="n">when</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How specific a matching ``when`` is (number of conditions), or ``None`` if it does not match."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">when</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">when</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">when</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">condition</span> <span class="o">==</span> <span class="s2">"affiliation"</span><span class="p">:</span>
+            <span class="n">kind</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">slug</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+            <span class="n">actual</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span> <span class="k">if</span> <span class="n">slug</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">slug</span> <span class="ow">or</span> <span class="n">expected</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actual</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">condition</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">actual</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="n">expected</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">expected</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">}:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">when</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tier_of</span><span class="p">(</span><span class="n">rule</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">setter</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"set_by"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"authority"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">default</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"self-stated"</span><span class="p">:</span> <span class="s2">"self"</span><span class="p">,</span> <span class="s2">"person"</span><span class="p">:</span> <span class="s2">"self"</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">setter</span><span class="p">,</span> <span class="n">setter</span> <span class="k">if</span> <span class="n">setter</span> <span class="ow">in</span> <span class="n">TIERS</span> <span class="k">else</span> <span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_usable_identities</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">identities</span> <span class="k">if</span> <span class="n">_status</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">USABLE_STATUSES</span> <span class="ow">and</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_address</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A usable address for a channel, or ``None`` and why."""</span>
+    <span class="n">recorded</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">identities</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">channel</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="n">usable</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">recorded</span> <span class="k">if</span> <span class="n">_status</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">USABLE_STATUSES</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">usable</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">usable</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'platform'</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">usable</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'value'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">recorded</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"no usable </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> address (the recorded one is </span><span class="si">{</span><span class="n">_status</span><span class="p">(</span><span class="n">recorded</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_channels_of</span><span class="p">(</span><span class="n">do</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""The channel names a rule's ``do`` asks for, in order, and notes about values that are not channel names."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">do</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">names</span><span class="p">,</span> <span class="n">notes</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="n">do</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"channel"</span><span class="p">),</span> <span class="o">*</span><span class="n">_as_list</span><span class="p">(</span><span class="n">do</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fallback"</span><span class="p">))]:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ignored </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">: a channel is a name such as email"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">names</span><span class="p">,</span> <span class="n">notes</span>
+
+
+<div class="viewcode-block" id="reach_channels">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.reach_channels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reach_channels</span><span class="p">(</span><span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">defaults_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="o">**</span><span class="n">context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Ordered channels for reaching one entity in a context (``purpose``, ``urgency``, ``project``, ``message_type``, ``topic``).</span>
+
+<span class="sd">    Precedence: the person's own stated rules &gt; the operator's rules about them &gt; norms of</span>
+<span class="sd">    a project or affiliation &gt; observed habits &gt; global defaults. Within a tier the most</span>
+<span class="sd">    specific matching rule wins. Only usable addresses are offered; a rule value that is</span>
+<span class="sd">    not a channel name is skipped with a note. It returns addresses; it sends nothing.</span>
+<span class="sd">    """</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">}</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="n">candidates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_tier_of</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="s2">"operator"</span><span class="p">),</span> <span class="n">rule</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/rules.yaml"</span><span class="p">)</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">rules</span><span class="p">]</span>
+    <span class="n">affiliations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">link</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"to"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">links</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project"</span><span class="p">):</span>
+        <span class="n">affiliations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"project:</span><span class="si">{</span><span class="n">context</span><span class="p">[</span><span class="s1">'project'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">affiliations</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">store</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">ref</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="n">AcquaintError</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">candidates</span> <span class="o">+=</span> <span class="p">[(</span><span class="s2">"affiliation"</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/rules.yaml"</span><span class="p">)</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">rules</span><span class="p">]</span>
+    <span class="n">defaults</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">defaults_text</span><span class="p">)</span> <span class="k">if</span> <span class="n">defaults_text</span> <span class="k">else</span> <span class="p">({},</span> <span class="p">[])</span>
+    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="p">(</span><span class="n">defaults</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"rules"</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"_defaults/rules.yaml"</span><span class="p">))</span>
+
+    <span class="n">scored</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">order</span><span class="p">,</span> <span class="p">(</span><span class="n">tier</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">candidates</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_status</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span> <span class="ow">in</span> <span class="n">INACTIVE_RULES</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">specificity</span> <span class="o">=</span> <span class="n">_matches</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"when"</span><span class="p">),</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">specificity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">scored</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">TIERS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">tier</span><span class="p">),</span> <span class="o">-</span><span class="n">specificity</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">tier</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">origin</span><span class="p">))</span>
+    <span class="n">scored</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="n">channels</span><span class="p">,</span> <span class="n">seen</span> <span class="o">=</span> <span class="p">[],</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">tier</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">origin</span> <span class="ow">in</span> <span class="n">scored</span><span class="p">:</span>
+        <span class="n">do</span> <span class="o">=</span> <span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"do"</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">notes</span> <span class="o">=</span> <span class="n">_channels_of</span><span class="p">(</span><span class="n">do</span><span class="p">)</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span> <span class="ow">or</span> <span class="p">([(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">do</span><span class="p">))]</span> <span class="k">if</span> <span class="n">do</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">({},</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="k">else</span> <span class="p">[])</span>
+        <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">channel</span> <span class="ow">or</span> <span class="n">instruction</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">address</span><span class="p">,</span> <span class="n">note</span> <span class="o">=</span> <span class="n">_address</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span> <span class="k">if</span> <span class="n">channel</span> <span class="k">else</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"channel"</span><span class="p">:</span> <span class="n">channel</span><span class="p">,</span>
+                    <span class="s2">"address"</span><span class="p">:</span> <span class="n">address</span><span class="p">,</span>
+                    <span class="s2">"note"</span><span class="p">:</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">note</span><span class="p">,</span> <span class="o">*</span><span class="n">notes</span><span class="p">]))</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">"tier"</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span>
+                    <span class="s2">"instruction"</span><span class="p">:</span> <span class="n">instruction</span><span class="p">,</span>
+                    <span class="s2">"rule_from"</span><span class="p">:</span> <span class="n">origin</span><span class="p">,</span>
+                    <span class="s2">"source"</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">channels</span><span class="p">:</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"channel"</span><span class="p">:</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">),</span>
+                <span class="s2">"address"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'platform'</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'value'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="s2">"note"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+                <span class="s2">"instruction"</span><span class="p">:</span> <span class="s2">"no rule matched; usable identities in the order listed"</span><span class="p">,</span>
+                <span class="s2">"rule_from"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/identities.yaml"</span><span class="p">,</span>
+                <span class="s2">"source"</span><span class="p">:</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">identity</span> <span class="ow">in</span> <span class="n">_usable_identities</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"context"</span><span class="p">:</span> <span class="n">context</span><span class="p">,</span> <span class="s2">"channels"</span><span class="p">:</span> <span class="n">channels</span><span class="p">,</span> <span class="s2">"rules_matched"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">scored</span><span class="p">)}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_list</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

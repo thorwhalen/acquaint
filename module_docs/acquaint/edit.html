@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.edit &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="acquaint.lint" href="lint.html" />
+    <link rel="prev" title="acquaint.deslop" href="deslop.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brief.html">acquaint.brief</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">acquaint.edit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.OBSERVATION_KINDS"><code class="docutils literal notranslate"><span class="pre">OBSERVATION_KINDS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.append_observation"><code class="docutils literal notranslate"><span class="pre">append_observation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.forget_entity"><code class="docutils literal notranslate"><span class="pre">forget_entity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.new_entity"><code class="docutils literal notranslate"><span class="pre">new_entity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.rename_entity"><code class="docutils literal notranslate"><span class="pre">rename_entity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.tombstone_problem"><code class="docutils literal notranslate"><span class="pre">tombstone_problem()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.edit.tombstoned"><code class="docutils literal notranslate"><span class="pre">tombstoned()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lint.html">acquaint.lint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">acquaint.edit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/acquaint/edit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-acquaint.edit">
+<span id="acquaint-edit"></span><h1>acquaint.edit<a class="headerlink" href="#module-acquaint.edit" title="Link to this heading"></a></h1>
+<p>Changing the store: create an entity, append an observation, rename with relinking, forget with a tombstone.</p>
+<p>The hot path is append-only. <a class="reference internal" href="#acquaint.edit.append_observation" title="acquaint.edit.append_observation"><code class="xref py py-func docutils literal notranslate"><span class="pre">append_observation()</span></code></a> never edits an entry file, a
+writing card or a rule: it appends a dated, sourced entry to <code class="docutils literal notranslate"><span class="pre">log/YYYY-MM.md</span></code> (or a
+handle to <code class="docutils literal notranslate"><span class="pre">identities.yaml</span></code>). Turning observations into profile lines is a separate,
+reviewed pass.</p>
+<p>These functions take exact references (<code class="docutils literal notranslate"><span class="pre">ada-lovelace</span></code>, <code class="docutils literal notranslate"><span class="pre">person:ada-lovelace</span></code>,
+<code class="docutils literal notranslate"><span class="pre">people/ada-lovelace</span></code>); matching names to ids is the caller’s job
+(<a class="reference internal" href="lookup.html#acquaint.lookup.find_entity" title="acquaint.lookup.find_entity"><code class="xref py py-func docutils literal notranslate"><span class="pre">acquaint.lookup.find_entity()</span></code></a>), so nothing here acts on a guess.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="acquaint.edit.OBSERVATION_KINDS">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">OBSERVATION_KINDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('observation',</span> <span class="pre">'interaction',</span> <span class="pre">'identity',</span> <span class="pre">'preference',</span> <span class="pre">'view',</span> <span class="pre">'rule')</span></span><a class="headerlink" href="#acquaint.edit.OBSERVATION_KINDS" title="Link to this definition"></a></dt>
+<dd><p>What <code class="docutils literal notranslate"><span class="pre">remember</span></code> can record. The last three need a source at write time.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.edit.append_observation">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">append_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'observation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/edit.html#append_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.edit.append_observation" title="Link to this definition"></a></dt>
+<dd><p>Append one dated, sourced entry to the entity’s <code class="docutils literal notranslate"><span class="pre">log/YYYY-MM.md</span></code> (and, for <code class="docutils literal notranslate"><span class="pre">identity</span></code>, to <code class="docutils literal notranslate"><span class="pre">identities.yaml</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.edit.forget_entity">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">forget_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">confirm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/edit.html#forget_entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.edit.forget_entity" title="Link to this definition"></a></dt>
+<dd><p>Remove an entity’s whole folder, hidden files included, after writing a salted tombstone.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">confirm</span></code> it only reports what it would remove, and which other records
+still mention the entity (it does not edit them: other people’s logs are append-only).
+The tombstone is written first, so a removal that fails half way still stops the
+entity being re-created, and running <code class="docutils literal notranslate"><span class="pre">forget</span></code> again finishes the job.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.edit.new_entity">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">new_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/edit.html#new_entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.edit.new_entity" title="Link to this definition"></a></dt>
+<dd><p>Scaffold <code class="docutils literal notranslate"><span class="pre">&lt;kind</span> <span class="pre">dir&gt;/&lt;slug&gt;/PROFILE.md</span></code> from the template for its kind, and seed <code class="docutils literal notranslate"><span class="pre">POLICY.md</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.edit.rename_entity">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">rename_entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/edit.html#rename_entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.edit.rename_entity" title="Link to this definition"></a></dt>
+<dd><p>Give an entity a new id (<code class="docutils literal notranslate"><span class="pre">to</span></code> is a slug) or a new name and id (<code class="docutils literal notranslate"><span class="pre">to</span></code> is a name); links elsewhere follow.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.edit.tombstone_problem">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">tombstone_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/acquaint/edit.html#tombstone_problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.edit.tombstone_problem" title="Link to this definition"></a></dt>
+<dd><p>Why <code class="docutils literal notranslate"><span class="pre">_tombstones.yaml</span></code> cannot be trusted, or <code class="docutils literal notranslate"><span class="pre">None</span></code>. A broken file must never read as “nobody was forgotten”.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.edit.tombstoned">
+<span class="sig-prename descclassname"><span class="pre">acquaint.edit.</span></span><span class="sig-name descname"><span class="pre">tombstoned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">identifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/acquaint/edit.html#tombstoned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.edit.tombstoned" title="Link to this definition"></a></dt>
+<dd><p>The tombstone matching any of these identifiers, if such an entity was forgotten. Raises if the tombstone file is broken.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="deslop.html" class="btn btn-neutral float-left" title="acquaint.deslop" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lint.html" class="btn btn-neutral float-right" title="acquaint.lint" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

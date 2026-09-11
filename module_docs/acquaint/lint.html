@@ -1,0 +1,166 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.lint &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="acquaint.lookup" href="lookup.html" />
+    <link rel="prev" title="acquaint.edit" href="edit.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brief.html">acquaint.brief</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edit.html">acquaint.edit</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">acquaint.lint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.lint.lint_store"><code class="docutils literal notranslate"><span class="pre">lint_store()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.lint.policy_hits"><code class="docutils literal notranslate"><span class="pre">policy_hits()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">acquaint.lint</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/acquaint/lint.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-acquaint.lint">
+<span id="acquaint-lint"></span><h1>acquaint.lint<a class="headerlink" href="#module-acquaint.lint" title="Link to this heading"></a></h1>
+<p>Checks that keep records honest: preferences carry sources, forbidden categories stay out, files parse, entry files stay small.</p>
+<p>Errors fail <code class="docutils literal notranslate"><span class="pre">acquaint</span> <span class="pre">lint</span></code>; warnings ask a person to look. The rules:</p>
+<ul class="simple">
+<li><p>every item under <code class="docutils literal notranslate"><span class="pre">Reach</span></code>, <code class="docutils literal notranslate"><span class="pre">Write</span> <span class="pre">to</span> <span class="pre">them</span></code>, <code class="docutils literal notranslate"><span class="pre">Read</span> <span class="pre">them</span></code>, <code class="docutils literal notranslate"><span class="pre">Don't</span></code>, <code class="docutils literal notranslate"><span class="pre">Norms</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Now</span></code> in an entry file, and every item in <code class="docutils literal notranslate"><span class="pre">style.md</span></code> and <code class="docutils literal notranslate"><span class="pre">views.md</span></code>, carries a
+<code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code> tag. An item is one bullet at any depth (a nested bullet needs its own
+source) with its wrapped lines, or a paragraph. A date alone, or a placeholder such as
+<code class="docutils literal notranslate"><span class="pre">unknown</span></code>, is not a source (<strong>error</strong>). Headings match however they are decorated
+(<code class="docutils literal notranslate"><span class="pre">Don’t:</span></code>, <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Reach</span> <span class="pre">##</span></code>, an indented <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Now</span></code>);</p></li>
+<li><p>a logged <code class="docutils literal notranslate"><span class="pre">preference</span></code>, <code class="docutils literal notranslate"><span class="pre">view</span></code> or <code class="docutils literal notranslate"><span class="pre">rule</span></code> has a source (<strong>error</strong>); a logged
+observation without one is a <strong>warning</strong>, and so is a repeated entry id;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rules.yaml</span></code> rules have <code class="docutils literal notranslate"><span class="pre">do</span></code>, channel names that are text, and a <code class="docutils literal notranslate"><span class="pre">source</span></code>;
+identities have a platform and a value; a writing card’s <code class="docutils literal notranslate"><span class="pre">ai_tolerance</span></code> is tolerant,
+neutral or averse (<strong>error</strong>);</p></li>
+<li><p>a file that does not parse, or is not valid UTF-8, an entry file the store cannot
+address (a capitalised or linked folder, <code class="docutils literal notranslate"><span class="pre">profile.md</span></code>), and a broken
+<code class="docutils literal notranslate"><span class="pre">_tombstones.yaml</span></code> are <strong>errors</strong>, reported and skipped, never a crash;</p></li>
+<li><p>POLICY.md tripwires, instruction-like text, expired <code class="docutils literal notranslate"><span class="pre">Now</span></code> items, a passed
+<code class="docutils literal notranslate"><span class="pre">review_due</span></code>, non-text aliases, links to unknown entities, an oversized entry file,
+and a data root that is or sits inside a code repository are <strong>warnings</strong>.</p></li>
+</ul>
+<p>Links are checked against an index of the store built once, so linting grows with the
+number of records, not with its square.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.lint.lint_store">
+<span class="sig-prename descclassname"><span class="pre">acquaint.lint.</span></span><span class="sig-name descname"><span class="pre">lint_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="store.html#acquaint.store.Store" title="acquaint.store.Store"><span class="pre">Store</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/lint.html#lint_store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.lint.lint_store" title="Link to this definition"></a></dt>
+<dd><p>Lint one entity (by store key) or the whole store: <code class="docutils literal notranslate"><span class="pre">{&quot;errors&quot;:</span> <span class="pre">[...],</span> <span class="pre">&quot;warnings&quot;:</span> <span class="pre">[...],</span> <span class="pre">&quot;checked&quot;:</span> <span class="pre">n}</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.lint.policy_hits">
+<span class="sig-prename descclassname"><span class="pre">acquaint.lint.</span></span><span class="sig-name descname"><span class="pre">policy_hits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/lint.html#policy_hits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.lint.policy_hits" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(category,</span> <span class="pre">message)</span></code> for each POLICY.md tripwire the text trips (keyword heuristics, not a verdict).</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edit.html" class="btn btn-neutral float-left" title="acquaint.edit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lookup.html" class="btn btn-neutral float-right" title="acquaint.lookup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

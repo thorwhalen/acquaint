@@ -1,0 +1,4 @@
+acquaint.__main__
+=================
+.. automodule:: acquaint.__main__
+   :members:

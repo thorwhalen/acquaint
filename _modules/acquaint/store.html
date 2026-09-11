@@ -1,0 +1,748 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.store &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/brief.html">acquaint.brief</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/edit.html">acquaint.edit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lint.html">acquaint.lint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acquaint.store</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acquaint.store</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Where records live and how code reaches them: the data root, :class:`Store` and :class:`Entity`.</span>
+
+<span class="sd">Layout under the data root (one folder per entity, one entry file each)::</span>
+
+<span class="sd">    POLICY.md                    what may be recorded</span>
+<span class="sd">    _tombstones.yaml             salted hashes of forgotten entities' identifiers</span>
+<span class="sd">    people/&lt;slug&gt;/PROFILE.md     the entry file (required)</span>
+<span class="sd">    people/&lt;slug&gt;/identities.yaml, rules.yaml, links.yaml, style.md, views.md,</span>
+<span class="sd">                  sources.md, log/YYYY-MM.md, research/…   (each optional)</span>
+<span class="sd">    projects/&lt;slug&gt;/PROFILE.md   (and orgs/, groups/, or any other kind)</span>
+
+<span class="sd">:class:`Store` is a ``MutableMapping[str, Entity]`` keyed ``"&lt;kind dir&gt;/&lt;slug&gt;"``, where</span>
+<span class="sd">both parts are lowercase letters, digits and hyphens; nothing else is a key, so no</span>
+<span class="sd">reference can reach outside the data root. Underneath it is any</span>
+<span class="sd">``MutableMapping[str, str]`` of relative paths to text: a ``dol`` files store by</span>
+<span class="sd">default, a ``dict`` in tests. That mapping is the storage seam.</span>
+
+<span class="sd">When the store is on disk, an entity is a real directory whose name matches its key</span>
+<span class="sd">exactly (case included, even on case-insensitive filesystems) and is not a link.</span>
+<span class="sd">Listing, moving and removing work on those directories, so hidden files move and go</span>
+<span class="sd">with their entity. A file that is not valid UTF-8 reads with replacement characters and</span>
+<span class="sd">is reported, instead of failing every lookup. Entry files the store cannot address (a</span>
+<span class="sd">capitalised folder, a linked folder, ``profile.md``) are listed by :meth:`Store.misnamed`.</span>
+
+<span class="sd">&gt;&gt;&gt; store = Store(files={})</span>
+<span class="sd">&gt;&gt;&gt; store["people/ada-lovelace"] = {"PROFILE.md": "---\\nname: Ada Lovelace\\n---\\n"}</span>
+<span class="sd">&gt;&gt;&gt; list(store), store["people/ada-lovelace"].name</span>
+<span class="sd">(['people/ada-lovelace'], 'Ada Lovelace')</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">MutableMapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">acquaint.records</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">normalize_newlines</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">split_frontmatter</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"DATA_DIR_ENVVAR"</span><span class="p">,</span>
+    <span class="s2">"ENTRY_FILE"</span><span class="p">,</span>
+    <span class="s2">"KIND_DIRS"</span><span class="p">,</span>
+    <span class="s2">"UNREADABLE"</span><span class="p">,</span>
+    <span class="s2">"AcquaintError"</span><span class="p">,</span>
+    <span class="s2">"Entity"</span><span class="p">,</span>
+    <span class="s2">"Store"</span><span class="p">,</span>
+    <span class="s2">"config_path"</span><span class="p">,</span>
+    <span class="s2">"data_dir"</span><span class="p">,</span>
+    <span class="s2">"kind_dir"</span><span class="p">,</span>
+    <span class="s2">"text_files"</span><span class="p">,</span>
+    <span class="s2">"validate_key"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">APP_NAME</span> <span class="o">=</span> <span class="s2">"acquaint"</span>
+<span class="n">DATA_DIR_ENVVAR</span> <span class="o">=</span> <span class="s2">"ACQUAINT_DATA_DIR"</span>
+<span class="n">ENTRY_FILE</span> <span class="o">=</span> <span class="s2">"PROFILE.md"</span>
+<span class="c1">#: The kinds that ship, singular -&gt; folder. The vocabulary is open: see :func:`kind_dir`.</span>
+<span class="n">KIND_DIRS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"person"</span><span class="p">:</span> <span class="s2">"people"</span><span class="p">,</span> <span class="s2">"project"</span><span class="p">:</span> <span class="s2">"projects"</span><span class="p">,</span> <span class="s2">"org"</span><span class="p">:</span> <span class="s2">"orgs"</span><span class="p">,</span> <span class="s2">"group"</span><span class="p">:</span> <span class="s2">"groups"</span><span class="p">}</span>
+<span class="n">_KIND_OF_DIR</span> <span class="o">=</span> <span class="p">{</span><span class="n">folder</span><span class="p">:</span> <span class="n">kind</span> <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">KIND_DIRS</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<span class="n">_SEGMENT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^[a-z0-9][a-z0-9-]*$"</span><span class="p">)</span>
+<span class="c1">#: What undecodable bytes read as. A file containing it is reported as not valid UTF-8.</span>
+<span class="n">UNREADABLE</span> <span class="o">=</span> <span class="s2">"�"</span>
+<span class="n">_YAML_LISTS</span> <span class="o">=</span> <span class="p">((</span><span class="s2">"identities.yaml"</span><span class="p">,</span> <span class="s2">"identities"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"rules.yaml"</span><span class="p">,</span> <span class="s2">"rules"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"links.yaml"</span><span class="p">,</span> <span class="s2">"links"</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="AcquaintError">
+<a class="viewcode-back" href="../../module_docs/acquaint/tools.html#acquaint.AcquaintError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AcquaintError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An expected failure with a message meant for the person or agent that asked."""</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------- paths</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_xdg_dir</span><span class="p">(</span><span class="n">envvar</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">posix_default</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">windows_envvar</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">"win32"</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">windows_envvar</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">windows_envvar</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">envvar</span><span class="p">)</span> <span class="ow">or</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="n">posix_default</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="config_path">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.config_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``~/.config/acquaint/config.toml`` (honouring ``XDG_CONFIG_HOME``; ``%APPDATA%`` on Windows)."""</span>
+    <span class="k">return</span> <span class="n">_xdg_dir</span><span class="p">(</span><span class="s2">"XDG_CONFIG_HOME"</span><span class="p">,</span> <span class="s2">".config"</span><span class="p">,</span> <span class="s2">"APPDATA"</span><span class="p">)</span> <span class="o">/</span> <span class="n">APP_NAME</span> <span class="o">/</span> <span class="s2">"config.toml"</span></div>
+
+
+
+<div class="viewcode-block" id="data_dir">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.data_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">data_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The data root: the argument, else ``$ACQUAINT_DATA_DIR``, else ``data_dir`` in config.toml, else ``~/.local/share/acquaint``.</span>
+
+<span class="sd">    An explicit argument may be relative (it is resolved now). The environment variable</span>
+<span class="sd">    and the config file must hold absolute paths: a relative one would put profiles</span>
+<span class="sd">    wherever the current directory happens to be.</span>
+
+<span class="sd">    &gt;&gt;&gt; data_dir("profiles").is_absolute()</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">data_dir</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_dir</span><span class="p">))))</span>
+    <span class="n">configured</span><span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DATA_DIR_ENVVAR</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"$</span><span class="si">{</span><span class="n">DATA_DIR_ENVVAR</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">configured</span><span class="p">:</span>
+        <span class="n">configured</span><span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="n">_configured_data_dir</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">"data_dir in </span><span class="si">{</span><span class="n">config_path</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="n">configured</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">configured</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">origin</span><span class="si">}</span><span class="s2"> must be an absolute path, got </span><span class="si">{</span><span class="n">configured</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">_xdg_dir</span><span class="p">(</span><span class="s2">"XDG_DATA_HOME"</span><span class="p">,</span> <span class="s2">".local/share"</span><span class="p">,</span> <span class="s2">"LOCALAPPDATA"</span><span class="p">)</span> <span class="o">/</span> <span class="n">APP_NAME</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_configured_data_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">config_path</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tomllib</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data_dir"</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">TOMLDecodeError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not valid TOML: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="n">_resolve_data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
+
+
+<div class="viewcode-block" id="kind_dir">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.kind_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kind_dir</span><span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The folder for a kind: ``person``/``people`` -&gt; ``people``; an unknown kind is used as given, pluralised.</span>
+
+<span class="sd">    &gt;&gt;&gt; [kind_dir(k) for k in ("person", "people", "org", "community", "teams")]</span>
+<span class="sd">    ['people', 'people', 'orgs', 'communities', 'teams']</span>
+<span class="sd">    """</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">KIND_DIRS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">KIND_DIRS</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">_KIND_OF_DIR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">kind</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_SEGMENT_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">kind</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"a kind is a plain lowercase word, got </span><span class="si">{</span><span class="n">kind</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kind</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"s"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">kind</span>
+    <span class="k">if</span> <span class="n">kind</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">kind</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="s2">"aeiou"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">ies"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">s"</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_key</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">_SEGMENT_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="validate_key">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.validate_key">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_key</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return ``key`` if it is ``&lt;kind dir&gt;/&lt;slug&gt;`` of lowercase letters, digits and hyphens; refuse anything else.</span>
+
+<span class="sd">    &gt;&gt;&gt; validate_key("people/ada-lovelace")</span>
+<span class="sd">    'people/ada-lovelace'</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     validate_key("../outside/people/someone")</span>
+<span class="sd">    ... except AcquaintError as error:</span>
+<span class="sd">    ...     print(error)</span>
+<span class="sd">    not a store key: '../outside/people/someone' (expected &lt;kind&gt;/&lt;id&gt;, e.g. people/ada-lovelace)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"not a store key: </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> (expected &lt;kind&gt;/&lt;id&gt;, e.g. people/ada-lovelace)"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">key</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------- files</span>
+
+
+<div class="viewcode-block" id="text_files">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.text_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">text_files</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MutableMapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A ``dol`` files store under ``root``, for text.</span>
+
+<span class="sd">    UTF-8 values (undecodable bytes read as U+FFFD instead of raising; a byte-order mark</span>
+<span class="sd">    dropped), ``\\n`` line endings, ``/``-separated keys on every platform, folders made on</span>
+<span class="sd">    write and never on read, and permanent deletes (never to a trash folder, where</span>
+<span class="sd">    "forgotten" data would linger).</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">dol</span><span class="w"> </span><span class="kn">import</span> <span class="n">Files</span><span class="p">,</span> <span class="n">mk_dirs_if_missing</span><span class="p">,</span> <span class="n">wrap_kvs</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">mk_dirs_if_missing</span><span class="p">(</span><span class="n">Files</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">root</span><span class="p">),</span> <span class="n">delete_func</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">wrap_kvs</span><span class="p">(</span>
+        <span class="n">files</span><span class="p">,</span>
+        <span class="n">key_of_id</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s2">"/"</span><span class="p">),</span>
+        <span class="n">id_of_key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span>
+        <span class="n">obj_of_data</span><span class="o">=</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)),</span>
+        <span class="n">data_of_obj</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_list</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+
+<span class="c1"># ------------------------------------------------------------------------ entity</span>
+
+
+<div class="viewcode-block" id="Entity">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Entity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Entity</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One person, project, org or group: a mapping of its files (relative names to text), plus parsed views of them.</span>
+
+<span class="sd">    Parsed views are recomputed on access (these are small text files), so an edit made</span>
+<span class="sd">    through the mapping is never hidden behind a stale cache. Parse problems are collected</span>
+<span class="sd">    in :attr:`errors`; they never raise.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind_dir</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Entity(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">!r}</span><span class="s2">)"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">_entity_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">files</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""``person``, ``project``, ``org``, ``group``, or the singular of an open kind's folder."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind_dir</span> <span class="ow">in</span> <span class="n">_KIND_OF_DIR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_KIND_OF_DIR</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">kind_dir</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind_dir</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"ies"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind_dir</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"y"</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind_dir</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"s"</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The link form other records use: ``person:ada-lovelace``."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="si">}</span><span class="s2">"</span>
+
+<div class="viewcode-block" id="Entity.text">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Entity.text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""A file's text, or ``default`` when the file does not exist."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">else</span> <span class="n">default</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">split_frontmatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">ENTRY_FILE</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The entry file's frontmatter (empty when it did not parse)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The entry file's Markdown body."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The entry file's ``## Sections``, keyed by normalized title."""</span>
+        <span class="k">return</span> <span class="n">sections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The display name, falling back to the id."""</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aka</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Other names this entity goes by, as strings (a scalar ``aka`` is one alias, not its letters)."""</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">_as_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"aka"</span><span class="p">))</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">""</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_yaml_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">filename</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">]</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span>
+        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">found</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">' should be a list"</span><span class="p">]</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)]</span>
+        <span class="n">bad</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">good</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s2"> entry(ies) are not mappings"</span><span class="p">]</span> <span class="k">if</span> <span class="n">bad</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">identities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Handles and addresses from ``identities.yaml``: ``{platform, value, source, status, …}``."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_list</span><span class="p">(</span><span class="s2">"identities.yaml"</span><span class="p">,</span> <span class="s2">"identities"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Channel and communication rules from ``rules.yaml``: ``{when, do, set_by, source}``."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_list</span><span class="p">(</span><span class="s2">"rules.yaml"</span><span class="p">,</span> <span class="s2">"rules"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">links</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Affiliations from ``links.yaml``: ``{to, relation, role, since, until, source}``."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_list</span><span class="p">(</span><span class="s2">"links.yaml"</span><span class="p">,</span> <span class="s2">"links"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Everything about the entry file and the YAML files that did not parse."""</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">ENTRY_FILE</span><span class="p">)</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ENTRY_FILE</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span><span class="p">()[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">UNREADABLE</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ENTRY_FILE</span><span class="si">}</span><span class="s2">: not valid UTF-8 (undecodable bytes shown as </span><span class="si">{</span><span class="n">UNREADABLE</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_YAML_LISTS</span><span class="p">:</span>
+            <span class="n">errors</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_list</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">key</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">errors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">surface_forms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Every string a document might use for this entity: id, name, aka, name parts, handles."""</span>
+        <span class="n">forms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">aka</span><span class="p">]</span>
+        <span class="n">forms</span> <span class="o">+=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">forms</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">identities</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"email"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">forms</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">()})</span>
+
+<div class="viewcode-block" id="Entity.summary">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Entity.summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The identity block: frontmatter plus identities, JSON-ready."""</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">slug</span><span class="p">,</span>
+            <span class="s2">"key"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+            <span class="s2">"kind"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"kind"</span><span class="p">}},</span>
+            <span class="s2">"identities"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identities</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">"errors"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="k">else</span> <span class="p">{}),</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------- store</span>
+
+
+<div class="viewcode-block" id="Store">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Store</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``MutableMapping[str, Entity]`` over one folder per entity, keyed ``"&lt;kind dir&gt;/&lt;slug&gt;"``.</span>
+
+<span class="sd">    &gt;&gt;&gt; store = Store(files={})</span>
+<span class="sd">    &gt;&gt;&gt; store["projects/example"] = {"PROFILE.md": "---\\nname: Example\\n---\\n"}</span>
+<span class="sd">    &gt;&gt;&gt; store.find("project:example"), store.find("example")</span>
+<span class="sd">    ('projects/example', 'projects/example')</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">MutableMapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_resolve_data_dir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">text_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">files</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Store(</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">)"</span>
+
+    <span class="c1"># -- disk ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The entity's folder on disk: exactly this name (case included), a real directory, not a link."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_is_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">kind</span><span class="p">,</span> <span class="n">slug</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
+        <span class="n">kind_path</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">kind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">kind</span> <span class="o">/</span> <span class="n">slug</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">or</span> <span class="n">kind_path</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span> <span class="ow">or</span> <span class="n">slug</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">kind_path</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">path</span>
+
+    <span class="c1"># -- mapping ---------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">return</span> <span class="nb">iter</span><span class="p">(())</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*/*/</span><span class="si">{</span><span class="n">ENTRY_FILE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="s2">"/"</span> <span class="o">+</span> <span class="n">ENTRY_FILE</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">_is_key</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_is_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dir</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ENTRY_FILE</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENTRY_FILE</span><span class="si">}</span><span class="s2">"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">validate_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Remove the entity's whole folder, hidden files included; never to a trash folder."""</span>
+        <span class="n">validate_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dir</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entity_files</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+
+    <span class="c1"># -- folders ---------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Store.exists">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.exists">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Whether anything is stored under the entity's folder, with or without an entry file."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_key</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dir</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">key</span> <span class="o">+</span> <span class="s2">"/"</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_entity_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dir</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">hidden</span><span class="p">:</span>
+                    <span class="n">dirnames</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirnames</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">)]</span>
+                    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenames</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">)]</span>
+                <span class="n">rel</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+                <span class="n">found</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">rel</span> <span class="o">/</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">]</span>
+            <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">"/"</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hidden</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">n</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Store.all_files">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.all_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Every file under the entity's folder, hidden ones included."""</span>
+        <span class="n">validate_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entity_files</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Store.move">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.move">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Move an entity's whole folder to a new key (hidden files included)."""</span>
+        <span class="n">validate_key</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">validate_key</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">dst</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> already exists"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">dst</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dir</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">dst</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entity_files</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Store.append_text">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.append_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Append to one of an entity's files (created if missing); a true append on disk, so concurrent writers do not erase each other."""</span>
+        <span class="n">validate_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dir</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="n">name</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span> <span class="o">+</span> <span class="n">text</span></div>
+
+
+<div class="viewcode-block" id="Store.misnamed">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.misnamed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">misnamed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Entry files on disk the store cannot address: a folder or file name not in lowercase ``kind/id/PROFILE.md`` form, or a linked folder."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">kind_path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">kind_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">or</span> <span class="n">kind_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">entity_path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kind_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="k">continue</span>
+                <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">entity_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">ENTRY_FILE</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entity_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">if</span> <span class="n">entries</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">_is_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ENTRY_FILE</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entries</span> <span class="ow">or</span> <span class="n">kind_path</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()</span> <span class="ow">or</span> <span class="n">entity_path</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()):</span>
+                    <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">found</span></div>
+
+
+<div class="viewcode-block" id="Store.path_of">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.path_of">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Where an entity lives, for a person to open: a real path when on disk, else the key."""</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">key</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="k">else</span> <span class="n">key</span></div>
+
+
+<div class="viewcode-block" id="Store.location_warning">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.location_warning">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">location_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""A warning when the data root is, or sits inside, a git repository that is not an acquaint store."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">))</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">".git"</span> <span class="o">/</span> <span class="s2">"config"</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">".git"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">"[acquaint]"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="k">else</span> <span class="s2">""</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">"the data root </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> is a git repository that `acquaint sync init` did not set up; keep profile data out of code repositories"</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">".git"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">"the data root </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> is inside the git repository at </span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">; keep profile data outside code repositories"</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+    <span class="c1"># -- references ------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Store.find_id">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.find_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slug</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Every key whose id is ``slug``, in any kind (ids are lowercase, so the lookup is too)."""</span>
+        <span class="n">slug</span> <span class="o">=</span> <span class="n">slug</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_SEGMENT_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">slug</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*/</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ENTRY_FILE</span><span class="si">}</span><span class="s2">"</span><span class="p">)}</span>
+            <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">slug</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Store.find">
+<a class="viewcode-back" href="../../module_docs/acquaint/store.html#acquaint.Store.find">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The store key for ``people/ada-lovelace``, ``person:ada-lovelace`` or a bare ``ada-lovelace``.</span>
+
+<span class="sd">        A bare id that names entities of two kinds is an error: say which, e.g.</span>
+<span class="sd">        ``project:atlas``. Anything that is not a valid key raises ``KeyError``, so no</span>
+<span class="sd">        reference reaches outside the data root.</span>
+<span class="sd">        """</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">ref</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">ref</span>
+        <span class="k">elif</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="n">ref</span><span class="p">:</span>
+            <span class="n">kind</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">slug</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind_dir</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">except</span> <span class="n">AcquaintError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_id</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AcquaintError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ref</span><span class="si">!r}</span><span class="s2"> names more than one entity: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2">; say which, e.g. "</span>
+                    <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">Entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">candidates</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">'"</span>
+                <span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">candidates</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">key</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.deslop &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="acquaint.edit" href="edit.html" />
+    <link rel="prev" title="acquaint.brief" href="brief.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brief.html">acquaint.brief</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">acquaint.deslop</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.deslop.lint_text"><code class="docutils literal notranslate"><span class="pre">lint_text()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.deslop.normalize_tolerance"><code class="docutils literal notranslate"><span class="pre">normalize_tolerance()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.deslop.recipient_card"><code class="docutils literal notranslate"><span class="pre">recipient_card()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquaint.deslop.text_metrics"><code class="docutils literal notranslate"><span class="pre">text_metrics()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="edit.html">acquaint.edit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lint.html">acquaint.lint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">acquaint.deslop</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/acquaint/deslop.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-acquaint.deslop">
+<span id="acquaint-deslop"></span><h1>acquaint.deslop<a class="headerlink" href="#module-acquaint.deslop" title="Link to this heading"></a></h1>
+<p>The deterministic half of deslop: find the patterns that make prose read as machine-written, scaled to the reader.</p>
+<p>How strict the check is depends on the recipient’s tolerance of AI-sounding text,
+recorded as <code class="docutils literal notranslate"><span class="pre">ai_tolerance</span></code> in their <code class="docutils literal notranslate"><span class="pre">style.md</span></code> (<code class="docutils literal notranslate"><span class="pre">tolerant</span></code>, <code class="docutils literal notranslate"><span class="pre">neutral</span></code>,
+<code class="docutils literal notranslate"><span class="pre">averse</span></code>; anything else counts as unknown, which is neutral):</p>
+<ul class="simple">
+<li><p><strong>tolerant</strong> enforces tier E only, with looser counts;</p></li>
+<li><p><strong>neutral</strong> enforces E and W;</p></li>
+<li><p><strong>averse</strong> enforces E, W and S, with the tightest counts.</p></li>
+</ul>
+<p>Findings outside the enforced tiers are still reported, marked <code class="docutils literal notranslate"><span class="pre">enforced:</span> <span class="pre">False</span></code>.
+The catalogue is data (<code class="docutils literal notranslate"><span class="pre">acquaint/data/deslop/tells.yaml</span></code>) and a keyword argument,
+so a list derived from the operator’s own writing can replace it without code changes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">lint_text</span><span class="p">(</span><span class="s2">"Great question! This robust tool serves as a bridge."</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="s2">"neutral"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">({</span><span class="n">f</span><span class="p">[</span><span class="s2">"rule"</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">"findings"</span><span class="p">]</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">"enforced"</span><span class="p">]})</span>
+<span class="go">['ai-vocabulary', 'chat-leftover', 'copula-avoidance']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lint_text</span><span class="p">(</span><span class="s2">"Sending the export on Friday. Two sites, not five."</span><span class="p">)[</span><span class="s2">"ok"</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.deslop.lint_text">
+<span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">lint_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'neutral'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocklist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catalog</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/deslop.html#lint_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.lint_text" title="Link to this definition"></a></dt>
+<dd><p>Check a draft against the tells catalogue at a reader’s tolerance: <code class="docutils literal notranslate"><span class="pre">{&quot;ok&quot;,</span> <span class="pre">&quot;findings&quot;,</span> <span class="pre">&quot;metrics&quot;,</span> <span class="pre">&quot;relational&quot;}</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">blocklist</span></code> holds phrases this recipient’s card says never to use; each hit is
+tier E. <code class="docutils literal notranslate"><span class="pre">catalog</span></code> replaces the shipped catalogue (same schema as <code class="docutils literal notranslate"><span class="pre">tells.yaml</span></code>).
+An unrecognised <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> is an error here; normalise recorded values first
+with <a class="reference internal" href="#acquaint.deslop.normalize_tolerance" title="acquaint.deslop.normalize_tolerance"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize_tolerance()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.deslop.normalize_tolerance">
+<span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">normalize_tolerance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/deslop.html#normalize_tolerance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.normalize_tolerance" title="Link to this definition"></a></dt>
+<dd><p>A recorded <code class="docutils literal notranslate"><span class="pre">ai_tolerance</span></code> as one of <code class="xref py py-data docutils literal notranslate"><span class="pre">TOLERANCES</span></code>, with a warning when it was something else.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_tolerance</span><span class="p">(</span><span class="s2">"Averse"</span><span class="p">),</span> <span class="n">normalize_tolerance</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">(('averse', None), ('unknown', None))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_tolerance</span><span class="p">(</span><span class="s2">"low"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">'unknown'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.deslop.recipient_card">
+<span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">recipient_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/deslop.html#recipient_card"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.recipient_card" title="Link to this definition"></a></dt>
+<dd><p>What the check needs from a recipient’s writing card (<code class="docutils literal notranslate"><span class="pre">style.md</span></code>): tolerance, disclosure, blocklist, warnings.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ai_tolerance</span></code> and <code class="docutils literal notranslate"><span class="pre">disclosure</span></code> come from the card’s frontmatter. Blocklist
+phrases are the items of its <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Blocklist</span></code> section: the quoted phrase when an item
+quotes one, else the item without its source tag.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.deslop.text_metrics">
+<span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">text_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/acquaint/deslop.html#text_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.text_metrics" title="Link to this definition"></a></dt>
+<dd><p>Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text_metrics</span><span class="p">(</span><span class="s2">"One two three. Four five!"</span><span class="p">)[</span><span class="s2">"sentences"</span><span class="p">]</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="brief.html" class="btn btn-neutral float-left" title="acquaint.brief" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="edit.html" class="btn btn-neutral float-right" title="acquaint.edit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

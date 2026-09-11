@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.records &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/brief.html">acquaint.brief</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/edit.html">acquaint.edit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lint.html">acquaint.lint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acquaint.records</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acquaint.records</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The text formats acquaint stores, as pure functions: frontmatter, sections, items, source tags, slugs, log entries.</span>
+
+<span class="sd">Nothing here touches a filesystem. A record is text in and data out, so the same</span>
+<span class="sd">rules hold whether the text came from disk, a ``dict`` or a remote store. Every parser</span>
+<span class="sd">accepts ``\\r\\n`` line endings and a leading byte-order mark, because a store edited on</span>
+<span class="sd">Windows will have them.</span>
+
+<span class="sd">The formats are deliberately hand-editable Markdown: YAML frontmatter for what a</span>
+<span class="sd">machine looks up, ``## Sections`` of items for what a person writes, and an inline</span>
+<span class="sd">``[source: …]`` tag on every item that states a preference, a view or a rule. Sections,</span>
+<span class="sd">items and code blocks follow CommonMark's rules closely enough that what a reader sees</span>
+<span class="sd">as one line under a heading is what the lint checks.</span>
+
+<span class="sd">&gt;&gt;&gt; slugify("Ada Lovelace")</span>
+<span class="sd">'ada-lovelace'</span>
+<span class="sd">&gt;&gt;&gt; meta, body, errors = split_frontmatter("\\ufeff---\\r\\nname: Ada\\r\\n---\\r\\n## Who\\r\\n- a mathematician\\r\\n")</span>
+<span class="sd">&gt;&gt;&gt; meta, list(sections(body)), errors</span>
+<span class="sd">({'name': 'Ada'}, ['Who'], [])</span>
+<span class="sd">&gt;&gt;&gt; source_problem("- Prefers email. [source: https://example.org/thread/1]") is None</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; source_problem("- Prefers email. [source: 11th September 2026]")</span>
+<span class="sd">'a date alone is not a source'</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unicodedata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"NONE_LOCATED"</span><span class="p">,</span>
+    <span class="s2">"blank_frontmatter"</span><span class="p">,</span>
+    <span class="s2">"dump_yaml"</span><span class="p">,</span>
+    <span class="s2">"format_log_entry"</span><span class="p">,</span>
+    <span class="s2">"item_blocks"</span><span class="p">,</span>
+    <span class="s2">"items"</span><span class="p">,</span>
+    <span class="s2">"join_frontmatter"</span><span class="p">,</span>
+    <span class="s2">"load_yaml"</span><span class="p">,</span>
+    <span class="s2">"next_log_id"</span><span class="p">,</span>
+    <span class="s2">"normalize_newlines"</span><span class="p">,</span>
+    <span class="s2">"normalize_title"</span><span class="p">,</span>
+    <span class="s2">"parse_log"</span><span class="p">,</span>
+    <span class="s2">"sectioned_items"</span><span class="p">,</span>
+    <span class="s2">"sections"</span><span class="p">,</span>
+    <span class="s2">"slugify"</span><span class="p">,</span>
+    <span class="s2">"source_kind"</span><span class="p">,</span>
+    <span class="s2">"source_problem"</span><span class="p">,</span>
+    <span class="s2">"source_refs"</span><span class="p">,</span>
+    <span class="s2">"split_frontmatter"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_FRONTMATTER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\A---[ \t]*\n(?P&lt;yaml&gt;.*?)\n---[ \t]*(?:\n|\Z)(?P&lt;body&gt;.*)\Z"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+<span class="n">_HEADING_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^ {0,3}(?P&lt;hashes&gt;#{1,6})[ \t]+(?P&lt;title&gt;.*?)[ \t]*$"</span><span class="p">)</span>
+<span class="n">_BULLET_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^(?P&lt;indent&gt;[ \t]*)(?:[-*+]|\d{1,3}[.)])[ \t]+(?P&lt;text&gt;\S.*)$"</span><span class="p">)</span>
+<span class="n">_THEMATIC_BREAK_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$"</span><span class="p">)</span>
+<span class="n">_FENCE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^ {0,3}(?P&lt;fence&gt;`{3,}|~{3,})(?P&lt;info&gt;.*)$"</span><span class="p">)</span>
+<span class="n">_COMMENT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"&lt;!--.*?--&gt;"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+<span class="n">_SOURCE_TAG_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\[source:\s*(?P&lt;ref&gt;[^\]]*)\]"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="c1">#: Quoted words, with at least one word character inside: straight or curly double quotes,</span>
+<span class="c1">#: curly single quotes, or straight single quotes that open after a non-word character (so</span>
+<span class="c1">#: the apostrophes in "it's what they're like" are not quotes, and 'don't email me' is one).</span>
+<span class="n">_QUOTE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"</span><span class="se">\"</span><span class="s2">[^</span><span class="se">\"</span><span class="s2">\n]*\w[^</span><span class="se">\"</span><span class="s2">\n]*</span><span class="se">\"</span><span class="s2">|“[^”\n]*\w[^”\n]*”|‘[^’\n]*\w[^’\n]*’|(?&lt;!\w)'[^\n]*\w[^\n]*'(?!\w)"</span><span class="p">)</span>
+<span class="n">_MONTH</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"</span>
+<span class="n">_WEEKDAY</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(?:mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)"</span>
+<span class="n">_TIMESTAMP_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">(?:[t ]\d{1,2}:\d</span><span class="si">{2}</span><span class="s2">(?::\d</span><span class="si">{2}</span><span class="s2">(?:\.\d+)?)?)?(?:z|[+-]\d</span><span class="si">{2}</span><span class="s2">:?\d</span><span class="si">{2}</span><span class="s2">)?"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="c1">#: Everything a date, a time or "observed last Tuesday" can be made of; a reference made only of these is date-only.</span>
+<span class="n">_DATE_NOISE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">rf</span><span class="s2">"\b(?:</span><span class="si">{</span><span class="n">_MONTH</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">_WEEKDAY</span><span class="si">}</span><span class="s2">|observed|seen|noted|on|in|at|around|circa|ca|about|of|the|am|pm|utc|gmt|q[1-4]"</span>
+    <span class="sa">r</span><span class="s2">"|last|next|this|past|yesterday|today|tomorrow|ago|recently|earlier|day|days|week|weeks|month|months"</span>
+    <span class="sa">r</span><span class="s2">"|year|years|morning|afternoon|evening|night)\b|(?&lt;=\d)(?:st|nd|rd|th)\b|[\d\s\-/.:,+]"</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1">#: References that say "I have no source" without saying that you looked.</span>
+<span class="n">_PLACEHOLDER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"^(?:unknown|unsure|not sure|todo|to do|tbd|tbc|n/?a|none|no source|source needed|citation needed|inferred|"</span>
+    <span class="sa">r</span><span class="s2">"inference|guess(?:ed)?|assum(?:ed|ption)|various|misc|see above|xxx|\?+|-+)(?:\b|$)"</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_LOG_HEADING_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"^##[ \t]+(?P&lt;id&gt;e\d+)[ \t]*[·|–—-][ \t]*(?P&lt;date&gt;\S+)[ \t]*[·|–—-][ \t]*(?P&lt;kind&gt;\S+)[ \t]*$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span>
+<span class="p">)</span>
+<span class="n">_LOG_ID_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^##[ \t]+e(\d+)\b"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+<span class="n">_LOG_FIELD_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^-[ \t]+(?P&lt;key&gt;[a-z_]+):[ \t]*(?P&lt;value&gt;.*)$"</span><span class="p">)</span>
+<span class="n">_NEEDS_ESCAPE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[-*+#&gt;</span><span class="se">\\</span><span class="s2">]|\d{1,3}[.)]\s"</span><span class="p">)</span>
+
+<span class="c1">#: The words that say "no primary source was found", out loud.</span>
+<span class="n">NONE_LOCATED</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"none located"</span><span class="p">,</span> <span class="s2">"no primary source located"</span><span class="p">,</span> <span class="s2">"no source located"</span><span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- basics</span>
+
+
+<div class="viewcode-block" id="normalize_newlines">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.normalize_newlines">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``\\r\\n`` and lone ``\\r`` as ``\\n``, without a leading byte-order mark.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalize_newlines("\\ufeffa\\r\\nb\\rc")</span>
+<span class="sd">    'a\\nb\\nc'</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\r\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\r</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"﻿"</span><span class="p">)</span> <span class="k">else</span> <span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_title">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.normalize_title">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_title</span><span class="p">(</span><span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A heading as written, minus decoration: closing ``#``s, a trailing colon, typographic apostrophes, extra space.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalize_title("  Don’t:  ## ")</span>
+<span class="sd">    "Don't"</span>
+<span class="sd">    """</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"’"</span><span class="p">,</span> <span class="s2">"'"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"‘"</span><span class="p">,</span> <span class="s2">"'"</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[ \t]+#+[ \t]*$|^#+[ \t]*$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="slugify">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.slugify">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">slugify</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">qualifier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A readable, ASCII-folded, lowercase id: ``given-family``, plus ``--qualifier`` on a collision.</span>
+
+<span class="sd">    &gt;&gt;&gt; slugify("Zoë Ångström")</span>
+<span class="sd">    'zoe-angstrom'</span>
+<span class="sd">    &gt;&gt;&gt; slugify("John Smith", qualifier="Example Org")</span>
+<span class="sd">    'john-smith--example-org'</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fold</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">ascii_text</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">"NFKD"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">,</span> <span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-z0-9]+"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">ascii_text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
+
+    <span class="n">slug</span> <span class="o">=</span> <span class="n">fold</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">slug</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cannot make an id from </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">: no letters or digits"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">qualifier</span><span class="p">:</span>
+        <span class="n">qualified</span> <span class="o">=</span> <span class="n">fold</span><span class="p">(</span><span class="n">qualifier</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">qualified</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cannot use </span><span class="si">{</span><span class="n">qualifier</span><span class="si">!r}</span><span class="s2"> as a qualifier: no letters or digits"</span><span class="p">)</span>
+        <span class="n">slug</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">--</span><span class="si">{</span><span class="n">qualified</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">slug</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------- YAML</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Loader</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A safe loader that keeps dates as the strings a person typed (so results stay JSON-ready)."""</span>
+
+
+<span class="n">_Loader</span><span class="o">.</span><span class="n">yaml_implicit_resolvers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">first</span><span class="p">:</span> <span class="p">[(</span><span class="n">tag</span><span class="p">,</span> <span class="n">regexp</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">regexp</span> <span class="ow">in</span> <span class="n">resolvers</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">":timestamp"</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">first</span><span class="p">,</span> <span class="n">resolvers</span> <span class="ow">in</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="o">.</span><span class="n">yaml_implicit_resolvers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plain</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Only what JSON can carry: sets become sorted lists, bytes become text, anything else a string."""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">_plain</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_plain</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">set</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">_plain</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_yaml">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.load_yaml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_yaml</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Parse YAML into JSON-ready data, returning ``(data, errors)`` instead of raising: these files are hand-edited.</span>
+
+<span class="sd">    &gt;&gt;&gt; load_yaml("a: [1, 2]\\nb: !!set {x: null}")</span>
+<span class="sd">    ({'a': [1, 2], 'b': ['x']}, [])</span>
+<span class="sd">    &gt;&gt;&gt; data, errors = load_yaml("a: [1, 2")</span>
+<span class="sd">    &gt;&gt;&gt; data, bool(errors)</span>
+<span class="sd">    (None, True)</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_plain</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">Loader</span><span class="o">=</span><span class="n">_Loader</span><span class="p">)),</span> <span class="p">[]</span>
+    <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"YAML did not parse: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Dumper</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">SafeDumper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Block style for mappings; lists of plain scalars inline, as a person would type them."""</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_represent_list</span><span class="p">(</span><span class="n">dumper</span><span class="p">:</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeDumper</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">yaml</span><span class="o">.</span><span class="n">Node</span><span class="p">:</span>
+    <span class="n">scalars</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_sequence</span><span class="p">(</span><span class="s2">"tag:yaml.org,2002:seq"</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">flow_style</span><span class="o">=</span><span class="n">scalars</span><span class="p">)</span>
+
+
+<span class="n">_Dumper</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">_represent_list</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="dump_yaml">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.dump_yaml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dump_yaml</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write YAML the way a person would: keys in order, short lists inline, unicode kept.</span>
+
+<span class="sd">    &gt;&gt;&gt; print(dump_yaml({"name": "Ada", "aka": ["Ada", "Lovelace"], "links": [{"to": "org:x"}]}), end="")</span>
+<span class="sd">    name: Ada</span>
+<span class="sd">    aka: [Ada, Lovelace]</span>
+<span class="sd">    links:</span>
+<span class="sd">    - to: org:x</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">_Dumper</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------- frontmatter</span>
+
+
+<div class="viewcode-block" id="split_frontmatter">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.split_frontmatter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Split ``---`` YAML frontmatter from a Markdown body: ``(meta, body, errors)``.</span>
+
+<span class="sd">    A malformed header degrades to empty metadata plus an error, never an exception,</span>
+<span class="sd">    so one bad hand edit cannot take down lookups of every other record.</span>
+
+<span class="sd">    &gt;&gt;&gt; split_frontmatter("no frontmatter here")</span>
+<span class="sd">    ({}, 'no frontmatter here', ['no --- frontmatter block at the top of the file'])</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_FRONTMATTER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">text</span><span class="p">,</span> <span class="p">[</span><span class="s2">"no --- frontmatter block at the top of the file"</span><span class="p">]</span>
+    <span class="n">meta</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"yaml"</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"body"</span><span class="p">),</span> <span class="n">errors</span>
+    <span class="k">if</span> <span class="n">meta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"body"</span><span class="p">),</span> <span class="p">[</span><span class="s2">"frontmatter is not a mapping of keys to values"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"body"</span><span class="p">),</span> <span class="p">[]</span></div>
+
+
+
+<div class="viewcode-block" id="join_frontmatter">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.join_frontmatter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">join_frontmatter</span><span class="p">(</span><span class="n">meta</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The inverse of :func:`split_frontmatter`.</span>
+
+<span class="sd">    &gt;&gt;&gt; join_frontmatter({"name": "Ada"}, "## Who\\n")</span>
+<span class="sd">    '---\\nname: Ada\\n---\\n\\n## Who\\n'</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"---</span><span class="se">\n</span><span class="si">{</span><span class="n">dump_yaml</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span><span class="si">}</span><span class="s2">---</span><span class="se">\n\n</span><span class="si">{</span><span class="n">body</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="blank_frontmatter">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.blank_frontmatter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">blank_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The text with its frontmatter lines emptied, so line numbers still match the file.</span>
+
+<span class="sd">    &gt;&gt;&gt; blank_frontmatter("---\\nname: Ada\\n---\\nbody\\n")</span>
+<span class="sd">    '\\n\\n\\nbody\\n'</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_FRONTMATTER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="n">text</span><span class="p">[:</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s2">"body"</span><span class="p">)]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="o">+</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"body"</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------- sections and items</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``(number, line, in_code)`` for every line, with HTML comments blanked.</span>
+
+<span class="sd">    A fence opens with three or more backticks or tildes and closes only with a line of</span>
+<span class="sd">    the same character, at least as long, and nothing else on it.</span>
+<span class="sd">    """</span>
+    <span class="n">visible</span> <span class="o">=</span> <span class="n">_COMMENT_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="n">fence</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">visible</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">_FENCE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"`"</span> <span class="ow">and</span> <span class="s2">"`"</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)):</span>
+                <span class="n">fence</span> <span class="o">=</span> <span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)))</span>
+                <span class="k">yield</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="k">continue</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)</span> <span class="k">if</span> <span class="n">found</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="k">if</span> <span class="n">marker</span> <span class="ow">and</span> <span class="n">marker</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">fence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">fence</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">fence</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">yield</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="sections">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.sections">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sections</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""``## Title`` blocks of a Markdown body, in order, as ``{normalized title: text}``.</span>
+
+<span class="sd">    A ``#`` heading ends the current section; deeper headings stay inside it; headings</span>
+<span class="sd">    inside fenced code and HTML comments are not headings (and comments are left out).</span>
+
+<span class="sd">    &gt;&gt;&gt; sections("intro\\n## Who\\nAda\\n### Detail\\nmore\\n# Aside\\nnot in Who\\n## Now:\\n- busy\\n")</span>
+<span class="sd">    {'Who': 'Ada\\n### Detail\\nmore\\n', 'Now': '- busy\\n'}</span>
+<span class="sd">    """</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">in_code</span> <span class="ow">in</span> <span class="n">_lines</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+        <span class="n">heading</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">in_code</span> <span class="k">else</span> <span class="n">_HEADING_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">heading</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"hashes"</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">normalize_title</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"title"</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"hashes"</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">elif</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="s2">""</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<div class="viewcode-block" id="item_blocks">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.item_blocks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">item_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``(section, first_line, last_line, item)`` for every item of a Markdown document.</span>
+
+<span class="sd">    An item is one bullet (``-``, ``*``, ``+``, ``1.``) at any depth, together with the</span>
+<span class="sd">    wrapped lines under it, or a paragraph. A nested bullet is an item of its own, so it</span>
+<span class="sd">    needs its own source. Blank lines, headings, thematic breaks, HTML comments and fenced</span>
+<span class="sd">    code are not items. ``section`` is the enclosing ``##`` title (normalized), ``None``</span>
+<span class="sd">    before the first one or after a ``#`` heading. Blank the frontmatter first</span>
+<span class="sd">    (:func:`blank_frontmatter`) if the text has one.</span>
+<span class="sd">    """</span>
+    <span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">section</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">nonlocal</span> <span class="n">current</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">current</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="mi">3</span><span class="p">])))</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">in_code</span> <span class="ow">in</span> <span class="n">_lines</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">in_code</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">_THEMATIC_BREAK_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">close</span><span class="p">()</span>
+            <span class="k">continue</span>
+        <span class="n">heading</span> <span class="o">=</span> <span class="n">_HEADING_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">heading</span><span class="p">:</span>
+            <span class="n">close</span><span class="p">()</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"hashes"</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="n">normalize_title</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"title"</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+        <span class="n">bullet</span> <span class="o">=</span> <span class="n">_BULLET_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bullet</span><span class="p">:</span>
+            <span class="n">close</span><span class="p">()</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="p">[</span><span class="n">section</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="p">[</span><span class="n">bullet</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"text"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()]]</span>
+        <span class="k">elif</span> <span class="n">current</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">current</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">number</span>
+            <span class="n">current</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="p">[</span><span class="n">section</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]]</span>
+    <span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">found</span></div>
+
+
+
+<div class="viewcode-block" id="sectioned_items">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.sectioned_items">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sectioned_items</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``(section, line, item)`` for every item: see :func:`item_blocks`.</span>
+
+<span class="sd">    &gt;&gt;&gt; sectioned_items(blank_frontmatter("---\\nname: Ada\\n---\\n# Ada\\n## Write to them:\\n- Short. [source: operator]\\n### Detail\\n- More.\\n"))</span>
+<span class="sd">    [('Write to them', 6, 'Short. [source: operator]'), ('Write to them', 8, 'More.')]</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">section</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">item_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="items">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.items">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">items</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``(line, item)`` for every item: each bullet with its wrapped lines, or a paragraph.</span>
+
+<span class="sd">    &gt;&gt;&gt; doc = "- one\\n  continued\\n  - nested\\n\\nA paragraph\\nwrapped.\\n```\\n- code, not an item\\n```\\n+ two\\n3. three\\n"</span>
+<span class="sd">    &gt;&gt;&gt; items(doc)</span>
+<span class="sd">    [(1, 'one continued'), (3, 'nested'), (5, 'A paragraph wrapped.'), (10, 'two'), (11, 'three')]</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">first</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">item_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">)]</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------- source tags</span>
+
+
+<div class="viewcode-block" id="source_refs">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.source_refs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">source_refs</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Every ``[source: …]`` reference in a piece of text, stripped.</span>
+
+<span class="sd">    &gt;&gt;&gt; source_refs("- Short replies. [source: log/2026-09.md#e03] [source: operator]")</span>
+<span class="sd">    ['log/2026-09.md#e03', 'operator']</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"ref"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">_SOURCE_TAG_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">line</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="source_kind">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.source_kind">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">source_kind</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Classify one source reference.</span>
+
+<span class="sd">    One of ``url``, ``file``, ``self``, ``operator``, ``none-located``, ``other``</span>
+<span class="sd">    (free text: accepted, not checkable), or a defect: ``self-unquoted``,</span>
+<span class="sd">    ``placeholder``, ``date-only``, ``empty``.</span>
+
+<span class="sd">    &gt;&gt;&gt; [source_kind(r) for r in ["https://example.org/x", "log/2026-09.md#e01", "self: 'don't email me'",</span>
+<span class="sd">    ...     "self, it's what they're like", 'self: " "', "operator", "none located", "2026-09-01T10:00Z",</span>
+<span class="sd">    ...     "last Tuesday", "todo: find link", "", "email to Ada on 2026-09-01"]]</span>
+<span class="sd">    ['url', 'file', 'self', 'self-unquoted', 'self-unquoted', 'operator', 'none-located', 'date-only', 'date-only', 'placeholder', 'empty', 'other']</span>
+<span class="sd">    """</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">lowered</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ref</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"empty"</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"https?://\S+"</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"url"</span>
+    <span class="k">if</span> <span class="n">lowered</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">NONE_LOCATED</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"none-located"</span>
+    <span class="k">if</span> <span class="n">_PLACEHOLDER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">lowered</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"placeholder"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_DATE_NOISE_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">_TIMESTAMP_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">ref</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">"date-only"</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"self\b"</span><span class="p">,</span> <span class="n">lowered</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"self"</span> <span class="k">if</span> <span class="n">_QUOTE_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"self-unquoted"</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"operator\b"</span><span class="p">,</span> <span class="n">lowered</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"operator"</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[\w./-]+\.(md|yaml|yml|txt)(#\S+)?$"</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"file"</span>
+    <span class="k">return</span> <span class="s2">"other"</span></div>
+
+
+
+<span class="n">_VALID_SOURCES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"url"</span><span class="p">,</span> <span class="s2">"file"</span><span class="p">,</span> <span class="s2">"self"</span><span class="p">,</span> <span class="s2">"operator"</span><span class="p">,</span> <span class="s2">"none-located"</span><span class="p">,</span> <span class="s2">"other"</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="source_problem">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.source_problem">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">source_problem</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Why a preference-bearing item is not sourced, or ``None`` when it is.</span>
+
+<span class="sd">    A source is a permalink, a file anchor (``log/2026-09.md#e03``), the person's own</span>
+<span class="sd">    words (``self: "…"``), the operator's statement (``operator``), or an explicit</span>
+<span class="sd">    ``none located``. A date alone is not a source, and neither is a placeholder.</span>
+
+<span class="sd">    &gt;&gt;&gt; source_problem("- Prefers calls.")</span>
+<span class="sd">    'no [source: …] tag'</span>
+<span class="sd">    &gt;&gt;&gt; source_problem('- Prefers calls. [source: self: "call me, never email"]') is None</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; source_problem("- Prefers calls. [source: self, 2026-09-01]")</span>
+<span class="sd">    'self-stated sources need the quoted words: [source: self: "…"]'</span>
+<span class="sd">    &gt;&gt;&gt; source_problem("- Prefers calls. [source: TODO]")</span>
+<span class="sd">    "'TODO' is a placeholder, not a source: write none located if you looked and found nothing; an inference goes under Hypotheses with its evidence"</span>
+<span class="sd">    """</span>
+    <span class="n">refs</span> <span class="o">=</span> <span class="n">source_refs</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">refs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"no [source: …] tag"</span>
+    <span class="n">kinds</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_kind</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kind</span> <span class="ow">in</span> <span class="n">_VALID_SOURCES</span> <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">"placeholder"</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">refs</span><span class="p">[</span><span class="n">kinds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">)]</span><span class="si">!r}</span><span class="s2"> is a placeholder, not a source: write none located "</span>
+            <span class="s2">"if you looked and found nothing; an inference goes under Hypotheses with its evidence"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"self-unquoted"</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">'self-stated sources need the quoted words: [source: self: "…"]'</span>
+    <span class="k">if</span> <span class="s2">"date-only"</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"a date alone is not a source"</span>
+    <span class="k">return</span> <span class="s2">"empty [source: ] tag"</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------ log</span>
+
+
+<div class="viewcode-block" id="parse_log">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.parse_log">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_log</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Entries of an append-only ``log/YYYY-MM.md`` file, oldest first.</span>
+
+<span class="sd">    Headings may use ``·``, ``-`` or ``|`` between their parts; an escaped prose line</span>
+<span class="sd">    (a leading backslash, see :func:`format_log_entry`) is unescaped.</span>
+
+<span class="sd">    &gt;&gt;&gt; entry = format_log_entry("e01", "2026-09-11", "observation", "- kind: rule, they said",</span>
+<span class="sd">    ...                          source="https://example.org/thread/1")</span>
+<span class="sd">    &gt;&gt;&gt; parse_log(entry)</span>
+<span class="sd">    [{'id': 'e01', 'date': '2026-09-11', 'kind': 'observation', 'text': '- kind: rule, they said', 'source': 'https://example.org/thread/1'}]</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_LOG_HEADING_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">match</span><span class="p">,</span> <span class="n">following</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">found</span><span class="p">,</span> <span class="n">found</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]):</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">following</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">if</span> <span class="n">following</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"date"</span><span class="p">,</span> <span class="s2">"kind"</span><span class="p">)}</span>
+        <span class="n">prose</span><span class="p">,</span> <span class="n">fields</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()</span> <span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">):</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">_LOG_FIELD_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field</span><span class="p">:</span>
+                <span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"key"</span><span class="p">)]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"value"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">prose</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">)</span> <span class="k">else</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+        <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">**</span><span class="n">entry</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span> <span class="o">**</span><span class="n">fields</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">entries</span></div>
+
+
+
+<div class="viewcode-block" id="next_log_id">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.next_log_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">next_log_id</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The next free entry id in a log, counting every ``## eNN`` heading however it is written.</span>
+
+<span class="sd">    &gt;&gt;&gt; next_log_id("## e01 · 2026-09-01 · observation\\nx\\n## e07 - 2026-09-02 - note\\ny\\n")</span>
+<span class="sd">    'e08'</span>
+<span class="sd">    &gt;&gt;&gt; next_log_id("")</span>
+<span class="sd">    'e01'</span>
+<span class="sd">    """</span>
+    <span class="n">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">_LOG_ID_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"e</span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="format_log_entry">
+<a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.format_log_entry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_log_entry</span><span class="p">(</span>
+    <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One log entry: a ``## id · date · kind`` heading, the observation on one line, then ``- key: value`` fields.</span>
+
+<span class="sd">    An observation that would read as a field, a heading or a list item is escaped with a</span>
+<span class="sd">    leading backslash, so captured text can never forge an entry or change its kind.</span>
+<span class="sd">    """</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">_NEEDS_ESCAPE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">"</span> <span class="o">+</span> <span class="n">line</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"## </span><span class="si">{</span><span class="n">entry_id</span><span class="si">}</span><span class="s2"> · </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> · </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">line</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- source: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

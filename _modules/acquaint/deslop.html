@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>acquaint.deslop &mdash; acquaint 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            acquaint
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint.html">acquaint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/__main__.html">acquaint.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/brief.html">acquaint.brief</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/edit.html">acquaint.edit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lint.html">acquaint.lint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/records.html">acquaint.records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/render.html">acquaint.render</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/resources.html">acquaint.resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/store.html">acquaint.store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/sync.html">acquaint.sync</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/acquaint/tools.html">acquaint.tools</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">acquaint</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">acquaint.deslop</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for acquaint.deslop</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The deterministic half of deslop: find the patterns that make prose read as machine-written, scaled to the reader.</span>
+
+<span class="sd">How strict the check is depends on the recipient's tolerance of AI-sounding text,</span>
+<span class="sd">recorded as ``ai_tolerance`` in their ``style.md`` (``tolerant``, ``neutral``,</span>
+<span class="sd">``averse``; anything else counts as unknown, which is neutral):</span>
+
+<span class="sd">- **tolerant** enforces tier E only, with looser counts;</span>
+<span class="sd">- **neutral** enforces E and W;</span>
+<span class="sd">- **averse** enforces E, W and S, with the tightest counts.</span>
+
+<span class="sd">Findings outside the enforced tiers are still reported, marked ``enforced: False``.</span>
+<span class="sd">The catalogue is data (``acquaint/data/deslop/tells.yaml``) and a keyword argument,</span>
+<span class="sd">so a list derived from the operator's own writing can replace it without code changes.</span>
+
+<span class="sd">&gt;&gt;&gt; result = lint_text("Great question! This robust tool serves as a bridge.", tolerance="neutral")</span>
+<span class="sd">&gt;&gt;&gt; sorted({f["rule"] for f in result["findings"] if f["enforced"]})</span>
+<span class="sd">['ai-vocabulary', 'chat-leftover', 'copula-avoidance']</span>
+<span class="sd">&gt;&gt;&gt; lint_text("Sending the export on Friday. Two sites, not five.")["ok"]</span>
+<span class="sd">True</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">acquaint.records</span><span class="w"> </span><span class="kn">import</span> <span class="n">items</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">split_frontmatter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">acquaint.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">data_yaml</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"TOLERANCES"</span><span class="p">,</span> <span class="s2">"lint_text"</span><span class="p">,</span> <span class="s2">"normalize_tolerance"</span><span class="p">,</span> <span class="s2">"recipient_card"</span><span class="p">,</span> <span class="s2">"text_metrics"</span><span class="p">]</span>
+
+<span class="n">TOLERANCES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"tolerant"</span><span class="p">,</span> <span class="s2">"neutral"</span><span class="p">,</span> <span class="s2">"averse"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+<span class="n">_WORD_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-Za-z0-9’']+"</span><span class="p">)</span>
+<span class="n">_SENTENCE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^.!?\n]+[.!?]*"</span><span class="p">)</span>
+<span class="n">_QUOTED_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[</span><span class="se">\"</span><span class="s2">“]([^</span><span class="se">\"</span><span class="s2">”]+)[</span><span class="se">\"</span><span class="s2">”]"</span><span class="p">)</span>
+<span class="n">_SOURCE_TAG_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\[source:[^\]]*\]"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="normalize_tolerance">
+<a class="viewcode-back" href="../../module_docs/acquaint/deslop.html#acquaint.deslop.normalize_tolerance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_tolerance</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A recorded ``ai_tolerance`` as one of :data:`TOLERANCES`, with a warning when it was something else.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalize_tolerance("Averse"), normalize_tolerance(None)</span>
+<span class="sd">    (('averse', None), ('unknown', None))</span>
+<span class="sd">    &gt;&gt;&gt; normalize_tolerance("low")[0]</span>
+<span class="sd">    'unknown'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">"unknown"</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">TOLERANCES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="s2">"unknown"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"ai_tolerance </span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is not one of tolerant, neutral, averse; treated as unknown (neutral)"</span></div>
+
+
+
+<div class="viewcode-block" id="recipient_card">
+<a class="viewcode-back" href="../../module_docs/acquaint/deslop.html#acquaint.deslop.recipient_card">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recipient_card</span><span class="p">(</span><span class="n">entity</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""What the check needs from a recipient's writing card (``style.md``): tolerance, disclosure, blocklist, warnings.</span>
+
+<span class="sd">    ``ai_tolerance`` and ``disclosure`` come from the card's frontmatter. Blocklist</span>
+<span class="sd">    phrases are the items of its ``## Blocklist`` section: the quoted phrase when an item</span>
+<span class="sd">    quotes one, else the item without its source tag.</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">"style.md"</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"style.md"</span> <span class="ow">in</span> <span class="n">entity</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="n">meta</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">tolerance</span><span class="p">,</span> <span class="n">warning</span> <span class="o">=</span> <span class="n">normalize_tolerance</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ai_tolerance"</span><span class="p">))</span>
+    <span class="n">blocklist</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">(</span><span class="n">body</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">title</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"blocklist"</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+            <span class="n">quoted</span> <span class="o">=</span> <span class="n">_QUOTED_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">phrase</span> <span class="o">=</span> <span class="n">quoted</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">quoted</span> <span class="k">else</span> <span class="n">_SOURCE_TAG_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">phrase</span><span class="p">:</span>
+                <span class="n">blocklist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phrase</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"tolerance"</span><span class="p">:</span> <span class="n">tolerance</span><span class="p">,</span>
+        <span class="s2">"disclosure"</span><span class="p">:</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"disclosure"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"blocklist"</span><span class="p">:</span> <span class="n">blocklist</span><span class="p">,</span>
+        <span class="s2">"warnings"</span><span class="p">:</span> <span class="p">[</span><span class="n">warning</span><span class="p">]</span> <span class="k">if</span> <span class="n">warning</span> <span class="k">else</span> <span class="p">[],</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="text_metrics">
+<a class="viewcode-back" href="../../module_docs/acquaint/deslop.html#acquaint.deslop.text_metrics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">text_metrics</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.</span>
+
+<span class="sd">    &gt;&gt;&gt; text_metrics("One two three. Four five!")["sentences"]</span>
+<span class="sd">    2</span>
+<span class="sd">    """</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">_WORD_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">_WORD_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_SENTENCE_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)]</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">lengths</span> <span class="k">if</span> <span class="n">n</span><span class="p">]</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">fmean</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span> <span class="k">if</span> <span class="n">lengths</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">cv</span> <span class="o">=</span> <span class="n">statistics</span><span class="o">.</span><span class="n">pstdev</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">mean</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"words"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">),</span>
+        <span class="s2">"sentences"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths</span><span class="p">),</span>
+        <span class="s2">"sentence_len_mean"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">"sentence_len_cv"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="s2">"em_dashes"</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"—"</span><span class="p">),</span>
+        <span class="s2">"em_dash_per_100w"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"—"</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">words</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"headers"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^#{1,6}\s"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)),</span>
+        <span class="s2">"bold"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\*\*[^*]+\*\*"</span><span class="p">,</span> <span class="n">text</span><span class="p">)),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finding</span><span class="p">(</span><span class="n">rule</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">enforced</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">span</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">excerpt</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">span</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">25</span><span class="p">)</span> <span class="p">:</span> <span class="n">span</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">25</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">span</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"rule"</span><span class="p">:</span> <span class="n">rule</span><span class="p">,</span> <span class="s2">"tier"</span><span class="p">:</span> <span class="n">tier</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span> <span class="s2">"enforced"</span><span class="p">:</span> <span class="n">enforced</span><span class="p">,</span> <span class="s2">"span"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">span</span><span class="p">)</span> <span class="k">if</span> <span class="n">span</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"excerpt"</span><span class="p">:</span> <span class="n">excerpt</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="lint_text">
+<a class="viewcode-back" href="../../module_docs/acquaint/deslop.html#acquaint.deslop.lint_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lint_text</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"neutral"</span><span class="p">,</span>
+    <span class="n">blocklist</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">catalog</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Check a draft against the tells catalogue at a reader's tolerance: ``{"ok", "findings", "metrics", "relational"}``.</span>
+
+<span class="sd">    ``blocklist`` holds phrases this recipient's card says never to use; each hit is</span>
+<span class="sd">    tier E. ``catalog`` replaces the shipped catalogue (same schema as ``tells.yaml``).</span>
+<span class="sd">    An unrecognised ``tolerance`` is an error here; normalise recorded values first</span>
+<span class="sd">    with :func:`normalize_tolerance`.</span>
+<span class="sd">    """</span>
+    <span class="n">catalog</span> <span class="o">=</span> <span class="n">catalog</span> <span class="k">if</span> <span class="n">catalog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data_yaml</span><span class="p">(</span><span class="s2">"deslop/tells.yaml"</span><span class="p">)</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">"tolerance"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">tolerance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TOLERANCES</span> <span class="ow">and</span> <span class="n">tolerance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tolerance must be one of </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TOLERANCES</span><span class="p">)</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">tolerance</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="n">levels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">levels</span><span class="p">[</span><span class="s2">"neutral"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+    <span class="n">enforce</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">level</span><span class="p">[</span><span class="s2">"enforce"</span><span class="p">])</span>
+    <span class="n">findings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">"rules"</span><span class="p">]:</span>
+        <span class="c1"># Two patterns of one rule often match the same construction: merge overlaps.</span>
+        <span class="n">spans</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">span</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">rule</span><span class="p">[</span><span class="s2">"patterns"</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">spans</span> <span class="ow">and</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">spans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">spans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">spans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">max</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">spans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spans</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rule</span><span class="p">[</span><span class="s2">"count_against"</span><span class="p">])</span> <span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"count_against"</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">over_limit</span> <span class="o">=</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">spans</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">limit</span>
+        <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+            <span class="n">enforced</span> <span class="o">=</span> <span class="n">rule</span><span class="p">[</span><span class="s2">"tier"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">enforce</span> <span class="ow">and</span> <span class="n">over_limit</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">rule</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">" (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">spans</span><span class="p">)</span><span class="si">}</span><span class="s2"> found, </span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="s2"> allowed)"</span> <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_finding</span><span class="p">(</span><span class="n">rule</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">rule</span><span class="p">[</span><span class="s2">"tier"</span><span class="p">],</span> <span class="n">message</span><span class="p">,</span> <span class="n">enforced</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">span</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">blocklist</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">phrase</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">):</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_finding</span><span class="p">(</span><span class="s2">"recipient-blocklist"</span><span class="p">,</span> <span class="s2">"E"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"this recipient's card says never to use </span><span class="si">{</span><span class="n">phrase</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">span</span><span class="p">()))</span>
+
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">text_metrics</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">[</span><span class="s2">"metrics"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"em_dash_per_100w"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">level</span><span class="p">[</span><span class="s2">"em_dash_per_100w_max"</span><span class="p">]</span> <span class="ow">and</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"em_dashes"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_finding</span><span class="p">(</span><span class="s2">"em-dash-density"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">'em_dash_per_100w'</span><span class="p">]</span><span class="si">}</span><span class="s2"> em dashes per 100 words (max </span><span class="si">{</span><span class="n">level</span><span class="p">[</span><span class="s1">'em_dash_per_100w_max'</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="s2">"W"</span> <span class="ow">in</span> <span class="n">enforce</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"sentences"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">limits</span><span class="p">[</span><span class="s2">"min_sentences_for_rhythm"</span><span class="p">]</span> <span class="ow">and</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"sentence_len_cv"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limits</span><span class="p">[</span><span class="s2">"sentence_len_cv_min"</span><span class="p">]:</span>
+        <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_finding</span><span class="p">(</span><span class="s2">"uniform-rhythm"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"sentence lengths barely vary (variation </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">'sentence_len_cv'</span><span class="p">]</span><span class="si">}</span><span class="s2">, want ≥ </span><span class="si">{</span><span class="n">limits</span><span class="p">[</span><span class="s1">'sentence_len_cv_min'</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="s2">"S"</span> <span class="ow">in</span> <span class="n">enforce</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"words"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limits</span><span class="p">[</span><span class="s2">"short_message_words"</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s2">"headers"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"bold"</span><span class="p">]):</span>
+        <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_finding</span><span class="p">(</span><span class="s2">"formatting-in-short-message"</span><span class="p">,</span> <span class="s2">"W"</span><span class="p">,</span> <span class="s2">"headers or bold in a short message"</span><span class="p">,</span> <span class="s2">"W"</span> <span class="ow">in</span> <span class="n">enforce</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="n">relational</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"relational"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"patterns"</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">findings</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="p">(</span><span class="ow">not</span> <span class="n">f</span><span class="p">[</span><span class="s2">"enforced"</span><span class="p">],</span> <span class="s2">"ESW"</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">"tier"</span><span class="p">]),</span> <span class="n">f</span><span class="p">[</span><span class="s2">"span"</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"ok"</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">"enforced"</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">relational</span><span class="p">,</span>
+        <span class="s2">"tolerance"</span><span class="p">:</span> <span class="n">tolerance</span><span class="p">,</span>
+        <span class="s2">"enforced_tiers"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">enforce</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">"ESW"</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+        <span class="s2">"findings"</span><span class="p">:</span> <span class="n">findings</span><span class="p">,</span>
+        <span class="s2">"metrics"</span><span class="p">:</span> <span class="n">metrics</span><span class="p">,</span>
+        <span class="s2">"relational"</span><span class="p">:</span> <span class="n">relational</span><span class="p">,</span>
+        <span class="s2">"relational_message"</span><span class="p">:</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"relational"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">)</span> <span class="k">if</span> <span class="n">relational</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
