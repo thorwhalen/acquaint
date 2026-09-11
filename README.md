@@ -76,7 +76,7 @@ End every preference, view or rule with a source tag:
 - No attachments over chat. [source: https://example.org/thread/1]
 ```
 
-A source is a permalink, a log or research anchor, the person's own words, `operator`, or `none located`. **A date alone is not a source**: an unsourced claim with a date attached reads as observed when it was not.
+A source is a permalink, a log or research anchor, the person's own words, `operator`, or `none located`. **A date alone is not a source**, and neither is a placeholder such as `unknown` or `TODO`: an unsourced claim with a date attached reads as observed when it was not. A nested bullet is its own line and needs its own source.
 
 ## Agent skills
 
@@ -116,9 +116,9 @@ acquaint sync init --repo <owner>/<name> --dry-run
 acquaint sync init --repo <owner>/<name>
 ```
 
-`sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook, active in every worktree, that allows a push only through `origin`, only to the URL recorded at init, only when that URL names the checked repository, and only while `gh` still reports it private. `push`, `pull` and `status` check again. Only GitHub remotes are accepted.
+`sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook, active in every worktree, that allows a push only through `origin`, only when `origin` has exactly the one URL recorded at init (no `pushurl` or `pushInsteadOf` redirect), only when that URL names the checked repository on github.com, and only while `gh` still reports it private. `push`, `pull` and `status` check again. `sync init` takes over only an empty folder or a clone of that same repository.
 
-What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; whoever controls the repository's git config or the `gh` on `PATH` controls what the guard sees; moving the data root disables the hook until `sync init --existing-only` runs again; file names and commit messages contain people's names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` encrypts contents, names and history: pass `--remote-url "gcrypt::git@github.com:<owner>/<name>.git"`.
+What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; whoever controls the repository's git config or the `gh` on `PATH` controls what the guard sees; moving the data root disables the hook until `sync init --existing-only` runs again; file names and commit messages contain people's names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` would encrypt contents, names and history; it is the planned upgrade, but the guard does not support it yet, so `sync init` refuses `gcrypt::` URLs ([#13](https://github.com/thorwhalen/acquaint/issues/13)).
 
 ## Python
 

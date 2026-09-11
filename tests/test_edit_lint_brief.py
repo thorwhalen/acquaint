@@ -1,9 +1,12 @@
 """Creating, remembering, renaming and forgetting; the provenance lint; and the brief."""
 
 import hashlib
+import os
+import sys
 
 import pytest
 
+from acquaint import tools
 from acquaint.brief import compose_brief
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
@@ -13,6 +16,7 @@ from acquaint.store import AcquaintError, Store
 
 TODAY = "2026-09-11"
 ADA = "people/ada-lovelace"
+posix_only = pytest.mark.skipif(sys.platform == "win32", reason="symlinks need privileges on Windows")
 
 
 @pytest.fixture
@@ -115,6 +119,8 @@ def test_lint_fails_unsourced_and_date_only_preferences(ada):
         "## Write to them:\n+ Keep it short.\n",
         "## Write to them\n1. Keep it short.\n",
         "## Write to them\nKeep it short, always.\n",
+        "## Don't\n- Topics to avoid. [source: operator]\n  - Never mention their family.\n",
+        "   ## Don't\n- Cc everyone.\n",
     ],
 )
 def test_lint_catches_every_way_of_writing_an_unsourced_line(ada, snippet):
@@ -122,25 +128,33 @@ def test_lint_catches_every_way_of_writing_an_unsourced_line(ada, snippet):
     assert [f["rule"] for f in lint_store(ada, ADA, today=TODAY)["errors"]] == ["unsourced"]
 
 
-def test_lint_accepts_wrapped_and_nested_lines_and_ignores_code(ada):
+def test_lint_accepts_wrapped_lines_and_sourced_nested_bullets_and_ignores_code(ada):
     _add_to_profile(
         ada,
         ADA,
-        "\n## Write to them\n- Lead with the decision,\n  then the options. [source: operator]\n  - e.g. the export email\n```\n- a code sample, not a preference\n```\n",
+        "\n## Write to them\n- Lead with the decision,\n  then the options. [source: operator]\n  - e.g. the export email [source: log/2026-09.md#e01]\n"
+        "```text\n~~~\n- a code sample, not a preference\n```\n",
     )
     assert lint_store(ada, ADA, today=TODAY)["errors"] == []
+
+
+def test_lint_and_brief_agree_that_a_top_level_heading_ends_a_section(ada):
+    _add_to_profile(ada, ADA, "\n## Write to them\n- Short. [source: operator]\n# Important\n- Never cc their manager.\n")
+    assert lint_store(ada, ADA, today=TODAY)["errors"] == []
+    assert "Never cc their manager." not in compose_brief(ada, ADA, today=TODAY)["text"]
 
 
 def test_lint_scope_card_files_logs_rules_and_broken_yaml(ada):
     _add_to_profile(ada, ADA, "\n## More\n- anything goes here\n")
     ada.files[f"{ADA}/style.md"] = "## Do\n- Plain words. [source: operator]\n- Short sentences.\n"
     ada.files[f"{ADA}/log/2026-08.md"] = "## e01 · 2026-08-02 · preference\nlikes calls\n- source: none given\n"
-    ada.files[f"{ADA}/rules.yaml"] = dump_yaml({"rules": [{"when": {"urgency": "high"}, "do": {"channel": "signal"}}]})
+    ada.files[f"{ADA}/rules.yaml"] = dump_yaml({"rules": [{"when": {"urgency": "high"}, "do": {"channel": ["signal", "email"]}}]})
     ada.files["people/other/PROFILE.md"] = "---\nname: [unclosed\n---\n"
     result = lint_store(ada, today=TODAY)
     assert _error_rules(result) == [
         ("PROFILE.md", "unparseable"),
         ("log/2026-08.md#e01", "unsourced"),
+        ("rules.yaml", "bad-channel"),
         ("rules.yaml", "unsourced"),
         ("style.md", "unsourced"),
     ]
@@ -178,6 +192,39 @@ def test_lint_reports_a_record_it_cannot_read_and_checks_the_rest():
     assert result["checked"] == 2 and _error_rules(result) == [("", "unreadable")]
 
 
+def test_lint_checks_links_without_searching_the_store_per_link(store, monkeypatch):
+    for n in range(12):
+        new_entity(store, "person", f"Member {n}", today=TODAY)
+        store.files[f"people/member-{n}/links.yaml"] = dump_yaml({"links": [{"to": f"member-{(n + 1) % 12}"}, {"to": "org:missing"}]})
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("lint must not call Store.find for each link")
+
+    monkeypatch.setattr(Store, "find", refuse)
+    warnings = lint_store(store, today=TODAY)["warnings"]
+    assert [w["rule"] for w in warnings].count("unknown-link") == 12
+
+
+def test_a_broken_tombstone_file_stops_new_and_forget_and_lint_reports_it(ada):
+    ada.files["_tombstones.yaml"] = "salt: [oops\n"
+    with pytest.raises(AcquaintError, match="does not parse"):
+        new_entity(ada, "person", "Grace Example", today=TODAY)
+    with pytest.raises(AcquaintError, match="does not parse"):
+        forget_entity(ada, "ada-lovelace", confirm=True, today=TODAY)
+    assert ("_tombstones.yaml", "unparseable") in _error_rules(lint_store(ada, today=TODAY))
+
+    ada.files["_tombstones.yaml"] = "tombstones:\n- kind: person\n  hashes: [abc]\n"
+    with pytest.raises(AcquaintError, match="no salt"):
+        new_entity(ada, "person", "Grace Example", today=TODAY)
+    assert ADA in ada, "nothing was forgotten"
+
+
+def test_lint_on_a_data_dir_that_does_not_exist_is_not_ok(tmp_path):
+    result = tools.lint(data_dir=str(tmp_path / "typo"))
+    assert result["ok"] is False and "no store" in result["summary"]
+    assert not (tmp_path / "typo").exists()
+
+
 # ---------------------------------------------------------------- rename, forget
 
 
@@ -185,19 +232,32 @@ def test_rename_relinks_other_records_but_not_urls_logs_or_aliases(ada):
     new_entity(ada, "project", "Analytical Engine", today=TODAY)
     ada.files["projects/analytical-engine/PROFILE.md"] = ada.files["projects/analytical-engine/PROFILE.md"].replace("aka: []", "aka: Countess")
     ada.files[f"{ADA}/links.yaml"] = dump_yaml({"links": [{"to": "project:analytical-engine", "relation": "contributesTo"}]})
-    ada.files[f"{ADA}/rules.yaml"] = "rules:\n- when: {project: analytical-engine}  # the engine work\n  do: {channel: email}\n  source: operator\n"
+    ada.files[f"{ADA}/rules.yaml"] = (
+        "rules:\n- when: {project: analytical-engine}  # the engine work\n  do: {channel: email}\n  source: operator\n"
+        "- when: {project: [analytical-engine, other]}\n  do: {channel: email}\n  source: operator\n"
+        "- when:\n    project:\n    - other\n    - analytical-engine\n  do: {channel: email}\n  source: operator\n"
+    )
     url = "https://tracker.example.org/projects/analytical-engine/issues/42?ref=project:analytical-engine"
-    ada.files[f"{ADA}/sources.md"] = f"## Corpus\n- Tracker {url}, see project:analytical-engine [source: operator]\n"
+    ada.files[f"{ADA}/sources.md"] = f"## Corpus\n- Tracker {url}, see project:analytical-engine [source: operator]\n- Earlier: {url}\nprojects:analytical-engine on the next line [source: operator]\n"
     ada.files[f"{ADA}/log/2026-09.md"] = "## e01 · 2026-09-11 · observation\nworks on project:analytical-engine\n- source: operator\n"
 
     result = rename_entity(ada, "project:analytical-engine", "engine", today=TODAY)
     assert result["to"] == "projects/engine"
-    assert ada[ADA].links[0]["to"] == "project:engine"
-    assert "when: {project: engine}  # the engine work" in ada.files[f"{ADA}/rules.yaml"]
+    entity = ada[ADA]
+    assert entity.links[0]["to"] == "project:engine"
+    assert [rule["when"]["project"] for rule in entity.rules] == ["engine", ["engine", "other"], ["other", "engine"]]
+    assert f"{ADA}/rules.yaml" in result["yaml_comments_dropped"]
     sources = ada.files[f"{ADA}/sources.md"]
-    assert url in sources and "see project:engine [source" in sources
+    assert sources.count(url) == 2 and "see project:engine [source" in sources and "projects:engine on the next line" in sources
     assert "project:analytical-engine" in ada.files[f"{ADA}/log/2026-09.md"], "history is not rewritten"
     assert ada["projects/engine"].aka == ["Countess", "analytical-engine"]
+
+
+def test_renaming_a_person_follows_the_plural_reference_form_too(ada):
+    new_entity(ada, "person", "Grace Example", today=TODAY)
+    ada.files["people/grace-example/links.yaml"] = dump_yaml({"links": [{"to": "people:ada-lovelace"}, {"to": "person:ada-lovelace"}]})
+    rename_entity(ada, "ada-lovelace", "ada-king", today=TODAY)
+    assert [link["to"] for link in ada["people/grace-example"].links] == ["people:ada-king", "person:ada-king"]
 
 
 def test_rename_and_forget_carry_hidden_files_and_leave_nothing_behind(tmp_path, monkeypatch):
@@ -216,7 +276,8 @@ def test_rename_and_forget_carry_hidden_files_and_leave_nothing_behind(tmp_path,
     assert "people/ada-king/.PROFILE.md.swp" in forget_entity(store, "ada-king", today=TODAY)["files"]
     forget_entity(store, "ada-king", confirm=True, today=TODAY)
     assert not moved.exists()
-    assert not list((tmp_path / "home").rglob("*")) if (tmp_path / "home").exists() else True, "nothing moved to a trash folder"
+    home = tmp_path / "home"
+    assert not home.exists() or not list(home.rglob("*")), "nothing moved to a trash folder"
 
 
 def test_forget_is_a_dry_run_until_confirmed_then_tombstones_with_a_salt(ada):
@@ -234,6 +295,20 @@ def test_forget_is_a_dry_run_until_confirmed_then_tombstones_with_a_salt(ada):
         new_entity(ada, "person", "Ada Lovelace", today=TODAY)
     assert new_entity(ada, "person", "Ada", today=TODAY)["id"] == "ada", "a bare name part is not tombstoned"
     assert new_entity(ada, "person", "Ada Lovelace", force=True, today=TODAY)["id"] == "ada-lovelace"
+
+
+def test_forget_reports_the_records_that_still_mention_the_person(ada):
+    new_entity(ada, "person", "Grace Example", today=TODAY)
+    ada.files["people/grace-example/links.yaml"] = dump_yaml({"links": [{"to": "person:ada-lovelace"}]})
+    ada.files["people/grace-example/log/2026-09.md"] = "## e01 · 2026-09-11 · observation\nhad lunch with Ada Lovelace\n- source: operator\n"
+    plan = forget_entity(ada, "ada-lovelace", today=TODAY)
+    mentions = {ref["file"]: ref["mentions"] for ref in plan["references"]}
+    assert set(mentions) == {"people/grace-example/links.yaml", "people/grace-example/log/2026-09.md"}
+    assert "person:ada-lovelace" in mentions["people/grace-example/links.yaml"]
+    assert "Ada Lovelace" in mentions["people/grace-example/log/2026-09.md"]
+    done = forget_entity(ada, "ada-lovelace", confirm=True, today=TODAY)
+    assert done["done"] and done["references"] == plan["references"], "the other records are reported, not edited"
+    assert "had lunch with Ada Lovelace" in ada.files["people/grace-example/log/2026-09.md"]
 
 
 def test_an_interrupted_forget_keeps_its_tombstone_and_can_be_finished():
@@ -260,6 +335,19 @@ def test_an_interrupted_forget_keeps_its_tombstone_and_can_be_finished():
     assert not store.exists(ADA)
 
 
+@posix_only
+def test_forget_refuses_a_linked_folder_before_writing_anything(tmp_path):
+    outside = tmp_path / "outside" / "ada"
+    outside.mkdir(parents=True)
+    (outside / "PROFILE.md").write_text("---\nname: Ada\n---\n")
+    (tmp_path / "data" / "people").mkdir(parents=True)
+    os.symlink(outside, tmp_path / "data" / "people" / "ada")
+    store = Store(tmp_path / "data")
+    with pytest.raises(AcquaintError, match="is a link"):
+        forget_entity(store, "people/ada", confirm=True, today=TODAY)
+    assert not (tmp_path / "data" / "_tombstones.yaml").exists() and (outside / "PROFILE.md").is_file()
+
+
 # ------------------------------------------------------------------------- brief
 
 
@@ -267,7 +355,10 @@ def test_brief_assembles_card_style_views_norms_and_gaps(ada):
     profile = ada.files[f"{ADA}/PROFILE.md"]
     profile = profile.replace("## Write to them\n", "## Write to them\n- Lead with the decision. [source: operator]\n")
     profile = profile.replace("## Don't\n", "## Don’t:\n- Cc everyone. [source: operator]\n")
-    profile = profile.replace("## Now\n", "## Now\n- Old news. (until: 2026-01-01) [source: operator]\n- On leave. (until: 2026-12-01) [source: operator]\n")
+    profile = profile.replace(
+        "## Now\n",
+        "## Now\n- Travelling for a long stretch\n  and offline. (until: 2026-01-01) [source: operator]\n- On leave. (until: 2026-12-01) [source: operator]\n",
+    )
     ada.files[f"{ADA}/PROFILE.md"] = profile
     ada.files[f"{ADA}/style.md"] = "---\r\nai_tolerance: averse\r\n---\r\n## Blocklist\r\n- \"circle back\" [source: operator]\r\n"
     ada.files[f"{ADA}/views.md"] = "## Standing objections\n- Asks who maintains it. [source: operator]\n"
@@ -277,7 +368,7 @@ def test_brief_assembles_card_style_views_norms_and_gaps(ada):
     brief = compose_brief(ada, ADA, purpose="ask", project="engine", today=TODAY)
     text = brief["text"]
     assert "Lead with the decision. [source: operator]" in text and "Cc everyone." in text
-    assert "On leave." in text and "Old news." not in text
+    assert "On leave." in text and "Travelling" not in text and "and offline" not in text
     assert brief["ai_tolerance"] == "averse" and "explicit disclosure decision" in brief["disclosure"]
     assert "Asks who maintains it." in text and "Decisions go in writing." in text
     assert "nothing recorded under 'Write to them'" not in brief["gaps"]

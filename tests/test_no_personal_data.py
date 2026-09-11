@@ -36,7 +36,9 @@ EMAIL_RE = re.compile(r"[A-Za-z0-9_.+-]+@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)")
 #: Home directories (a Mac user, a Linux user, root on a server), per-user temporary
 #: directories, and Windows profiles: all of them name a machine or a person.
 HOME_PATH_RE = re.compile(
-    r"/(?:Users|home)/[A-Za-z0-9_.-]+|(?<![\w.])/" + r"root/|/(?:private/)?var/folders/|/private/" + r"tmp/|\b[A-Za-z]:\\Users\\[A-Za-z0-9_.-]+"
+    r"/(?:Users|home)/[A-Za-z0-9_.-]+|(?<![\w.])/" + r"root\b|/(?:private/)?var/folders/|/private/" + r"tmp/"
+    + r"|/" + r"Volumes/[A-Za-z0-9_.-]+|\\\\" + r"wsl|/" + r"opt/[^\s\"']+/\.env"
+    + r"|\b[A-Za-z]:\\Users\\[A-Za-z0-9_.-]+"
 )
 GITHUB_URL_RE = re.compile(r"github\.com[/:]([A-Za-z0-9][A-Za-z0-9-]{0,38})(?=[/\s\"')\]]|\.git|$)")
 #: owner/name only where it names a GitHub repository: after --repo, in a gh command,
@@ -102,6 +104,10 @@ def test_the_guard_actually_catches_leaks():
     assert HOME_PATH_RE.search("/" + "Users" + "/someone/profiles")
     assert HOME_PATH_RE.search("scp server:/" + "root/py/proj/profiles")
     assert HOME_PATH_RE.search("/" + "var/folders/xy/T/tmp123")
+    assert HOME_PATH_RE.search("then cd /" + "root and run it")
+    assert HOME_PATH_RE.search("/" + "Volumes/Backup/profiles")
+    assert HOME_PATH_RE.search("\\\\" + "wsl$\\Ubuntu\\home\\someone")
+    assert HOME_PATH_RE.search("/" + "opt/app/.env")
     assert handles_outside_allowlist("see github.com/" + "someone-real" + "/notes", prose=False) == ["someone-real"]
     assert handles_outside_allowlist("gh repo create " + "someone" + "/profiles --private", prose=False) == ["someone"]
     assert handles_outside_allowlist("thanks @" + "someone-real" + " for this", prose=True) == ["someone-real"]

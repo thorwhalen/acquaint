@@ -13,6 +13,7 @@ These functions take exact references (``ada-lovelace``, ``person:ada-lovelace``
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import secrets
 from datetime import date, timedelta
@@ -38,10 +39,12 @@ from acquaint.store import ENTRY_FILE, KIND_DIRS, UNREADABLE, AcquaintError, Ent
 __all__ = [
     "OBSERVATION_KINDS",
     "SCHEMA",
+    "TOMBSTONES",
     "append_observation",
     "forget_entity",
     "new_entity",
     "rename_entity",
+    "tombstone_problem",
     "tombstoned",
 ]
 
@@ -77,11 +80,29 @@ def _as_list(value: Any) -> list:
 # --------------------------------------------------------------------- tombstones
 
 
-def _tombstone_data(store: Store) -> dict:
+def tombstone_problem(store: Store) -> str | None:
+    """Why ``_tombstones.yaml`` cannot be trusted, or ``None``. A broken file must never read as "nobody was forgotten"."""
     if TOMBSTONES not in store.files:
-        return {}
-    data, _ = load_yaml(store.files[TOMBSTONES])
-    return data if isinstance(data, dict) else {}
+        return None
+    text = store.files[TOMBSTONES]
+    data, errors = load_yaml(text)
+    if errors or UNREADABLE in text:
+        return f"{TOMBSTONES} does not parse ({(errors or ['not valid UTF-8'])[0]})"
+    if data is None:
+        return None
+    if not isinstance(data, dict) or not isinstance(data.get("tombstones") or [], list):
+        return f"{TOMBSTONES} should be a mapping with a 'tombstones' list"
+    if data.get("tombstones") and not data.get("salt"):
+        return f"{TOMBSTONES} has tombstones but no salt, so none of them can be matched"
+    return None
+
+
+def _tombstone_data(store: Store) -> dict:
+    problem = tombstone_problem(store)
+    if problem:
+        raise AcquaintError(f"{problem}; fix it before creating or forgetting anyone, or a forgotten person could come back")
+    data, _ = load_yaml(store.files[TOMBSTONES]) if TOMBSTONES in store.files else ({}, [])
+    return data or {}
 
 
 def _hashes(values: list[str], salt: str) -> list[str]:
@@ -89,13 +110,13 @@ def _hashes(values: list[str], salt: str) -> list[str]:
 
 
 def tombstoned(store: Store, *identifiers: str) -> dict | None:
-    """The tombstone matching any of these identifiers, if such an entity was forgotten."""
+    """The tombstone matching any of these identifiers, if such an entity was forgotten. Raises if the tombstone file is broken."""
     data = _tombstone_data(store)
     salt, graves = data.get("salt"), data.get("tombstones") or []
     if not salt or not graves:
         return None
     wanted = set(_hashes(list(identifiers), str(salt)))
-    return next((grave for grave in graves if wanted & set(grave.get("hashes", []))), None)
+    return next((grave for grave in graves if isinstance(grave, dict) and wanted & set(grave.get("hashes", []))), None)
 
 
 def _write_tombstone(store: Store, kind: str, identifiers: list[str], today: str) -> None:
@@ -161,14 +182,7 @@ def new_entity(
         created.append("POLICY.md")
     store[key] = {ENTRY_FILE: join_frontmatter(meta, body)}
     warning = store.location_warning()
-    return {
-        "key": key,
-        "id": slug,
-        "kind": singular,
-        "path": store.path_of(key),
-        "created": created,
-        "warnings": [warning] if warning else [],
-    }
+    return {"key": key, "id": slug, "kind": singular, "path": store.path_of(key), "created": created, "warnings": [warning] if warning else []}
 
 
 # ----------------------------------------------------------------------- remember
@@ -240,64 +254,83 @@ def _append_identity(entity: Entity, platform: str, value: str, source: str | No
     if errors or UNREADABLE in current or not isinstance(data, dict):
         raise AcquaintError(f"{entity.key}/identities.yaml does not parse; fix it before adding to it")
     identities = list(data.get("identities") or [])
-    if any(str(i.get("platform")) == platform and str(i.get("value")) == value for i in identities):
+    if any(isinstance(i, dict) and str(i.get("platform")) == platform and str(i.get("value")) == value for i in identities):
         return
-    identities.append(
-        {"platform": platform, "value": value, "source": source or _UNSOURCED, "first_seen": today, "status": "active"}
-    )
+    identities.append({"platform": platform, "value": value, "source": source or _UNSOURCED, "first_seen": today, "status": "active"})
     entity["identities.yaml"] = dump_yaml({**data, "identities": identities})
 
 
 # ------------------------------------------------------------------------- rename
 
 
-def _relink(store: Store, kind: str, old_slug: str, new_slug: str) -> list[str]:
-    """Rewrite references to a renamed entity in other records, never inside URLs, logs or research.
+def _relink(store: Store, kind: str, folder: str, old_slug: str, new_slug: str) -> tuple[list[str], list[str]]:
+    """Rewrite references to a renamed entity in other records; never inside URLs, logs or research.
 
-    ``kind:slug`` tokens are rewritten wherever they stand as a token of their own; a
-    project's bare slug is rewritten only as the value of a ``project:`` key in YAML.
-    Folder paths (``projects/slug``) are left alone, because they also occur inside URLs.
+    Markdown: ``kind:slug`` and ``folder:slug`` tokens standing on their own (not inside a
+    whitespace-delimited token containing ``://``). YAML: parsed, and any value equal to
+    the old reference or key is replaced, as is a project's bare id as a ``project`` value
+    (single or in a list); a rewritten YAML file is written back without its comments.
+    Returns ``(files rewritten, YAML files whose comments were dropped)``.
     """
-    old_ref, new_ref = f"{kind}:{old_slug}", f"{kind}:{new_slug}"
-    ref_re = re.compile(rf"(?<![\w/.:@=&?#-]){re.escape(old_ref)}(?![\w/-])")
-    project_re = re.compile(
-        rf"(?P<pre>(?:^|[{{,])[ \t]*(?:-[ \t]+)?project[ \t]*:[ \t]*)(?P<q>['\"]?){re.escape(old_slug)}(?P=q)(?P<post>[ \t]*(?:[,}}#]|$))",
-        re.M,
-    )
+    old_refs = {f"{kind}:{old_slug}": f"{kind}:{new_slug}", f"{folder}:{old_slug}": f"{folder}:{new_slug}"}
+    old_key, new_key = f"{folder}/{old_slug}", f"{folder}/{new_slug}"
+    ref_re = re.compile(r"(?<![\w/.:@=&?#-])(" + "|".join(map(re.escape, old_refs)) + r")(?![\w/-])")
 
-    def outside_urls(text: str, pattern: re.Pattern, replacement) -> str:
+    def in_markdown(text: str) -> str:
         def replace(found: re.Match) -> str:
-            start = text.rfind(" ", 0, found.start()) + 1
-            end = text.find(" ", found.end())
-            token = text[start : end if end != -1 else len(text)]
-            return found.group(0) if "://" in token else replacement(found)
+            start = max(text.rfind(c, 0, found.start()) for c in " \t\n") + 1
+            ends = [i for i in (text.find(c, found.end()) for c in " \t\n") if i != -1]
+            token = text[start : min(ends) if ends else len(text)]
+            return found.group(0) if "://" in token else old_refs[found.group(1)]
 
-        return pattern.sub(replace, text)
+        return ref_re.sub(replace, text)
 
-    relinked = []
+    def in_yaml(value: Any, parent: Any = None) -> Any:
+        if isinstance(value, dict):
+            return {k: in_yaml(v, k) for k, v in value.items()}
+        if isinstance(value, list):
+            return [in_yaml(v, parent) for v in value]
+        if isinstance(value, str):
+            if value in old_refs:
+                return old_refs[value]
+            if value == old_key:
+                return new_key
+            if kind == "project" and parent == "project" and value == old_slug:
+                return new_slug
+        return value
+
+    relinked, comments_dropped = [], []
     for path in list(store.files):
-        if "/log/" in path or "/research/" in path or not path.endswith((".md", ".yaml", ".yml")):
+        if "/log/" in path or "/research/" in path:
             continue
         text = store.files[path]
         if UNREADABLE in text:
             continue
-        updated = outside_urls(text, ref_re, lambda _: new_ref)
-        if kind == "project" and path.endswith((".yaml", ".yml")):
-            updated = project_re.sub(lambda m: f"{m.group('pre')}{m.group('q')}{new_slug}{m.group('q')}{m.group('post')}", updated)
+        if path.endswith(".md"):
+            updated = in_markdown(text)
+        elif path.endswith((".yaml", ".yml")):
+            data, errors = load_yaml(text)
+            if errors or in_yaml(data) == data:
+                continue
+            updated = (_TOMBSTONE_HEADER if path == TOMBSTONES else "") + dump_yaml(in_yaml(data))
+            if re.search(r"(^|\s)#", text):
+                comments_dropped.append(path)
+        else:
+            continue
         if updated != text:
             store.files[path] = updated
             relinked.append(path)
-    return relinked
+    return relinked, comments_dropped
 
 
 def rename_entity(store: Store, ref: str, to: str, *, today: str | None = None) -> dict[str, Any]:
     """Give an entity a new id (``to`` is a slug) or a new name and id (``to`` is a name); links elsewhere follow."""
     key = _find(store, ref)
     entity = store[key]
-    old_slug, old_name, kind = entity.slug, entity.name, entity.kind
+    old_slug, old_name, kind, folder = entity.slug, entity.name, entity.kind, entity.kind_dir
     new_slug = to if to == slugify(to) else slugify(to)
     new_name = old_name if to == new_slug else to.strip()
-    new_key = validate_key(f"{entity.kind_dir}/{new_slug}")
+    new_key = validate_key(f"{folder}/{new_slug}")
     if new_key == key:
         raise AcquaintError(f"{key} is already called that")
     if store.exists(new_key):
@@ -316,8 +349,8 @@ def rename_entity(store: Store, ref: str, to: str, *, today: str | None = None) 
         updated=_today(today),
     )
     store.files[f"{new_key}/{ENTRY_FILE}"] = join_frontmatter(meta, body)
-    relinked = _relink(store, kind, old_slug, new_slug)
-    return {"from": key, "to": new_key, "name": new_name, "relinked": relinked}
+    relinked, comments_dropped = _relink(store, kind, folder, old_slug, new_slug)
+    return {"from": key, "to": new_key, "name": new_name, "relinked": relinked, "yaml_comments_dropped": comments_dropped}
 
 
 # ------------------------------------------------------------------------- forget
@@ -325,35 +358,66 @@ def rename_entity(store: Store, ref: str, to: str, *, today: str | None = None) 
 
 def _forget_key(store: Store, ref: str) -> str:
     """The entity to forget, including a folder left without its entry file by an interrupted forget."""
-    try:
-        return store.find(ref)
-    except KeyError:
-        pass
-    candidate = ref.strip()
-    if ":" in candidate and "/" not in candidate:
+    candidate = ref.strip().lower()
+    if "/" not in candidate and ":" not in candidate:
+        ids = store.find_id(candidate)
+        if len(ids) > 1:
+            raise AcquaintError(f"{ref!r} names more than one entity: {', '.join(ids)}; say which, e.g. {Entity(store, ids[1]).ref}")
+        candidate = ids[0] if ids else f"people/{candidate}"
+    elif "/" not in candidate:
         kind, _, slug = candidate.partition(":")
         candidate = f"{kind_dir(kind)}/{slug}"
-    elif "/" not in candidate:
-        candidate = f"people/{candidate}"
-    if store.exists(candidate):
-        return candidate
+    try:
+        key = validate_key(candidate)
+    except AcquaintError:
+        raise AcquaintError(f"no entity with the id {ref!r}") from None
+    if store.root is not None:
+        for part in (store.root / key.split("/")[0], store.root / key):
+            if part.is_symlink():
+                raise AcquaintError(
+                    f"{part.relative_to(store.root).as_posix()} is a link to {os.path.realpath(part)}; "
+                    "acquaint does not follow links out of the store, so remove the link and its target by hand"
+                )
+    if store.exists(key):
+        return key
     raise AcquaintError(f"no entity with the id {ref!r}")
+
+
+def _references(store: Store, entity: Entity, identifiers: list[str]) -> list[dict]:
+    """Other records that still name the entity: its references, its key, its full name, its handles."""
+    needles = {entity.ref, f"{entity.kind_dir}:{entity.slug}", entity.key, *(i for i in identifiers if len(i) >= 4)}
+    needles.discard(entity.slug)
+    found = []
+    for path in list(store.files):
+        if path.startswith(entity.key + "/") or not path.endswith((".md", ".yaml", ".yml")) or path == TOMBSTONES:
+            continue
+        text = store.files[path].lower()
+        mentions = sorted(n for n in needles if n.lower() in text)
+        if mentions:
+            found.append({"file": path, "mentions": mentions})
+    return found
 
 
 def forget_entity(store: Store, ref: str, *, confirm: bool = False, today: str | None = None) -> dict[str, Any]:
     """Remove an entity's whole folder, hidden files included, after writing a salted tombstone.
 
-    Without ``confirm`` it only reports what it would remove. The tombstone is written
-    first, so a removal that fails half way still stops the entity being re-created, and
-    running ``forget`` again finishes the job.
+    Without ``confirm`` it only reports what it would remove, and which other records
+    still mention the entity (it does not edit them: other people's logs are append-only).
+    The tombstone is written first, so a removal that fails half way still stops the
+    entity being re-created, and running ``forget`` again finishes the job.
     """
-    key = validate_key(_forget_key(store, ref))
+    key = _forget_key(store, ref)
     entity = Entity(store, key)
     name_parts = {part.lower() for part in entity.name.split()}
     aka = [a for a in entity.aka if a.lower() not in name_parts]  # bare name parts would block unrelated people
     identifiers = [entity.slug, entity.name, *aka, *(str(i.get("value", "")) for i in entity.identities)]
-    files = [f"{key}/{name}" for name in store.all_files(key)]
-    plan = {"key": key, "files": files, "tombstone_identifiers": len({normalize(i) for i in identifiers if normalize(i)})}
+    identifiers = [i for i in dict.fromkeys(identifiers) if normalize(i)]
+    plan = {
+        "key": key,
+        "files": [f"{key}/{name}" for name in store.all_files(key)],
+        "tombstone_identifiers": len({normalize(i) for i in identifiers}),
+        "references": _references(store, entity, [i for i in identifiers if i != entity.slug and i.lower() not in name_parts]),
+    }
     if not confirm:
         return {**plan, "done": False}
 

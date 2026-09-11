@@ -75,7 +75,7 @@ Do **not** extract: personality traits, mood, health, religion, politics, ethnic
 | Handles and addresses | `identities.yaml`, with evidence |
 | Where their writing lives, how verified | `sources.md` |
 
-Keep `PROFILE.md` under 120 lines; link the rest from *More*. Every bullet ends with its source tag.
+Keep `PROFILE.md` under 120 lines; link the rest from *More*. Every bullet, nested ones included, carries its own source tag.
 
 ### Writing card format (`style.md`)
 

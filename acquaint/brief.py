@@ -17,7 +17,7 @@ from typing import Any
 from acquaint.deslop import recipient_card
 from acquaint.lint import lint_store
 from acquaint.lookup import reach_channels
-from acquaint.records import parse_log, split_frontmatter
+from acquaint.records import item_blocks, parse_log, split_frontmatter
 from acquaint.resources import data_yaml
 from acquaint.store import AcquaintError, Store
 
@@ -36,9 +36,13 @@ def _visible(text: str) -> str:
 
 
 def _drop_expired(text: str, today: str) -> str:
-    return "\n".join(
-        line for line in text.splitlines() if not ((m := _UNTIL_RE.search(line)) and m.group(1) < today)
-    ).strip()
+    """The text without items whose ``(until: …)`` has passed; an item spanning several lines goes whole."""
+    drop: set[int] = set()
+    for _, first, last, item in item_blocks(text):
+        until = _UNTIL_RE.search(item)
+        if until and until.group(1) < today:
+            drop.update(range(first, last + 1))
+    return "\n".join(line for number, line in enumerate(text.split("\n"), start=1) if number not in drop).strip()
 
 
 def _by_title(section_map: dict[str, str]) -> dict[str, str]:

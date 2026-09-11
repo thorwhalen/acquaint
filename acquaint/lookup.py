@@ -2,9 +2,10 @@
 
 All functions take a :class:`~acquaint.store.Store` and return plain data. Matching is
 deterministic normalisation (case, punctuation and accents ignored). Nothing here acts
-on a partial match: partials are offered as suggestions, and :func:`find_entity` refuses
-to pick between candidates. One unreadable record is reported and skipped; it never
-takes a lookup down.
+on a partial match or picks between candidates: an id and another record's exact alias
+compete on equal terms, partials are offered as suggestions, and :func:`find_entity`
+refuses when more than one record fits. One unreadable record is reported and skipped;
+it never takes a lookup down.
 """
 
 from __future__ import annotations
@@ -16,18 +17,31 @@ from typing import Any
 from acquaint.records import load_yaml
 from acquaint.store import AcquaintError, Entity, Store
 
-__all__ = ["INACTIVE", "TIERS", "check_text", "find_entity", "match", "normalize", "reach_channels", "resolve_handle"]
+__all__ = [
+    "INACTIVE_RULES",
+    "TIERS",
+    "USABLE_STATUSES",
+    "check_text",
+    "find_entity",
+    "match",
+    "normalize",
+    "reach_channels",
+    "resolve_handle",
+]
 
 #: Who set a rule, most authoritative first. The operator's instruction for the message
 #: at hand outranks all of these; it belongs to the caller, not the store.
 TIERS = ("self", "operator", "affiliation", "observed", "default")
-#: Statuses that take a rule or an identity out of use.
-INACTIVE = {"superseded", "retracted", "expired", "dead"}
+#: An identity is usable only with one of these statuses (none recorded means active).
+#: Anything else (stale, former, unverified, retracted, dead, …) is reported, never acted on.
+USABLE_STATUSES = {"active", "relay"}
+#: A rule is out of use with one of these statuses.
+INACTIVE_RULES = {"superseded", "retracted", "expired", "dead", "draft"}
 _SPLIT_HINT = re.compile(r"^\W*(or|and|aka|a\.k\.a\.?|vs\.?|/|,|&|\+)\W*$", re.I)
 _NAME_LIKE = re.compile(r"\b[A-Z][a-z]+(?:[ '-][A-Z][a-z]+)+\b")
 _SENTENCE_STARTERS = {
     "The", "This", "That", "These", "Those", "When", "Where", "What", "Why", "How",
-    "If", "In", "On", "At", "For", "And", "But", "So", "Dear", "Hi", "Hello", "Thanks",
+    "If", "In", "On", "At", "For", "And", "But", "So", "Dear", "Hi", "Hello", "Thanks", "As", "See",
 }
 
 
@@ -42,7 +56,7 @@ def normalize(text: str) -> str:
 
 
 def _status(item: dict) -> str:
-    return str(item.get("status") or "active").lower()
+    return str(item.get("status") or "active").strip().lower()
 
 
 def _forms(entity: Entity) -> set[str]:
@@ -59,10 +73,10 @@ def _readable(store: Store) -> tuple[dict[str, Entity], list[dict]]:
     good, broken = {}, []
     for key in store:
         try:
-            entity = store[key]
+            entity = Entity(store, key)
             _forms(entity)
             good[key] = entity
-        except Exception as error:  # one bad record must not take down every lookup
+        except Exception as error:  # one bad record must not take down every lookup; it is reported
             broken.append({"key": key, "error": f"{type(error).__name__}: {error}"})
     return good, broken
 
@@ -92,21 +106,28 @@ def match(store: Store, query: str) -> dict[str, list]:
 def find_entity(store: Store, ref: str, *, names: bool = True) -> str:
     """The one store key a reference names, or an :class:`AcquaintError` saying why not.
 
-    Ids and refs (``ada-lovelace``, ``person:ada-lovelace``, ``people/ada-lovelace``) are
-    tried first. With ``names``, an exact name, alias, handle or email also counts when
-    exactly one entity has it. A partial match never counts; it is offered as a suggestion.
-    Operations that rewrite or remove records pass ``names=False`` and need the exact id.
+    ``person:ada-lovelace`` and ``people/ada-lovelace`` are exact and decide on their own.
+    A bare word is looked up as an id (in any kind, any case) and, with ``names``, as an
+    exact name, alias, handle or email; it resolves only when exactly one record fits all
+    of these together. A partial match never counts; it is offered as a suggestion.
+    Operations that rewrite or remove records pass ``names=False`` and need the id.
     """
-    try:
-        return store.find(ref)
-    except KeyError:
-        pass
-    found = match(store, ref)
-    if names and len(found["exact"]) == 1:
-        return found["exact"][0]
-    if names and found["exact"]:
-        raise AcquaintError(f"{ref!r} could be {', '.join(k.split('/', 1)[1] for k in found['exact'])}; say which by id")
-    suggestions = [k.split("/", 1)[1] for k in found["exact"] + found["partial"]]
+    text = ref.strip()
+    if ":" in text or "/" in text:
+        try:
+            return store.find(text)
+        except KeyError:
+            raise AcquaintError(f"no entity {ref!r}") from None
+    by_id = store.find_id(text)
+    found = match(store, text)
+    candidates = list(dict.fromkeys(by_id + (found["exact"] if names else [])))
+    if len(candidates) == 1:
+        return candidates[0]
+    if candidates:
+        raise AcquaintError(
+            f"{ref!r} could be {', '.join(candidates)}; say which with its kind and id, e.g. {Entity(store, candidates[0]).ref}"
+        )
+    suggestions = [k.split("/", 1)[1] for k in dict.fromkeys(found["exact"] + found["partial"])]
     hint = f"; did you mean {', '.join(suggestions)}?" if suggestions else ""
     if names:
         raise AcquaintError(f"no entity named {ref!r}{hint}")
@@ -140,10 +161,10 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
     """Who a channel handle belongs to, with the evidence: ``{"platform", "matches", "inactive", "by_name", "unreadable"}``.
 
     ``github:octocat``, ``email:ada@example.org`` and ``ada@example.org`` name a platform;
-    ``@octocat`` does not, so it matches that handle on any platform. Identities whose
-    status is retracted, dead, superseded or expired are reported under ``inactive``,
-    never as matches. A handle found in no identity file is matched against names under
-    ``by_name``, which is never enough to act on.
+    ``@octocat`` does not, so it matches that handle on any platform. Only identities with
+    a usable status (see :data:`USABLE_STATUSES`) are matches; the rest are reported under
+    ``inactive`` with their status. A handle found in no identity file is matched against
+    names under ``by_name``, which is never enough to act on.
     """
     platform, value = _split_handle(handle)
     wanted = _normalise_handle(platform, value)
@@ -164,11 +185,11 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
                 "evidence": identity.get("evidence") or identity.get("source") or "unrecorded",
                 "status": _status(identity),
             }
-            (inactive if row["status"] in INACTIVE else matches).append(row)
+            (matches if row["status"] in USABLE_STATUSES else inactive).append(row)
     by_name = []
     if not matches and not inactive and platform is None:
         names = match(store, value)
-        by_name = [{"id": store[k].slug, "key": k, "name": store[k].name, "evidence": "name only"} for k in names["exact"]]
+        by_name = [{"id": entities[k].slug, "key": k, "name": entities[k].name, "evidence": "name only"} for k in names["exact"] if k in entities]
     return {"platform": platform, "matches": matches, "inactive": inactive, "by_name": by_name, "unreadable": broken}
 
 
@@ -261,7 +282,7 @@ def _matches(when: Any, context: dict[str, str]) -> int | None:
             actual = context.get(kind) if slug else None
             expected = slug or expected
         else:
-            actual = context.get(condition)
+            actual = context.get(str(condition))
         if actual is None:
             return None
         allowed = expected if isinstance(expected, list) else [expected]
@@ -275,17 +296,34 @@ def _tier_of(rule: dict, default: str) -> str:
     return {"self-stated": "self", "person": "self"}.get(setter, setter if setter in TIERS else default)
 
 
-def _address(entity: Entity, channel: str | None) -> tuple[str | None, str | None]:
-    """An active address for a channel, or ``None`` and why."""
-    if not channel:
-        return None, None
+def _usable_identities(entity: Entity) -> list[dict]:
+    return [i for i in entity.identities if _status(i) in USABLE_STATUSES and i.get("platform") and i.get("value") is not None]
+
+
+def _address(entity: Entity, channel: str) -> tuple[str | None, str | None]:
+    """A usable address for a channel, or ``None`` and why."""
     recorded = [i for i in entity.identities if str(i.get("platform", "")).lower() == channel.lower()]
-    active = [i for i in recorded if _status(i) == "active"]
-    if active:
-        return f"{active[0]['platform']}:{active[0].get('value')}", None
+    usable = [i for i in recorded if _status(i) in USABLE_STATUSES]
+    if usable:
+        return f"{usable[0]['platform']}:{usable[0].get('value')}", None
     if recorded:
-        return None, f"no active {channel} address (the recorded one is {_status(recorded[0])})"
+        return None, f"no usable {channel} address (the recorded one is {_status(recorded[0])})"
     return None, None
+
+
+def _channels_of(do: Any) -> tuple[list[str], list[str]]:
+    """The channel names a rule's ``do`` asks for, in order, and notes about values that are not channel names."""
+    if not isinstance(do, dict):
+        return [], []
+    names, notes = [], []
+    for value in [do.get("channel"), *_as_list(do.get("fallback"))]:
+        if value is None:
+            continue
+        if isinstance(value, str) and value.strip():
+            names.append(value.strip())
+        else:
+            notes.append(f"ignored {value!r}: a channel is a name such as email")
+    return names, notes
 
 
 def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context: str | None) -> dict[str, Any]:
@@ -293,8 +331,8 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
 
     Precedence: the person's own stated rules > the operator's rules about them > norms of
     a project or affiliation > observed habits > global defaults. Within a tier the most
-    specific matching rule wins. Only active addresses are offered. It returns addresses;
-    it sends nothing.
+    specific matching rule wins. Only usable addresses are offered; a rule value that is
+    not a channel name is skipped with a note. It returns addresses; it sends nothing.
     """
     context = {k: str(v) for k, v in context.items() if v}
     entity = store[key]
@@ -310,11 +348,12 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
         candidates += [("affiliation", rule, f"{other.key}/rules.yaml") for rule in other.rules]
     defaults, _ = load_yaml(defaults_text) if defaults_text else ({}, [])
     for rule in (defaults or {}).get("rules", []) if isinstance(defaults, dict) else []:
-        candidates.append(("default", rule, "_defaults/rules.yaml"))
+        if isinstance(rule, dict):
+            candidates.append(("default", rule, "_defaults/rules.yaml"))
 
     scored = []
     for order, (tier, rule, origin) in enumerate(candidates):
-        if _status(rule) in INACTIVE:
+        if _status(rule) in INACTIVE_RULES:
             continue
         specificity = _matches(rule.get("when"), context)
         if specificity is not None:
@@ -324,20 +363,21 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
     channels, seen = [], set()
     for _, _, _, tier, rule, origin in scored:
         do = rule.get("do", {})
-        wanted = [do.get("channel"), *_as_list(do.get("fallback"))] if isinstance(do, dict) else [None]
-        for channel in wanted:
-            label = channel or str(do)
+        names, notes = _channels_of(do)
+        entries = [(name, None) for name in names] or ([(None, str(do))] if do not in ({}, None, "") else [])
+        for channel, instruction in entries:
+            label = channel or instruction
             if label in seen:
                 continue
             seen.add(label)
-            address, note = _address(entity, channel)
+            address, note = _address(entity, channel) if channel else (None, None)
             channels.append(
                 {
                     "channel": channel,
                     "address": address,
-                    "note": note,
+                    "note": "; ".join(filter(None, [note, *notes])) or None,
                     "tier": tier,
-                    "instruction": None if isinstance(do, dict) else str(do),
+                    "instruction": instruction,
                     "rule_from": origin,
                     "source": rule.get("source"),
                 }
@@ -349,12 +389,11 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
                 "address": f"{identity.get('platform')}:{identity.get('value')}",
                 "note": None,
                 "tier": "none",
-                "instruction": "no rule matched; active identities in the order listed",
+                "instruction": "no rule matched; usable identities in the order listed",
                 "rule_from": f"{key}/identities.yaml",
                 "source": identity.get("source"),
             }
-            for identity in entity.identities
-            if _status(identity) == "active"
+            for identity in _usable_identities(entity)
         ]
     return {"context": context, "channels": channels, "rules_matched": len(scored)}
 

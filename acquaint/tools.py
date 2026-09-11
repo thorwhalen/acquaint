@@ -198,6 +198,9 @@ def brief(person: str, *, purpose: str | None = None, project: str | None = None
 def lint(entity: str | None = None, *, data_dir: str | None = None) -> dict:
     """Check records: every preference, view and rule sourced; nothing POLICY.md forbids; files parse; entry files within budget."""
     store = _store(data_dir)
+    if store.root is not None and not store.root.is_dir():
+        summary = f"no store at {store.root}"
+        return {"ok": False, "errors": [], "warnings": [], "checked": 0, "summary": summary, "text": summary}
     result = lint_store(store, find_entity(store, entity) if entity else None)
     lines = [
         f"{f['severity']:7} {'/'.join(filter(None, [f['entity'], f['file']]))}" + (f":{f['line']}" if f["line"] else "") + f"  {f['rule']}: {f['message']}"
@@ -254,10 +257,12 @@ def rename(entity: str, to: str, *, data_dir: str | None = None) -> dict:
 def forget(entity: str, *, confirm: bool = False, data_dir: str | None = None) -> dict:
     """Remove an entity's folder and leave a salted tombstone. Needs the exact id; without ``confirm``, only reports what would be removed."""
     result = forget_entity(_store(data_dir), entity, confirm=confirm)
+    mentions = [f"still mentioned in {r['file']} ({', '.join(r['mentions'])})" for r in result["references"]]
     if not result["done"]:
         summary = f"would remove {len(result['files'])} file(s) of {result['key']}; pass --confirm to do it"
-        return {"ok": True, **result, "summary": summary, "text": "\n".join([*result["files"], summary])}
-    return {"ok": True, **result, "summary": f"forgot {result['key']}", "text": "\n".join([f"forgot {result['key']}", *result["history_rewrite"]])}
+        return {"ok": True, **result, "summary": summary, "text": "\n".join([*result["files"], *mentions, summary])}
+    note = ["Other records still mention them; forget does not edit them:", *mentions] if mentions else []
+    return {"ok": True, **result, "summary": f"forgot {result['key']}", "text": "\n".join([f"forgot {result['key']}", *result["history_rewrite"], *note])}
 
 
 # ------------------------------------------------------------------------- sync

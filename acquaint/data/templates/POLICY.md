@@ -8,7 +8,7 @@ This folder holds the operator's working notes about people and what they are in
 
 ## Every preference, view and rule carries its source
 
-End the bullet with a source tag: `[source: https://…]` (a permalink), `[source: log/2026-09.md#e03]` (the observation it came from), `[source: self: "their own words"]`, `[source: operator]`, or `[source: none located]` when you looked and found nothing. **A date alone is not a source.** `acquaint lint` fails on violations.
+End the bullet with a source tag: `[source: https://…]` (a permalink), `[source: log/2026-09.md#e03]` (the observation it came from), `[source: self: "their own words"]`, `[source: operator]`, or `[source: none located]` when you looked and found nothing. **A date alone is not a source.** A nested bullet is its own line and needs its own source. `acquaint lint` fails on violations.
 
 An unsourced claim recorded with a date is worse than no record: the date makes it look observed.
 

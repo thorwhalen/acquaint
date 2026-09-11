@@ -62,9 +62,18 @@ def test_overlapping_patterns_count_once():
     assert len([f for f in result["findings"] if f["rule"] == "contrastive-negation"]) == 2
 
 
-def test_relational_messages_never_pass():
-    result = lint_text("I'm so sorry for your loss.", tolerance="tolerant")
+@pytest.mark.parametrize("text", ["I'm so sorry for your loss.", "I owe you an apology for how I handled the review."])
+def test_relational_messages_never_pass(text):
+    result = lint_text(text, tolerance="tolerant")
     assert result["relational"] and not result["ok"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["I'm sorry, I can't make Friday.", "My apologies, I attached the wrong file.", "I apologize for any inconvenience."],
+)
+def test_routine_apologies_are_not_relational(text):
+    assert lint_text(text, tolerance="tolerant")["relational"] is False
 
 
 def test_recipient_blocklist_from_the_writing_card():

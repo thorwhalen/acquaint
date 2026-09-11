@@ -16,8 +16,8 @@ acquaint sync init --repo <owner>/<name>
 
 1. Creates the repository through `gh` as **private** if it does not exist (`--existing-only` refuses to create).
 2. **Refuses to continue** unless `gh repo view --json visibility` reports `PRIVATE`.
-3. Makes the data root a git checkout with that repository as `origin`, and records the repository and URL in its git config.
-4. Installs a **pre-push hook** that allows a push only through `origin`, only to the URL recorded at init (no `pushurl` override), only when that URL names the checked repository, and only while `gh` still reports it `PRIVATE`; it fails closed otherwise. The repository's `core.hooksPath` points at the hook by absolute path, so linked worktrees are guarded and a global `core.hooksPath` cannot silently skip it. Only GitHub remotes are accepted, so the repository whose visibility is checked is always the one that receives the data.
+3. Makes the data root a git checkout with that repository as `origin`, and records the repository and URL in its git config. It takes over only an empty folder or an existing clone of that same repository, and refuses any other repository.
+4. Installs a **pre-push hook** that allows a push only through `origin`, only when `origin` has exactly the one URL recorded at init (no `pushurl`, no `url.*.pushInsteadOf` redirect), only when that URL names the checked repository on github.com, and only while `gh` (pinned to github.com) still reports it `PRIVATE`; it fails closed otherwise. The hook is executable and the repository's `core.hooksPath` points at it by absolute path, so linked worktrees are guarded and a global `core.hooksPath` cannot silently skip it. Only GitHub remotes are accepted, so the repository whose visibility is checked is always the one that receives the data.
 5. Commits and pushes the store.
 
 ## Daily use
@@ -51,15 +51,9 @@ A fresh clone has **no hook** until `sync init` runs in it: hooks are not part o
 - **Deleting a folder does not delete it from history**, from other clones, or from backups. `acquaint forget` prints the history-rewrite steps; forks and copies elsewhere are beyond its reach.
 - Changing the repository to public through the GitHub website is caught at the next push or `status`, not before.
 
-## The encryption upgrade
+## The encryption upgrade (not yet)
 
-`git-remote-gcrypt` encrypts contents, file names and history on the remote (GPG-based; it force-pushes, so always pull first). Install it, then:
-
-```bash
-acquaint sync init --repo <owner>/<name> --remote-url "gcrypt::git@github.com:<owner>/<name>.git"
-```
-
-The visibility guard still applies to the repository.
+`git-remote-gcrypt` would encrypt contents, file names and history on the remote. It is the planned upgrade, but the v0.1 guard refuses its internal push, so `sync init` refuses `gcrypt::` URLs for now: https://github.com/thorwhalen/acquaint/issues/13. Until then, treat the private repository as readable by the host.
 
 ## Never
 

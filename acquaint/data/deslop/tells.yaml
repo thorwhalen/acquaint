@@ -154,10 +154,11 @@ rules:
       - '!(?=\s|$)'
 
 # Messages the operator writes themself: condolence, apology for real harm, conflict,
-# performance feedback. Routine apologies (for a delay, a typo, a mix-up) are not these.
+# performance feedback. Routine apologies ("sorry for the delay", "my apologies, wrong
+# file attached", "I apologize for any inconvenience", "sorry, I can't make Friday") are not.
 relational:
   message: this reads as a relational message; the operator writes it
   patterns:
     - '\b(condolences?|sorry for your loss|passed away|funeral)\b'
-    - '\b(i apologi[sz]e|my apologies|i.m (so |very |truly )?sorry)\b(?![^.!?\n]{0,40}\b(delay|delayed|late|slow|wait|waiting|confusion|typo|mix-?up|oversight|double|resend|trouble|noise)\b)'
+    - '\b(i owe you an apology|please forgive me|i was wrong to|i.m (so |deeply |truly )?sorry (that i hurt|for what i said|for how i (treated|spoke|handled)))\b'
     - '\b(performance review|let you go|terminat(e|ion) (of )?your)\b'

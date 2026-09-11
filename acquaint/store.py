@@ -15,10 +15,12 @@ reference can reach outside the data root. Underneath it is any
 ``MutableMapping[str, str]`` of relative paths to text: a ``dol`` files store by
 default, a ``dict`` in tests. That mapping is the storage seam.
 
-When the store is on disk, listing, moving and removing work on the directories
-themselves (so hidden files move and go with their entity), and a file that is not
-valid UTF-8 reads with replacement characters and is reported, instead of failing
-every lookup.
+When the store is on disk, an entity is a real directory whose name matches its key
+exactly (case included, even on case-insensitive filesystems) and is not a link.
+Listing, moving and removing work on those directories, so hidden files move and go
+with their entity. A file that is not valid UTF-8 reads with replacement characters and
+is reported, instead of failing every lookup. Entry files the store cannot address (a
+capitalised folder, a linked folder, ``profile.md``) are listed by :meth:`Store.misnamed`.
 
 >>> store = Store(files={})
 >>> store["people/ada-lovelace"] = {"PROFILE.md": "---\\nname: Ada Lovelace\\n---\\n"}
@@ -169,9 +171,10 @@ def validate_key(key: str) -> str:
 def text_files(root: str | os.PathLike) -> MutableMapping[str, str]:
     """A ``dol`` files store under ``root``, for text.
 
-    UTF-8 values (undecodable bytes read as U+FFFD instead of raising), ``\\n`` line
-    endings, ``/``-separated keys on every platform, folders made on write and never on
-    read, and permanent deletes (never to a trash folder, where "forgotten" data would linger).
+    UTF-8 values (undecodable bytes read as U+FFFD instead of raising; a byte-order mark
+    dropped), ``\\n`` line endings, ``/``-separated keys on every platform, folders made on
+    write and never on read, and permanent deletes (never to a trash folder, where
+    "forgotten" data would linger).
     """
     from dol import Files, mk_dirs_if_missing, wrap_kvs
 
@@ -359,13 +362,34 @@ class Store(MutableMapping):
     def __repr__(self) -> str:
         return f"Store({str(self.root) if self.root else type(self.files).__name__!r})"
 
+    # -- disk ------------------------------------------------------------------
+
+    def _dir(self, key: str) -> Path | None:
+        """The entity's folder on disk: exactly this name (case included), a real directory, not a link."""
+        if self.root is None or not _is_key(key):
+            return None
+        kind, slug = key.split("/")
+        kind_path, path = self.root / kind, self.root / kind / slug
+        try:
+            if not path.is_dir() or kind_path.is_symlink() or path.is_symlink():
+                return None
+            if kind not in os.listdir(self.root) or slug not in os.listdir(kind_path):
+                return None
+        except OSError:
+            return None
+        return path
+
     # -- mapping ---------------------------------------------------------------
 
     def __iter__(self) -> Iterator[str]:
         if self.root is not None:
             if not self.root.is_dir():
                 return iter(())
-            keys = (f"{p.parent.parent.name}/{p.parent.name}" for p in self.root.glob(f"*/*/{ENTRY_FILE}"))
+            keys = (
+                f"{p.parent.parent.name}/{p.parent.name}"
+                for p in self.root.glob(f"*/*/{ENTRY_FILE}")
+                if not p.parent.is_symlink() and not p.parent.parent.is_symlink()
+            )
         else:
             suffix = "/" + ENTRY_FILE
             keys = (k[: -len(suffix)] for k in list(self.files) if k.endswith(suffix) and k.count("/") == 2)
@@ -378,7 +402,11 @@ class Store(MutableMapping):
         if not isinstance(key, str) or not _is_key(key):
             return False
         if self.root is not None:
-            return (self.root / key / ENTRY_FILE).is_file()
+            path = self._dir(key)
+            try:
+                return path is not None and ENTRY_FILE in os.listdir(path)
+            except OSError:
+                return False
         return f"{key}/{ENTRY_FILE}" in self.files
 
     def __getitem__(self, key: str) -> Entity:
@@ -397,7 +425,7 @@ class Store(MutableMapping):
         if not self.exists(key):
             raise KeyError(key)
         if self.root is not None:
-            shutil.rmtree(self.root / key)
+            shutil.rmtree(self._dir(key))
             return
         for name in self._entity_files(key, hidden=True):
             del self.files[f"{key}/{name}"]
@@ -409,13 +437,13 @@ class Store(MutableMapping):
         if not _is_key(key):
             return False
         if self.root is not None:
-            return (self.root / key).is_dir()
+            return self._dir(key) is not None
         return any(k.startswith(key + "/") for k in list(self.files))
 
     def _entity_files(self, key: str, *, hidden: bool = False) -> list[str]:
         if self.root is not None:
-            base = self.root / key
-            if not base.is_dir():
+            base = self._dir(key)
+            if base is None:
                 return []
             found = []
             for dirpath, dirnames, filenames in os.walk(base):
@@ -440,11 +468,13 @@ class Store(MutableMapping):
         """Move an entity's whole folder to a new key (hidden files included)."""
         validate_key(src)
         validate_key(dst)
-        if self.exists(dst):
+        if not self.exists(src):
+            raise KeyError(src)
+        if self.exists(dst) or (self.root is not None and (self.root / dst).exists()):
             raise AcquaintError(f"{dst} already exists")
         if self.root is not None:
             (self.root / dst).parent.mkdir(parents=True, exist_ok=True)
-            os.replace(self.root / src, self.root / dst)
+            os.replace(self._dir(src), self.root / dst)
             return
         for name in self._entity_files(src, hidden=True):
             self.files[f"{dst}/{name}"] = self.files[f"{src}/{name}"]
@@ -454,7 +484,10 @@ class Store(MutableMapping):
         """Append to one of an entity's files (created if missing); a true append on disk, so concurrent writers do not erase each other."""
         validate_key(key)
         if self.root is not None:
-            path = self.root / key / name
+            base = self._dir(key)
+            if base is None:
+                raise KeyError(key)
+            path = base / name
             path.parent.mkdir(parents=True, exist_ok=True)
             with open(path, "a", encoding="utf-8", newline="\n") as handle:
                 handle.write(text)
@@ -462,28 +495,62 @@ class Store(MutableMapping):
         path = f"{key}/{name}"
         self.files[path] = (self.files[path] if path in self.files else "") + text
 
+    def misnamed(self) -> list[str]:
+        """Entry files on disk the store cannot address: a folder or file name not in lowercase ``kind/id/PROFILE.md`` form, or a linked folder."""
+        if self.root is None or not self.root.is_dir():
+            return []
+        found = []
+        for kind_path in sorted(self.root.iterdir()):
+            if not kind_path.is_dir() or kind_path.name.startswith((".", "_")):
+                continue
+            for entity_path in sorted(kind_path.iterdir()):
+                if not entity_path.is_dir():
+                    continue
+                entries = [name for name in os.listdir(entity_path) if name.lower() == ENTRY_FILE.lower()]
+                key = f"{kind_path.name}/{entity_path.name}"
+                if entries and (not _is_key(key) or ENTRY_FILE not in entries or kind_path.is_symlink() or entity_path.is_symlink()):
+                    found.append(f"{key}/{entries[0]}")
+        return found
+
     def path_of(self, key: str) -> str:
         """Where an entity lives, for a person to open: a real path when on disk, else the key."""
         return str(self.root / key) if self.root else key
 
     def location_warning(self) -> str | None:
-        """A warning when the data root sits inside another git repository: profile data belongs outside code repositories."""
+        """A warning when the data root is, or sits inside, a git repository that is not an acquaint store."""
         if self.root is None:
             return None
         root = Path(os.path.abspath(self.root))
+        config = root / ".git" / "config"
+        if (root / ".git").exists() and "[acquaint]" not in (config.read_text(encoding="utf-8", errors="replace") if config.is_file() else ""):
+            return f"the data root {root} is a git repository that `acquaint sync init` did not set up; keep profile data out of code repositories"
         for parent in root.parents:
             if (parent / ".git").exists():
                 return f"the data root {root} is inside the git repository at {parent}; keep profile data outside code repositories"
         return None
 
+    # -- references ------------------------------------------------------------
+
+    def find_id(self, slug: str) -> list[str]:
+        """Every key whose id is ``slug``, in any kind (ids are lowercase, so the lookup is too)."""
+        slug = slug.strip().lower()
+        if not _SEGMENT_RE.match(slug):
+            return []
+        if self.root is not None:
+            if not self.root.is_dir():
+                return []
+            keys = {f"{p.parent.parent.name}/{p.parent.name}" for p in self.root.glob(f"*/{slug}/{ENTRY_FILE}")}
+            return sorted(k for k in keys if k in self)
+        return sorted(k for k in self if k.split("/", 1)[1] == slug)
+
     def find(self, ref: str) -> str:
         """The store key for ``people/ada-lovelace``, ``person:ada-lovelace`` or a bare ``ada-lovelace``.
 
-        A bare id is looked up among people first, then every other kind; a bare id that
-        names entities of two other kinds is an error. Anything that is not a valid key
-        raises ``KeyError``, so no reference reaches outside the data root.
+        A bare id that names entities of two kinds is an error: say which, e.g.
+        ``project:atlas``. Anything that is not a valid key raises ``KeyError``, so no
+        reference reaches outside the data root.
         """
-        ref = ref.strip()
+        ref = ref.strip().lower()
         if "/" in ref:
             key = ref
         elif ":" in ref:
@@ -493,12 +560,11 @@ class Store(MutableMapping):
             except AcquaintError:
                 raise KeyError(ref) from None
         else:
-            if f"people/{ref}" in self:
-                return f"people/{ref}"
-            candidates = [key for key in self if key.split("/", 1)[1] == ref]
+            candidates = self.find_id(ref)
             if len(candidates) > 1:
                 raise AcquaintError(
-                    f"{ref!r} names more than one entity: {', '.join(candidates)}; say which, e.g. 'project:{ref}'"
+                    f"{ref!r} names more than one entity: {', '.join(candidates)}; say which, e.g. "
+                    f"'{Entity(self, candidates[1]).kind}:{ref}'"
                 )
             key = candidates[0] if candidates else ""
         if key in self:

@@ -60,6 +60,7 @@ def test_claude_code_bridges_are_relative_symlinks():
 def test_agents_point_at_skill_sections_instead_of_repeating_them(name):
     meta, body = _split(AGENTS / f"{name}.md")
     assert meta["name"] == name and meta["description"]
+    assert "Bash" not in str(meta.get("tools", "")), "agents that read other people's words get no shell"
     [method] = re.findall(r"^Method: (.+)$", body, re.M)
     for pointer in (p.strip() for p in method.split(";")):
         skill, _, section = pointer.partition(" § ")

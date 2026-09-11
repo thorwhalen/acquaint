@@ -9,7 +9,7 @@ Rationale and the provisional defaults: the "v0.1 architecture: seams and surfac
 | # | Seam | v0.1 default (no new dependency) | Replacement you can point at |
 |---|---|---|---|
 | 1 | where records live: `Store(files=)` | `dol.TextFiles` under the data root (`ACQUAINT_DATA_DIR` → `~/.config/acquaint/config.toml` → `~/.local/share/acquaint`) | any `MutableMapping[str, str]`: a `dict` (tests), `sshdol` / `s3dol` stores |
-| 2 | the sync remote: `sync_init(remote_url=)` | the private GitHub repo's SSH URL, read from `gh` | a `gcrypt::` URL (git-remote-gcrypt, the documented encryption upgrade); a local bare repo (tests) |
+| 2 | the sync remote: `sync_init(remote_url=)` | the private GitHub repo's SSH URL, read from `gh` | a `gcrypt::` URL (git-remote-gcrypt; needs guard support first, issue #13); a local bare repo reached through `insteadOf` (tests) |
 | 3 | how `git` / `gh` run: `run=` in `acquaint.sync` | `subprocess.run` | the scripted fake runner in the sync tests |
 | 4 | the tells catalogue: `catalog=` in `acquaint.deslop` | `acquaint/data/deslop/tells.yaml` | an over-representation list computed from the operator's own writing, or the Vale `signs-of-ai-writing` rules |
 

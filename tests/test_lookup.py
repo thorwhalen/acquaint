@@ -2,6 +2,8 @@
 
 import pytest
 
+from acquaint import tools
+from acquaint.brief import compose_brief
 from acquaint.lookup import check_text, find_entity, match, reach_channels, resolve_handle
 from acquaint.records import dump_yaml
 from acquaint.store import AcquaintError, Store
@@ -46,15 +48,34 @@ def test_find_entity_acts_only_on_exact_unique_matches(people, put):
     assert find_entity(people, "joanna-smith", names=False) == "people/joanna-smith"
 
 
+def test_an_id_and_another_records_alias_compete_on_equal_terms(people, put):
+    put(people, "projects/ada", meta={"name": "Ada Project"})
+    with pytest.raises(AcquaintError, match="could be"):
+        find_entity(people, "ada")
+    assert find_entity(people, "project:ada") == "projects/ada"
+    assert find_entity(people, "person:ada-lovelace") == "people/ada-lovelace"
+
+
+def test_ids_are_found_whatever_their_case(store, put):
+    put(store, "people/jordan", meta={"name": "Jordan"})
+    assert find_entity(store, "Jordan") == find_entity(store, "JORDAN", names=False) == "people/jordan"
+    put(store, "people/michael-jordan", meta={"name": "Michael Jordan", "aka": ["Jordan"]})
+    with pytest.raises(AcquaintError, match="could be"):
+        find_entity(store, "Jordan")
+
+
 @pytest.mark.parametrize("handle", ["email:ada.lovelace@example.org", "ADA.LOVELACE@example.org", "github:octocat"])
 def test_resolve_handle_finds_the_active_identity(people, handle):
     [found] = resolve_handle(people, handle)["matches"]
     assert found["id"] == "ada-lovelace" and found["evidence"] == "operator"
 
 
-def test_inactive_identities_are_reported_never_matched(people):
-    result = resolve_handle(people, "email:old-job@example.org")
-    assert result["matches"] == [] and [row["status"] for row in result["inactive"]] == ["retracted"]
+@pytest.mark.parametrize("status", ["retracted", "stale", "former", "unverified", "dead"])
+def test_only_usable_identities_are_matches(store, put, status):
+    identities = dump_yaml({"identities": [{"platform": "github", "value": "octocat", "source": "operator", "status": status}]})
+    put(store, "people/ada", meta={"name": "Ada"}, files={"identities.yaml": identities})
+    result = resolve_handle(store, "github:octocat")
+    assert result["matches"] == [] and [row["status"] for row in result["inactive"]] == [status]
 
 
 def test_handles_without_a_platform_and_names_are_kept_apart(people):
@@ -79,7 +100,7 @@ def test_check_flags_one_person_written_as_two(people):
 
 
 def test_check_accepts_full_names_and_citation_order_and_reports_shared_forms(people):
-    result = check_text(people, "Ada Lovelace met Sam. See Lovelace, Ada (1843). The Engine ran.")
+    result = check_text(people, "Ada Lovelace met Sam. See Lovelace, Ada (1843). As Lovelace, Ada wrote. The Engine ran.")
     assert result["conflations"] == []
     assert {"form": "sam", "ids": ["sam-sample", "zoe-example"]} in result["ambiguous"]
     assert "The Engine" not in result["unknown_candidates"]
@@ -135,7 +156,26 @@ def test_reach_precedence_self_over_operator_over_affiliation_over_defaults(stor
     assert [c["channel"] for c in routine["channels"]] == ["github", "discord", "email"]
 
 
-def test_reach_without_rules_lists_active_identities_only(people):
+def test_reach_without_rules_lists_usable_identities_only(people):
     result = reach_channels(people, "people/ada-lovelace")
     assert [c["address"] for c in result["channels"]] == ["email:Ada.Lovelace@example.org", "github:octocat"]
     assert {c["tier"] for c in result["channels"]} == {"none"}
+
+
+def test_a_rule_with_a_non_text_channel_is_skipped_with_a_note_not_a_crash(store, put):
+    put(store, "orgs/example-org", meta={"name": "Example Org"}, files={"rules.yaml": _rules({"when": {}, "do": {"channel": ["email", "phone"], "fallback": 7}, "source": "operator"})})
+    put(store, "people/ada", meta={"name": "Ada"}, files={"identities.yaml": ADA_IDENTITIES, "links.yaml": dump_yaml({"links": [{"to": "org:example-org"}]})})
+    result = reach_channels(store, "people/ada")
+    [affiliation] = [c for c in result["channels"] if c["tier"] == "affiliation"]
+    assert affiliation["channel"] is None and affiliation["address"] is None
+    assert "ignored ['email', 'phone']" in affiliation["note"] and "ignored 7" in affiliation["note"]
+    assert compose_brief(store, "people/ada")["text"].startswith("# Brief: Ada")
+
+
+def test_resolve_tool_is_ok_only_for_a_usable_identity_on_a_named_platform(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    tools.remember("ada-lovelace", "github:octocat", kind="identity", source="operator", data_dir=data)
+    assert tools.resolve("github:octocat", data_dir=data)["ok"]
+    assert not tools.resolve("@octocat", data_dir=data)["ok"]
+    assert not tools.resolve("Ada", data_dir=data)["ok"]
