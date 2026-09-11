@@ -24,6 +24,7 @@ __all__ = [
     "check_text",
     "find_entity",
     "match",
+    "normalise_handle",
     "normalize",
     "reach_channels",
     "resolve_handle",
@@ -163,7 +164,8 @@ def find_entity(store: Store, ref: str, *, names: bool = True) -> str:
 # ------------------------------------------------------------------------ handles
 
 
-def _normalise_handle(platform: str | None, value: str) -> str:
+def normalise_handle(platform: str | None, value: str) -> str:
+    """A handle's comparable form: an email lowercased, with Gmail dots and ``+tags`` folded; any other value lowercased, without a leading ``@``."""
     value = value.strip()
     if platform == "email" or (
         platform is None and re.fullmatch(r"[^@\s]+@[^@\s]+", value)
@@ -197,7 +199,7 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
     names under ``by_name``, which is never enough to act on.
     """
     platform, value = _split_handle(handle)
-    wanted = _normalise_handle(platform, value)
+    wanted = normalise_handle(platform, value)
     entities, broken = _readable(store)
     matches, inactive = [], []
     for key, entity in entities.items():
@@ -205,7 +207,7 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
             if platform and str(identity.get("platform", "")).lower() != platform:
                 continue
             if (
-                _normalise_handle(
+                normalise_handle(
                     identity.get("platform"), str(identity.get("value", ""))
                 )
                 != wanted

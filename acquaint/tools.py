@@ -404,7 +404,7 @@ def remember(
     reactivate: bool = False,
     data_dir: str | None = None,
 ) -> dict:
-    """Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source. An identity equal to an inactive one (``stale``, ``retracted``, …) is refused, naming that entry; ``reactivate`` makes it active again with the new source."""
+    """Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source. An identity equal to an inactive one (``stale``, ``retracted``, …) is refused, naming that entry and the command with which the operator can make it active again."""
     store = _store(data_dir)
     result = append_observation(
         store,
@@ -417,8 +417,8 @@ def remember(
     identity = result.get("identity") or {}
     if identity.get("change") == "reactivated":
         summary = f"reactivated identity {identity['handle']} (was {identity['previous_status']}) for {result['id']}; logged {result['ref']}"
-    elif identity.get("change") == "already_active":
-        summary = f"{identity['handle']} is already an active identity for {result['id']}; logged {result['ref']}"
+    elif identity.get("change") == "already_usable":
+        summary = f"{identity['handle']} is already a usable identity for {result['id']}; logged {result['ref']}"
     else:
         summary = f"recorded {result['kind']} {result['ref']} for {result['id']}"
     return {"ok": True, **result, "summary": summary}

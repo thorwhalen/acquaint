@@ -126,9 +126,30 @@ def test_remember_refuses_an_identity_equal_to_an_inactive_one_until_reactivated
     assert "recorded identity" not in refused.stdout + refused.stderr
     assert _acquaint(["resolve", "pager:example-rotation"], tmp_path).returncode == 1, "still inactive"
 
-    command = shlex.split(refused.stderr.split("run: ", 1)[1])
-    assert command[0] == "acquaint" and command[-1] == "--reactivate", command
+    command = shlex.split(refused.stderr[refused.stderr.index("acquaint remember"):])
+    assert command[0] == "acquaint" and command[-3:] == ["--reactivate", "--source", "https://example.org/roster"], command
     reactivated = _acquaint(command[1:], tmp_path)
     assert reactivated.returncode == 0, reactivated.stderr
     assert "reactivated identity pager:example-rotation (was stale) for ada-lovelace" in reactivated.stdout
     assert _acquaint(["resolve", "pager:example-rotation"], tmp_path).returncode == 0
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX shell")
+def test_the_printed_reactivate_command_is_safe_to_paste_into_a_shell(tmp_path):
+    """The refusal's command survives a POSIX shell: no redirection, one argument per word, with or without a source."""
+    data, cwd = tmp_path / "data", tmp_path / "cwd"
+    data.mkdir()
+    cwd.mkdir()
+    assert _acquaint(["new", "person", "Ada Lovelace"], data).returncode == 0
+    handle = ["remember", "ada-lovelace", "pager:example rotation", "--kind", "identity"]
+    assert _acquaint([*handle, "--source", "operator"], data).returncode == 0
+    identities = data / "people" / "ada-lovelace" / "identities.yaml"
+    identities.write_text(identities.read_text(encoding="utf-8").replace("status: active", "status: stale"), encoding="utf-8")
+    for source in ([], ["--source", 'self: "it is $HOME `now`"']):
+        refused = _acquaint([*handle, *source], data)
+        assert refused.returncode == 1, refused.stderr
+        command = refused.stderr[refused.stderr.index("acquaint remember"):].strip()
+        echoed = subprocess.run("printf '%s\\n' " + command.removeprefix("acquaint "), shell=True, capture_output=True, text=True, cwd=cwd)
+        assert (echoed.returncode, echoed.stderr) == (0, ""), command
+        assert echoed.stdout.splitlines() == shlex.split(command)[1:]
+    assert list(cwd.iterdir()) == [], "nothing was redirected into a file"
