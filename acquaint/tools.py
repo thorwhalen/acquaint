@@ -256,7 +256,7 @@ def reach(
     topic: str | None = None,
     data_dir: str | None = None,
 ) -> dict:
-    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. ``outcome`` is ``reachable``, ``unreachable`` (a rule matched, but no usable address is recorded for its channels) or ``none``."""
+    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. ``outcome`` is ``reachable``, ``no_address`` (a rule matched, but no usable address is recorded for its channels) or ``no_channel``."""
     store = _store(data_dir)
     key = find_entity(store, person)
     defaults = (
@@ -274,7 +274,8 @@ def reach(
         message_type=message_type,
         topic=topic,
     )
-    channels, slug = result["channels"], store[key].slug
+    entity = store[key]
+    channels, slug = result["channels"], entity.slug
     lines = [
         f"{n}. {c['channel'] or c['instruction']}"
         + (f" → {c['address']}" if c["address"] else "")
@@ -288,14 +289,15 @@ def reach(
     if usable:
         outcome, summary = "reachable", f"{len(usable)} usable channel(s) for {slug}"
     elif channels:
-        outcome = "unreachable"
+        outcome = "no_address"
         summary = (
             f"{result['rules_matched']} rule(s) matched for {slug}, but no usable address is recorded"
-            f" for {', '.join(unaddressed)}; add one with"
-            f" `acquaint remember {slug} {unaddressed[0]}:<address> --kind identity --source <source>`"
+            f" for {', '.join(unaddressed)}; record a current one with"
+            f' `acquaint remember {entity.ref} "{unaddressed[0]}:<address>" --kind identity --source <source>`'
         )
     else:
-        outcome, summary = "none", f"no active identities or rules recorded for {slug}"
+        outcome = "no_channel"
+        summary = f"no matching rule names a channel for {slug}, and no active identity is recorded"
     return {
         "ok": bool(usable),
         "outcome": outcome,
