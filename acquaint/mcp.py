@@ -21,7 +21,14 @@ from collections.abc import Callable, Iterable
 
 from acquaint.tools import SIDE_EFFECTS, TOOLS
 
-__all__ = ["DEFAULT_EFFECTS", "HIDDEN_PARAMETERS", "INSTRUCTIONS", "main", "mk_server", "refs"]
+__all__ = [
+    "DEFAULT_EFFECTS",
+    "HIDDEN_PARAMETERS",
+    "INSTRUCTIONS",
+    "main",
+    "mk_server",
+    "refs",
+]
 
 DEFAULT_EFFECTS = ("read", "append", "create")
 HIDDEN_PARAMETERS = ("data_dir",)
@@ -42,7 +49,11 @@ def refs(*, effects: Iterable[str] = DEFAULT_EFFECTS) -> list[str]:
     (True, False, False)
     """
     allowed = set(effects)
-    return [f"acquaint.tools:{t.__name__}" for t in TOOLS if SIDE_EFFECTS[t.__name__] in allowed]
+    return [
+        f"acquaint.tools:{t.__name__}"
+        for t in TOOLS
+        if SIDE_EFFECTS[t.__name__] in allowed
+    ]
 
 
 def _resolve(ref: str) -> Callable:
@@ -59,7 +70,9 @@ def _without(func: Callable, hidden: Iterable[str] = HIDDEN_PARAMETERS) -> Calla
     def tool(*args, **kwargs):
         return func(*args, **kwargs)
 
-    tool.__signature__ = signature.replace(parameters=[p for p in signature.parameters.values() if p.name not in hidden])
+    tool.__signature__ = signature.replace(
+        parameters=[p for p in signature.parameters.values() if p.name not in hidden]
+    )
     return tool
 
 
@@ -67,7 +80,11 @@ def mk_server(*, effects: Iterable[str] = DEFAULT_EFFECTS):
     """A FastMCP server over the selected tools, with ``data_dir`` hidden (not started)."""
     from py2mcp import mk_mcp_server
 
-    return mk_mcp_server([_without(_resolve(ref)) for ref in refs(effects=effects)], name="acquaint", instructions=INSTRUCTIONS)
+    return mk_mcp_server(
+        [_without(_resolve(ref)) for ref in refs(effects=effects)],
+        name="acquaint",
+        instructions=INSTRUCTIONS,
+    )
 
 
 def main() -> None:
@@ -75,7 +92,9 @@ def main() -> None:
     try:
         server = mk_server()
     except ImportError as error:
-        raise SystemExit('acquaint-mcp needs the mcp extra: pip install "acquaint[mcp]"') from error
+        raise SystemExit(
+            'acquaint-mcp needs the mcp extra: pip install "acquaint[mcp]"'
+        ) from error
     server.run()
 
 

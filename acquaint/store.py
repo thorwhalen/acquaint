@@ -64,7 +64,11 @@ _KIND_OF_DIR = {folder: kind for kind, folder in KIND_DIRS.items()}
 _SEGMENT_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 #: What undecodable bytes read as. A file containing it is reported as not valid UTF-8.
 UNREADABLE = "�"
-_YAML_LISTS = (("identities.yaml", "identities"), ("rules.yaml", "rules"), ("links.yaml", "links"))
+_YAML_LISTS = (
+    ("identities.yaml", "identities"),
+    ("rules.yaml", "rules"),
+    ("links.yaml", "links"),
+)
 
 
 class AcquaintError(Exception):
@@ -161,7 +165,9 @@ def validate_key(key: str) -> str:
     not a store key: '../outside/people/someone' (expected <kind>/<id>, e.g. people/ada-lovelace)
     """
     if not _is_key(key):
-        raise AcquaintError(f"not a store key: {key!r} (expected <kind>/<id>, e.g. people/ada-lovelace)")
+        raise AcquaintError(
+            f"not a store key: {key!r} (expected <kind>/<id>, e.g. people/ada-lovelace)"
+        )
     return key
 
 
@@ -314,7 +320,9 @@ class Entity(MutableMapping):
         profile = self.text(ENTRY_FILE)
         errors = [f"{ENTRY_FILE}: {e}" for e in self._profile()[2]]
         if UNREADABLE in profile:
-            errors.append(f"{ENTRY_FILE}: not valid UTF-8 (undecodable bytes shown as {UNREADABLE})")
+            errors.append(
+                f"{ENTRY_FILE}: not valid UTF-8 (undecodable bytes shown as {UNREADABLE})"
+            )
         for filename, key in _YAML_LISTS:
             errors += self._yaml_list(filename, key)[1]
         return errors
@@ -324,7 +332,11 @@ class Entity(MutableMapping):
         """Every string a document might use for this entity: id, name, aka, name parts, handles."""
         forms = [self.slug, self.name, *self.aka]
         forms += [part for part in self.name.split() if len(part) > 2]
-        forms += [str(i.get("value", "")) for i in self.identities if i.get("platform") != "email"]
+        forms += [
+            str(i.get("value", ""))
+            for i in self.identities
+            if i.get("platform") != "email"
+        ]
         return sorted({f.strip() for f in forms if f and f.strip()})
 
     def summary(self) -> dict[str, Any]:
@@ -351,7 +363,12 @@ class Store(MutableMapping):
     ('projects/example', 'projects/example')
     """
 
-    def __init__(self, data_dir: str | os.PathLike | None = None, *, files: MutableMapping[str, str] | None = None):
+    def __init__(
+        self,
+        data_dir: str | os.PathLike | None = None,
+        *,
+        files: MutableMapping[str, str] | None = None,
+    ):
         if files is None:
             self.root: Path | None = _resolve_data_dir(data_dir)
             files = text_files(self.root)
@@ -392,7 +409,11 @@ class Store(MutableMapping):
             )
         else:
             suffix = "/" + ENTRY_FILE
-            keys = (k[: -len(suffix)] for k in list(self.files) if k.endswith(suffix) and k.count("/") == 2)
+            keys = (
+                k[: -len(suffix)]
+                for k in list(self.files)
+                if k.endswith(suffix) and k.count("/") == 2
+            )
         return iter(sorted(k for k in keys if _is_key(k)))
 
     def __len__(self) -> int:
@@ -456,7 +477,9 @@ class Store(MutableMapping):
         prefix = key + "/"
         names = [k[len(prefix) :] for k in list(self.files) if k.startswith(prefix)]
         if not hidden:
-            names = [n for n in names if not any(part.startswith(".") for part in n.split("/"))]
+            names = [
+                n for n in names if not any(part.startswith(".") for part in n.split("/"))
+            ]
         return sorted(names)
 
     def all_files(self, key: str) -> list[str]:
@@ -506,9 +529,18 @@ class Store(MutableMapping):
             for entity_path in sorted(kind_path.iterdir()):
                 if not entity_path.is_dir():
                     continue
-                entries = [name for name in os.listdir(entity_path) if name.lower() == ENTRY_FILE.lower()]
+                entries = [
+                    name
+                    for name in os.listdir(entity_path)
+                    if name.lower() == ENTRY_FILE.lower()
+                ]
                 key = f"{kind_path.name}/{entity_path.name}"
-                if entries and (not _is_key(key) or ENTRY_FILE not in entries or kind_path.is_symlink() or entity_path.is_symlink()):
+                if entries and (
+                    not _is_key(key)
+                    or ENTRY_FILE not in entries
+                    or kind_path.is_symlink()
+                    or entity_path.is_symlink()
+                ):
                     found.append(f"{key}/{entries[0]}")
         return found
 
@@ -522,7 +554,11 @@ class Store(MutableMapping):
             return None
         root = Path(os.path.abspath(self.root))
         config = root / ".git" / "config"
-        if (root / ".git").exists() and "[acquaint]" not in (config.read_text(encoding="utf-8", errors="replace") if config.is_file() else ""):
+        if (root / ".git").exists() and "[acquaint]" not in (
+            config.read_text(encoding="utf-8", errors="replace")
+            if config.is_file()
+            else ""
+        ):
             return f"the data root {root} is a git repository that `acquaint sync init` did not set up; keep profile data out of code repositories"
         for parent in root.parents:
             if (parent / ".git").exists():
@@ -539,7 +575,10 @@ class Store(MutableMapping):
         if self.root is not None:
             if not self.root.is_dir():
                 return []
-            keys = {f"{p.parent.parent.name}/{p.parent.name}" for p in self.root.glob(f"*/{slug}/{ENTRY_FILE}")}
+            keys = {
+                f"{p.parent.parent.name}/{p.parent.name}"
+                for p in self.root.glob(f"*/{slug}/{ENTRY_FILE}")
+            }
             return sorted(k for k in keys if k in self)
         return sorted(k for k in self if k.split("/", 1)[1] == slug)
 

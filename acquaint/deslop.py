@@ -29,7 +29,13 @@ from typing import Any
 from acquaint.records import items, sections, split_frontmatter
 from acquaint.resources import data_yaml
 
-__all__ = ["TOLERANCES", "lint_text", "normalize_tolerance", "recipient_card", "text_metrics"]
+__all__ = [
+    "TOLERANCES",
+    "lint_text",
+    "normalize_tolerance",
+    "recipient_card",
+    "text_metrics",
+]
 
 TOLERANCES = ("tolerant", "neutral", "averse", "unknown")
 _WORD_RE = re.compile(r"[A-Za-z0-9’']+")
@@ -51,7 +57,10 @@ def normalize_tolerance(value: Any) -> tuple[str, str | None]:
     text = str(value).strip().lower()
     if text in TOLERANCES:
         return text, None
-    return "unknown", f"ai_tolerance {value!r} is not one of tolerant, neutral, averse; treated as unknown (neutral)"
+    return (
+        "unknown",
+        f"ai_tolerance {value!r} is not one of tolerant, neutral, averse; treated as unknown (neutral)",
+    )
 
 
 def recipient_card(entity: Any) -> dict[str, Any]:
@@ -98,15 +107,35 @@ def text_metrics(text: str) -> dict[str, float]:
         "sentence_len_mean": round(mean, 2),
         "sentence_len_cv": round(cv, 3),
         "em_dashes": text.count("—"),
-        "em_dash_per_100w": round(100 * text.count("—") / len(words), 2) if words else 0.0,
+        "em_dash_per_100w": round(100 * text.count("—") / len(words), 2)
+        if words
+        else 0.0,
         "headers": len(re.findall(r"^#{1,6}\s", text, re.M)),
         "bold": len(re.findall(r"\*\*[^*]+\*\*", text)),
     }
 
 
-def _finding(rule: str, tier: str, message: str, enforced: bool, text: str, span: tuple[int, int] | None) -> dict:
-    excerpt = text[max(0, span[0] - 25) : span[1] + 25].replace("\n", " ").strip() if span else ""
-    return {"rule": rule, "tier": tier, "message": message, "enforced": enforced, "span": list(span) if span else None, "excerpt": excerpt}
+def _finding(
+    rule: str,
+    tier: str,
+    message: str,
+    enforced: bool,
+    text: str,
+    span: tuple[int, int] | None,
+) -> dict:
+    excerpt = (
+        text[max(0, span[0] - 25) : span[1] + 25].replace("\n", " ").strip()
+        if span
+        else ""
+    )
+    return {
+        "rule": rule,
+        "tier": tier,
+        "message": message,
+        "enforced": enforced,
+        "span": list(span) if span else None,
+        "excerpt": excerpt,
+    }
 
 
 def lint_text(
@@ -126,7 +155,9 @@ def lint_text(
     catalog = catalog if catalog is not None else data_yaml("deslop/tells.yaml")
     levels = catalog["tolerance"]
     if tolerance not in TOLERANCES and tolerance not in levels:
-        raise ValueError(f"tolerance must be one of {', '.join(TOLERANCES)}; got {tolerance!r}")
+        raise ValueError(
+            f"tolerance must be one of {', '.join(TOLERANCES)}; got {tolerance!r}"
+        )
     level = levels.get(tolerance, levels["neutral"])
     if isinstance(level, str):
         level = levels[level]
@@ -136,7 +167,9 @@ def lint_text(
     for rule in catalog["rules"]:
         # Two patterns of one rule often match the same construction: merge overlaps.
         spans: list[tuple[int, int]] = []
-        for start, end in sorted(m.span() for p in rule["patterns"] for m in re.finditer(p, text, re.I | re.M)):
+        for start, end in sorted(
+            m.span() for p in rule["patterns"] for m in re.finditer(p, text, re.I | re.M)
+        ):
             if spans and start < spans[-1][1]:
                 spans[-1] = (spans[-1][0], max(end, spans[-1][1]))
             else:
@@ -145,24 +178,77 @@ def lint_text(
         over_limit = limit is None or len(spans) > limit
         for span in spans:
             enforced = rule["tier"] in enforce and over_limit
-            message = rule["message"] + (f" ({len(spans)} found, {limit} allowed)" if limit is not None else "")
-            findings.append(_finding(rule["id"], rule["tier"], message, enforced, text, span))
+            message = rule["message"] + (
+                f" ({len(spans)} found, {limit} allowed)" if limit is not None else ""
+            )
+            findings.append(
+                _finding(rule["id"], rule["tier"], message, enforced, text, span)
+            )
 
     for phrase in blocklist:
         for m in re.finditer(re.escape(phrase), text, re.I):
-            findings.append(_finding("recipient-blocklist", "E", f"this recipient's card says never to use {phrase!r}", True, text, m.span()))
+            findings.append(
+                _finding(
+                    "recipient-blocklist",
+                    "E",
+                    f"this recipient's card says never to use {phrase!r}",
+                    True,
+                    text,
+                    m.span(),
+                )
+            )
 
     metrics = text_metrics(text)
     limits = catalog["metrics"]
-    if metrics["em_dash_per_100w"] > level["em_dash_per_100w_max"] and metrics["em_dashes"] > 1:
-        findings.append(_finding("em-dash-density", "W", f"{metrics['em_dash_per_100w']} em dashes per 100 words (max {level['em_dash_per_100w_max']})", "W" in enforce, text, None))
-    if metrics["sentences"] >= limits["min_sentences_for_rhythm"] and metrics["sentence_len_cv"] < limits["sentence_len_cv_min"]:
-        findings.append(_finding("uniform-rhythm", "S", f"sentence lengths barely vary (variation {metrics['sentence_len_cv']}, want ≥ {limits['sentence_len_cv_min']})", "S" in enforce, text, None))
-    if metrics["words"] < limits["short_message_words"] and (metrics["headers"] or metrics["bold"]):
-        findings.append(_finding("formatting-in-short-message", "W", "headers or bold in a short message", "W" in enforce, text, None))
+    if (
+        metrics["em_dash_per_100w"] > level["em_dash_per_100w_max"]
+        and metrics["em_dashes"] > 1
+    ):
+        findings.append(
+            _finding(
+                "em-dash-density",
+                "W",
+                f"{metrics['em_dash_per_100w']} em dashes per 100 words (max {level['em_dash_per_100w_max']})",
+                "W" in enforce,
+                text,
+                None,
+            )
+        )
+    if (
+        metrics["sentences"] >= limits["min_sentences_for_rhythm"]
+        and metrics["sentence_len_cv"] < limits["sentence_len_cv_min"]
+    ):
+        findings.append(
+            _finding(
+                "uniform-rhythm",
+                "S",
+                f"sentence lengths barely vary (variation {metrics['sentence_len_cv']}, want ≥ {limits['sentence_len_cv_min']})",
+                "S" in enforce,
+                text,
+                None,
+            )
+        )
+    if metrics["words"] < limits["short_message_words"] and (
+        metrics["headers"] or metrics["bold"]
+    ):
+        findings.append(
+            _finding(
+                "formatting-in-short-message",
+                "W",
+                "headers or bold in a short message",
+                "W" in enforce,
+                text,
+                None,
+            )
+        )
 
-    relational = any(re.search(p, text, re.I) for p in catalog.get("relational", {}).get("patterns", []))
-    findings.sort(key=lambda f: (not f["enforced"], "ESW".index(f["tier"]), f["span"] or [0]))
+    relational = any(
+        re.search(p, text, re.I)
+        for p in catalog.get("relational", {}).get("patterns", [])
+    )
+    findings.sort(
+        key=lambda f: (not f["enforced"], "ESW".index(f["tier"]), f["span"] or [0])
+    )
     return {
         "ok": not any(f["enforced"] for f in findings) and not relational,
         "tolerance": tolerance,
@@ -170,5 +256,7 @@ def lint_text(
         "findings": findings,
         "metrics": metrics,
         "relational": relational,
-        "relational_message": catalog.get("relational", {}).get("message") if relational else None,
+        "relational_message": catalog.get("relational", {}).get("message")
+        if relational
+        else None,
     }

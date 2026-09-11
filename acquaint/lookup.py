@@ -40,8 +40,30 @@ INACTIVE_RULES = {"superseded", "retracted", "expired", "dead", "draft"}
 _SPLIT_HINT = re.compile(r"^\W*(or|and|aka|a\.k\.a\.?|vs\.?|/|,|&|\+)\W*$", re.I)
 _NAME_LIKE = re.compile(r"\b[A-Z][a-z]+(?:[ '-][A-Z][a-z]+)+\b")
 _SENTENCE_STARTERS = {
-    "The", "This", "That", "These", "Those", "When", "Where", "What", "Why", "How",
-    "If", "In", "On", "At", "For", "And", "But", "So", "Dear", "Hi", "Hello", "Thanks", "As", "See",
+    "The",
+    "This",
+    "That",
+    "These",
+    "Those",
+    "When",
+    "Where",
+    "What",
+    "Why",
+    "How",
+    "If",
+    "In",
+    "On",
+    "At",
+    "For",
+    "And",
+    "But",
+    "So",
+    "Dear",
+    "Hi",
+    "Hello",
+    "Thanks",
+    "As",
+    "See",
 }
 
 
@@ -76,7 +98,9 @@ def _readable(store: Store) -> tuple[dict[str, Entity], list[dict]]:
             entity = Entity(store, key)
             _forms(entity)
             good[key] = entity
-        except Exception as error:  # one bad record must not take down every lookup; it is reported
+        except (
+            Exception
+        ) as error:  # one bad record must not take down every lookup; it is reported
             broken.append({"key": key, "error": f"{type(error).__name__}: {error}"})
     return good, broken
 
@@ -127,7 +151,9 @@ def find_entity(store: Store, ref: str, *, names: bool = True) -> str:
         raise AcquaintError(
             f"{ref!r} could be {', '.join(candidates)}; say which with its kind and id, e.g. {Entity(store, candidates[0]).ref}"
         )
-    suggestions = [k.split("/", 1)[1] for k in dict.fromkeys(found["exact"] + found["partial"])]
+    suggestions = [
+        k.split("/", 1)[1] for k in dict.fromkeys(found["exact"] + found["partial"])
+    ]
     hint = f"; did you mean {', '.join(suggestions)}?" if suggestions else ""
     if names:
         raise AcquaintError(f"no entity named {ref!r}{hint}")
@@ -139,7 +165,9 @@ def find_entity(store: Store, ref: str, *, names: bool = True) -> str:
 
 def _normalise_handle(platform: str | None, value: str) -> str:
     value = value.strip()
-    if platform == "email" or (platform is None and re.fullmatch(r"[^@\s]+@[^@\s]+", value)):
+    if platform == "email" or (
+        platform is None and re.fullmatch(r"[^@\s]+@[^@\s]+", value)
+    ):
         local, _, domain = value.lower().partition("@")
         if domain in {"gmail.com", "googlemail.com"}:
             local = local.split("+", 1)[0].replace(".", "")
@@ -149,7 +177,9 @@ def _normalise_handle(platform: str | None, value: str) -> str:
 
 def _split_handle(handle: str) -> tuple[str | None, str]:
     handle = handle.strip()
-    if re.fullmatch(r"[a-z][a-z0-9_-]*:[^/].*", handle) and not handle.startswith(("http:", "https:")):
+    if re.fullmatch(r"[a-z][a-z0-9_-]*:[^/].*", handle) and not handle.startswith(
+        ("http:", "https:")
+    ):
         platform, _, value = handle.partition(":")
         return platform.lower(), value
     if re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", handle):
@@ -174,7 +204,12 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
         for identity in entity.identities:
             if platform and str(identity.get("platform", "")).lower() != platform:
                 continue
-            if _normalise_handle(identity.get("platform"), str(identity.get("value", ""))) != wanted:
+            if (
+                _normalise_handle(
+                    identity.get("platform"), str(identity.get("value", ""))
+                )
+                != wanted
+            ):
                 continue
             row = {
                 "id": entity.slug,
@@ -182,15 +217,32 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
                 "name": entity.name,
                 "platform": identity.get("platform"),
                 "value": identity.get("value"),
-                "evidence": identity.get("evidence") or identity.get("source") or "unrecorded",
+                "evidence": identity.get("evidence")
+                or identity.get("source")
+                or "unrecorded",
                 "status": _status(identity),
             }
             (matches if row["status"] in USABLE_STATUSES else inactive).append(row)
     by_name = []
     if not matches and not inactive and platform is None:
         names = match(store, value)
-        by_name = [{"id": entities[k].slug, "key": k, "name": entities[k].name, "evidence": "name only"} for k in names["exact"] if k in entities]
-    return {"platform": platform, "matches": matches, "inactive": inactive, "by_name": by_name, "unreadable": broken}
+        by_name = [
+            {
+                "id": entities[k].slug,
+                "key": k,
+                "name": entities[k].name,
+                "evidence": "name only",
+            }
+            for k in names["exact"]
+            if k in entities
+        ]
+    return {
+        "platform": platform,
+        "matches": matches,
+        "inactive": inactive,
+        "by_name": by_name,
+        "unreadable": broken,
+    }
 
 
 # -------------------------------------------------------------------- conflations
@@ -234,7 +286,11 @@ def check_text(store: Store, text: str) -> dict[str, Any]:
             if normalize(s1) == normalize(s2) or p2 < p1 + len(s1):
                 continue
             between = text[p1 + len(s1) : p2]
-            if len(between) <= 12 and _SPLIT_HINT.match(between) and not _is_citation(entity, s1, s2, between):
+            if (
+                len(between) <= 12
+                and _SPLIT_HINT.match(between)
+                and not _is_citation(entity, s1, s2, between)
+            ):
                 conflations.append(
                     {
                         "id": entity.slug,
@@ -293,21 +349,36 @@ def _matches(when: Any, context: dict[str, str]) -> int | None:
 
 def _tier_of(rule: dict, default: str) -> str:
     setter = str(rule.get("set_by") or rule.get("authority") or default).lower()
-    return {"self-stated": "self", "person": "self"}.get(setter, setter if setter in TIERS else default)
+    return {"self-stated": "self", "person": "self"}.get(
+        setter, setter if setter in TIERS else default
+    )
 
 
 def _usable_identities(entity: Entity) -> list[dict]:
-    return [i for i in entity.identities if _status(i) in USABLE_STATUSES and i.get("platform") and i.get("value") is not None]
+    return [
+        i
+        for i in entity.identities
+        if _status(i) in USABLE_STATUSES
+        and i.get("platform")
+        and i.get("value") is not None
+    ]
 
 
 def _address(entity: Entity, channel: str) -> tuple[str | None, str | None]:
     """A usable address for a channel, or ``None`` and why."""
-    recorded = [i for i in entity.identities if str(i.get("platform", "")).lower() == channel.lower()]
+    recorded = [
+        i
+        for i in entity.identities
+        if str(i.get("platform", "")).lower() == channel.lower()
+    ]
     usable = [i for i in recorded if _status(i) in USABLE_STATUSES]
     if usable:
         return f"{usable[0]['platform']}:{usable[0].get('value')}", None
     if recorded:
-        return None, f"no usable {channel} address (the recorded one is {_status(recorded[0])})"
+        return (
+            None,
+            f"no usable {channel} address (the recorded one is {_status(recorded[0])})",
+        )
     return None, None
 
 
@@ -326,7 +397,9 @@ def _channels_of(do: Any) -> tuple[list[str], list[str]]:
     return names, notes
 
 
-def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context: str | None) -> dict[str, Any]:
+def reach_channels(
+    store: Store, key: str, *, defaults_text: str = "", **context: str | None
+) -> dict[str, Any]:
     """Ordered channels for reaching one entity in a context (``purpose``, ``urgency``, ``project``, ``message_type``, ``topic``).
 
     Precedence: the person's own stated rules > the operator's rules about them > norms of
@@ -336,7 +409,9 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
     """
     context = {k: str(v) for k, v in context.items() if v}
     entity = store[key]
-    candidates: list[tuple[str, dict, str]] = [(_tier_of(rule, "operator"), rule, f"{key}/rules.yaml") for rule in entity.rules]
+    candidates: list[tuple[str, dict, str]] = [
+        (_tier_of(rule, "operator"), rule, f"{key}/rules.yaml") for rule in entity.rules
+    ]
     affiliations = [str(link.get("to", "")) for link in entity.links]
     if context.get("project"):
         affiliations.append(f"project:{context['project']}")
@@ -345,7 +420,9 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
             other = store[store.find(ref)]
         except (KeyError, AcquaintError):
             continue
-        candidates += [("affiliation", rule, f"{other.key}/rules.yaml") for rule in other.rules]
+        candidates += [
+            ("affiliation", rule, f"{other.key}/rules.yaml") for rule in other.rules
+        ]
     defaults, _ = load_yaml(defaults_text) if defaults_text else ({}, [])
     for rule in (defaults or {}).get("rules", []) if isinstance(defaults, dict) else []:
         if isinstance(rule, dict):
@@ -364,7 +441,9 @@ def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context
     for _, _, _, tier, rule, origin in scored:
         do = rule.get("do", {})
         names, notes = _channels_of(do)
-        entries = [(name, None) for name in names] or ([(None, str(do))] if do not in ({}, None, "") else [])
+        entries = [(name, None) for name in names] or (
+            [(None, str(do))] if do not in ({}, None, "") else []
+        )
         for channel, instruction in entries:
             label = channel or instruction
             if label in seen:

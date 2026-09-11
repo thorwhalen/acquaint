@@ -44,12 +44,29 @@ def main(argv=None):
         getattr(stream, "reconfigure", lambda **_: None)(errors="backslashreplace")
     argv = list(sys.argv[1:] if argv is None else argv)
     as_json = "--json" in argv
-    commands = {f.__name__.replace("_", "-"): _command(f) for f in tools.TOOLS if not f.__name__.startswith("sync_")}
-    commands["sync"] = {f.__name__.removeprefix("sync_"): _command(f) for f in tools.TOOLS if f.__name__.startswith("sync_")}
+    commands = {
+        f.__name__.replace("_", "-"): _command(f)
+        for f in tools.TOOLS
+        if not f.__name__.startswith("sync_")
+    }
+    commands["sync"] = {
+        f.__name__.removeprefix("sync_"): _command(f)
+        for f in tools.TOOLS
+        if f.__name__.startswith("sync_")
+    }
     stdin = {"text": {"codec": lambda text: sys.stdin.read() if text == "-" else text}}
     config = {"check": stdin, "style-lint": stdin}
     args = [a for a in argv if a != "--json"]
-    raise SystemExit(cw.dispatch(commands, args, prog="acquaint", convention=cw.MODERN, egress=_egress(as_json), config=config))
+    raise SystemExit(
+        cw.dispatch(
+            commands,
+            args,
+            prog="acquaint",
+            convention=cw.MODERN,
+            egress=_egress(as_json),
+            config=config,
+        )
+    )
 
 
 if __name__ == "__main__":

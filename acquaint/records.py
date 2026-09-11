@@ -53,7 +53,9 @@ __all__ = [
     "split_frontmatter",
 ]
 
-_FRONTMATTER_RE = re.compile(r"\A---[ \t]*\n(?P<yaml>.*?)\n---[ \t]*(?:\n|\Z)(?P<body>.*)\Z", re.S)
+_FRONTMATTER_RE = re.compile(
+    r"\A---[ \t]*\n(?P<yaml>.*?)\n---[ \t]*(?:\n|\Z)(?P<body>.*)\Z", re.S
+)
 _HEADING_RE = re.compile(r"^ {0,3}(?P<hashes>#{1,6})[ \t]+(?P<title>.*?)[ \t]*$")
 _BULLET_RE = re.compile(r"^(?P<indent>[ \t]*)(?:[-*+]|\d{1,3}[.)])[ \t]+(?P<text>\S.*)$")
 _THEMATIC_BREAK_RE = re.compile(r"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")
@@ -63,10 +65,15 @@ _SOURCE_TAG_RE = re.compile(r"\[source:\s*(?P<ref>[^\]]*)\]", re.I)
 #: Quoted words, with at least one word character inside: straight or curly double quotes,
 #: curly single quotes, or straight single quotes that open after a non-word character (so
 #: the apostrophes in "it's what they're like" are not quotes, and 'don't email me' is one).
-_QUOTE_RE = re.compile(r"\"[^\"\n]*\w[^\"\n]*\"|“[^”\n]*\w[^”\n]*”|‘[^’\n]*\w[^’\n]*’|(?<!\w)'[^\n]*\w[^\n]*'(?!\w)")
+_QUOTE_RE = re.compile(
+    r"\"[^\"\n]*\w[^\"\n]*\"|“[^”\n]*\w[^”\n]*”|‘[^’\n]*\w[^’\n]*’|(?<!\w)'[^\n]*\w[^\n]*'(?!\w)"
+)
 _MONTH = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
 _WEEKDAY = r"(?:mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)"
-_TIMESTAMP_RE = re.compile(r"\d{4}-\d{2}-\d{2}(?:[t ]\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?(?:z|[+-]\d{2}:?\d{2})?", re.I)
+_TIMESTAMP_RE = re.compile(
+    r"\d{4}-\d{2}-\d{2}(?:[t ]\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?(?:z|[+-]\d{2}:?\d{2})?",
+    re.I,
+)
 #: Everything a date, a time or "observed last Tuesday" can be made of; a reference made only of these is date-only.
 _DATE_NOISE_RE = re.compile(
     rf"\b(?:{_MONTH}|{_WEEKDAY}|observed|seen|noted|on|in|at|around|circa|ca|about|of|the|am|pm|utc|gmt|q[1-4]"
@@ -81,7 +88,8 @@ _PLACEHOLDER_RE = re.compile(
     re.I,
 )
 _LOG_HEADING_RE = re.compile(
-    r"^##[ \t]+(?P<id>e\d+)[ \t]*[·|–—-][ \t]*(?P<date>\S+)[ \t]*[·|–—-][ \t]*(?P<kind>\S+)[ \t]*$", re.M
+    r"^##[ \t]+(?P<id>e\d+)[ \t]*[·|–—-][ \t]*(?P<date>\S+)[ \t]*[·|–—-][ \t]*(?P<kind>\S+)[ \t]*$",
+    re.M,
 )
 _LOG_ID_RE = re.compile(r"^##[ \t]+e(\d+)\b", re.M)
 _LOG_FIELD_RE = re.compile(r"^-[ \t]+(?P<key>[a-z_]+):[ \t]*(?P<value>.*)$")
@@ -125,7 +133,9 @@ def slugify(name: str, *, qualifier: str | None = None) -> str:
     """
 
     def fold(text: str) -> str:
-        ascii_text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+        ascii_text = (
+            unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+        )
         return re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
 
     slug = fold(name)
@@ -134,7 +144,9 @@ def slugify(name: str, *, qualifier: str | None = None) -> str:
     if qualifier:
         qualified = fold(qualifier)
         if not qualified:
-            raise ValueError(f"cannot use {qualifier!r} as a qualifier: no letters or digits")
+            raise ValueError(
+                f"cannot use {qualifier!r} as a qualifier: no letters or digits"
+            )
         slug = f"{slug}--{qualified}"
     return slug
 
@@ -187,7 +199,9 @@ class _Dumper(yaml.SafeDumper):
 
 
 def _represent_list(dumper: yaml.SafeDumper, data: list) -> yaml.Node:
-    scalars = all(isinstance(item, (str, int, float, bool)) or item is None for item in data)
+    scalars = all(
+        isinstance(item, (str, int, float, bool)) or item is None for item in data
+    )
     return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=scalars)
 
 
@@ -203,7 +217,14 @@ def dump_yaml(data: Any) -> str:
     links:
     - to: org:x
     """
-    return yaml.dump(data, Dumper=_Dumper, sort_keys=False, allow_unicode=True, default_flow_style=False, width=1000)
+    return yaml.dump(
+        data,
+        Dumper=_Dumper,
+        sort_keys=False,
+        allow_unicode=True,
+        default_flow_style=False,
+        width=1000,
+    )
 
 
 # --------------------------------------------------------------------- frontmatter
@@ -263,19 +284,28 @@ def _lines(text: str) -> Iterator[tuple[int, str, bool]]:
     A fence opens with three or more backticks or tildes and closes only with a line of
     the same character, at least as long, and nothing else on it.
     """
-    visible = _COMMENT_RE.sub(lambda m: "\n" * m.group(0).count("\n"), normalize_newlines(text))
+    visible = _COMMENT_RE.sub(
+        lambda m: "\n" * m.group(0).count("\n"), normalize_newlines(text)
+    )
     fence: tuple[str, int] | None = None
     for number, line in enumerate(visible.split("\n"), start=1):
         found = _FENCE_RE.match(line)
         if fence is None:
-            if found and not (found.group("fence")[0] == "`" and "`" in found.group("info")):
+            if found and not (
+                found.group("fence")[0] == "`" and "`" in found.group("info")
+            ):
                 fence = (found.group("fence")[0], len(found.group("fence")))
                 yield number, line, True
             else:
                 yield number, line, False
             continue
         marker = found.group("fence") if found else ""
-        if marker and marker[0] == fence[0] and len(marker) >= fence[1] and not found.group("info").strip():
+        if (
+            marker
+            and marker[0] == fence[0]
+            and len(marker) >= fence[1]
+            and not found.group("info").strip()
+        ):
             fence = None
         yield number, line, True
 
@@ -294,12 +324,19 @@ def sections(body: str) -> dict[str, str]:
     for _, line, in_code in _lines(body):
         heading = None if in_code else _HEADING_RE.match(line)
         if heading and len(heading.group("hashes")) <= 2:
-            title = normalize_title(heading.group("title")) if len(heading.group("hashes")) == 2 else None
+            title = (
+                normalize_title(heading.group("title"))
+                if len(heading.group("hashes")) == 2
+                else None
+            )
             if title is not None:
                 result.setdefault(title, [])
         elif title is not None:
             result[title].append(line)
-    return {t: ("\n".join(lines).strip("\n") + "\n") if "".join(lines).strip() else "" for t, lines in result.items()}
+    return {
+        t: ("\n".join(lines).strip("\n") + "\n") if "".join(lines).strip() else ""
+        for t, lines in result.items()
+    }
 
 
 def item_blocks(text: str) -> list[tuple[str | None, int, int, str]]:
@@ -493,7 +530,13 @@ def next_log_id(text: str) -> str:
 
 
 def format_log_entry(
-    entry_id: str, date: str, kind: str, text: str, *, source: str | None = None, **fields: str
+    entry_id: str,
+    date: str,
+    kind: str,
+    text: str,
+    *,
+    source: str | None = None,
+    **fields: str,
 ) -> str:
     """One log entry: a ``## id · date · kind`` heading, the observation on one line, then ``- key: value`` fields.
 
@@ -506,5 +549,9 @@ def format_log_entry(
     lines = [f"## {entry_id} · {date} · {kind}", line]
     if source is not None:
         lines.append(f"- source: {' '.join(source.split())}")
-    lines += [f"- {key}: {' '.join(str(value).split())}" for key, value in fields.items() if value]
+    lines += [
+        f"- {key}: {' '.join(str(value).split())}"
+        for key, value in fields.items()
+        if value
+    ]
     return "\n".join(lines) + "\n"

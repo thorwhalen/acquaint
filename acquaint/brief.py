@@ -42,7 +42,11 @@ def _drop_expired(text: str, today: str) -> str:
         until = _UNTIL_RE.search(item)
         if until and until.group(1) < today:
             drop.update(range(first, last + 1))
-    return "\n".join(line for number, line in enumerate(text.split("\n"), start=1) if number not in drop).strip()
+    return "\n".join(
+        line
+        for number, line in enumerate(text.split("\n"), start=1)
+        if number not in drop
+    ).strip()
 
 
 def _by_title(section_map: dict[str, str]) -> dict[str, str]:
@@ -58,7 +62,14 @@ def _recent_observations(entity, limit: int) -> list[dict]:
     return entries[-limit:] if limit else entries
 
 
-def compose_brief(store: Store, key: str, *, purpose: str | None = None, project: str | None = None, today: str | None = None) -> dict[str, Any]:
+def compose_brief(
+    store: Store,
+    key: str,
+    *,
+    purpose: str | None = None,
+    project: str | None = None,
+    today: str | None = None,
+) -> dict[str, Any]:
     """Assemble the brief for writing to one entity, as data plus a Markdown ``text`` rendering."""
     today = today or date.today().isoformat()
     entity = store[key]
@@ -68,18 +79,26 @@ def compose_brief(store: Store, key: str, *, purpose: str | None = None, project
     profile = _by_title(entity.sections)
     card = {title: _visible(profile.get(title.lower(), "")) for title in CARD_SECTIONS}
     card["Now"] = _drop_expired(card["Now"], today)
-    style_text = _visible(split_frontmatter(entity.text("style.md"))[1]) if "style.md" in entity else ""
+    style_text = (
+        _visible(split_frontmatter(entity.text("style.md"))[1])
+        if "style.md" in entity
+        else ""
+    )
     views_text = _visible(entity.text("views.md"))
     writing = recipient_card(entity)
     tolerance = writing["tolerance"]
-    disclosure = writing["disclosure"] or purposes["disclosure"].get(tolerance, purposes["disclosure"]["unknown"])
+    disclosure = writing["disclosure"] or purposes["disclosure"].get(
+        tolerance, purposes["disclosure"]["unknown"]
+    )
     spec = purposes["purposes"].get(str(purpose).lower(), {}) if purpose else {}
     reminders = list(purposes["default"]["reminders"]) + list(spec.get("reminders", []))
 
     reach = reach_channels(
         store,
         key,
-        defaults_text=store.files["_defaults/rules.yaml"] if "_defaults/rules.yaml" in store.files else "",
+        defaults_text=store.files["_defaults/rules.yaml"]
+        if "_defaults/rules.yaml" in store.files
+        else "",
         purpose=purpose,
         project=project,
     )["channels"]
@@ -87,19 +106,35 @@ def compose_brief(store: Store, key: str, *, purpose: str | None = None, project
     norms, project_key = "", None
     if project:
         try:
-            project_key = store.find(project if ":" in project or "/" in project else f"project:{project}")
+            project_key = store.find(
+                project if ":" in project or "/" in project else f"project:{project}"
+            )
             project_sections = _by_title(store[project_key].sections)
-            norms = "\n\n".join(filter(None, (_visible(project_sections.get(t, "")) for t in ("norms", "now"))))
+            norms = "\n\n".join(
+                filter(
+                    None,
+                    (_visible(project_sections.get(t, "")) for t in ("norms", "now")),
+                )
+            )
         except (KeyError, AcquaintError):
             project_key = None
 
-    affiliations = [" · ".join(str(link[k]) for k in ("to", "relation", "role") if link.get(k)) for link in entity.links]
+    affiliations = [
+        " · ".join(str(link[k]) for k in ("to", "relation", "role") if link.get(k))
+        for link in entity.links
+    ]
     observations = _recent_observations(entity, budgets["brief_observations"])
     lint = lint_store(store, key, today=today)
 
-    gaps = [f"nothing recorded under '{title}'" for title in ("Write to them", "Read them", "Don't") if not card[title]]
+    gaps = [
+        f"nothing recorded under '{title}'"
+        for title in ("Write to them", "Read them", "Don't")
+        if not card[title]
+    ]
     if not style_text:
-        gaps.append("no writing card (style.md): register, length and AI tolerance are unknown")
+        gaps.append(
+            "no writing card (style.md): register, length and AI tolerance are unknown"
+        )
     if not entity.identities:
         gaps.append("no identities (handles or addresses) recorded")
     if not any(ch["tier"] != "none" for ch in reach):
@@ -134,12 +169,23 @@ def compose_brief(store: Store, key: str, *, purpose: str | None = None, project
 
 def _render(entity, brief: dict[str, Any]) -> str:
     title = f"# Brief: {brief['name']} ({entity.ref})"
-    scope = " · ".join(filter(None, [brief["purpose"] and f"purpose: {brief['purpose']}", brief["project"] and f"project: {brief['project']}"]))
+    scope = " · ".join(
+        filter(
+            None,
+            [
+                brief["purpose"] and f"purpose: {brief['purpose']}",
+                brief["project"] and f"project: {brief['project']}",
+            ],
+        )
+    )
     out = [title + (f", {scope}" if scope else ""), ""]
     if description := entity.meta.get("description"):
         out += [str(description), ""]
     if brief["relational"]:
-        out += [f"**This is a relational message ({brief['purpose']}). The operator writes it; do not draft the text.**", ""]
+        out += [
+            f"**This is a relational message ({brief['purpose']}). The operator writes it; do not draft the text.**",
+            "",
+        ]
 
     out.append("## How to reach them")
     if brief["reach"]:
@@ -175,12 +221,23 @@ def _render(entity, brief: dict[str, Any]) -> str:
     if brief["observations"]:
         out.append("## Recent observations (evidence, not yet profile facts)")
         for entry in brief["observations"]:
-            out.append(f"- {entry['date']} · {entry['kind']}: {entry['text']} (source: {entry.get('source', 'none given')}; {entry['ref']})")
+            out.append(
+                f"- {entry['date']} · {entry['kind']}: {entry['text']} (source: {entry.get('source', 'none given')}; {entry['ref']})"
+            )
         out.append("")
-    out += [f"## For this message{' (' + brief['purpose'] + ')' if brief['purpose'] else ''}", *(f"- {r}" for r in brief["reminders"]), ""]
+    out += [
+        f"## For this message{' (' + brief['purpose'] + ')' if brief['purpose'] else ''}",
+        *(f"- {r}" for r in brief["reminders"]),
+        "",
+    ]
     if brief["gaps"]:
         out += ["## Not known (ask, don't guess)", *(f"- {g}" for g in brief["gaps"]), ""]
     if brief["lint"]["errors"]:
-        out += [f"**This record has {brief['lint']['errors']} lint error(s); run `acquaint lint {entity.slug}` before relying on it.**", ""]
-    out.append(f"Before sending: `acquaint style-lint --recipient {entity.slug} \"<draft>\"` and `acquaint check \"<draft>\"`.")
+        out += [
+            f"**This record has {brief['lint']['errors']} lint error(s); run `acquaint lint {entity.slug}` before relying on it.**",
+            "",
+        ]
+    out.append(
+        f'Before sending: `acquaint style-lint --recipient {entity.slug} "<draft>"` and `acquaint check "<draft>"`.'
+    )
     return "\n".join(out).rstrip() + "\n"

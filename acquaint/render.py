@@ -27,12 +27,22 @@ def render(result: Any) -> tuple[str, str, int]:
     if not isinstance(result, dict):
         return ("" if result is None else str(result), "", 0)
     ok = bool(result.get("ok", True))
-    warnings = [f"warning: {w}" for w in result.get("warnings") or [] if isinstance(w, str)]
+    warnings = [
+        f"warning: {w}" for w in result.get("warnings") or [] if isinstance(w, str)
+    ]
     if ok and "value" in result:
         value = result["value"]
-        out = "\n".join(_scalar(v) for v in value) if isinstance(value, list) else _scalar(value)
+        out = (
+            "\n".join(_scalar(v) for v in value)
+            if isinstance(value, list)
+            else _scalar(value)
+        )
     elif ok:
-        out = result.get("text") or result.get("summary") or json.dumps(result, indent=2, ensure_ascii=False)
+        out = (
+            result.get("text")
+            or result.get("summary")
+            or json.dumps(result, indent=2, ensure_ascii=False)
+        )
     else:
         summary = result.get("summary", "failed")
         out = (result.get("text") or "").rstrip("\n")

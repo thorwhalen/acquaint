@@ -34,7 +34,16 @@ from acquaint.records import (
     split_frontmatter,
 )
 from acquaint.resources import data_text, data_yaml
-from acquaint.store import ENTRY_FILE, KIND_DIRS, UNREADABLE, AcquaintError, Entity, Store, kind_dir, validate_key
+from acquaint.store import (
+    ENTRY_FILE,
+    KIND_DIRS,
+    UNREADABLE,
+    AcquaintError,
+    Entity,
+    Store,
+    kind_dir,
+    validate_key,
+)
 
 __all__ = [
     "OBSERVATION_KINDS",
@@ -51,7 +60,14 @@ __all__ = [
 SCHEMA = "acquaint/profile/v1"
 TOMBSTONES = "_tombstones.yaml"
 #: What ``remember`` can record. The last three need a source at write time.
-OBSERVATION_KINDS = ("observation", "interaction", "identity", "preference", "view", "rule")
+OBSERVATION_KINDS = (
+    "observation",
+    "interaction",
+    "identity",
+    "preference",
+    "view",
+    "rule",
+)
 _NEEDS_SOURCE = {"preference", "view", "rule"}
 _UNSOURCED = "none given"
 _TOMBSTONE_HEADER = (
@@ -100,13 +116,23 @@ def tombstone_problem(store: Store) -> str | None:
 def _tombstone_data(store: Store) -> dict:
     problem = tombstone_problem(store)
     if problem:
-        raise AcquaintError(f"{problem}; fix it before creating or forgetting anyone, or a forgotten person could come back")
-    data, _ = load_yaml(store.files[TOMBSTONES]) if TOMBSTONES in store.files else ({}, [])
+        raise AcquaintError(
+            f"{problem}; fix it before creating or forgetting anyone, or a forgotten person could come back"
+        )
+    data, _ = (
+        load_yaml(store.files[TOMBSTONES]) if TOMBSTONES in store.files else ({}, [])
+    )
     return data or {}
 
 
 def _hashes(values: list[str], salt: str) -> list[str]:
-    return sorted({hashlib.sha256((salt + normalize(v)).encode()).hexdigest() for v in values if normalize(v)})
+    return sorted(
+        {
+            hashlib.sha256((salt + normalize(v)).encode()).hexdigest()
+            for v in values
+            if normalize(v)
+        }
+    )
 
 
 def tombstoned(store: Store, *identifiers: str) -> dict | None:
@@ -116,15 +142,26 @@ def tombstoned(store: Store, *identifiers: str) -> dict | None:
     if not salt or not graves:
         return None
     wanted = set(_hashes(list(identifiers), str(salt)))
-    return next((grave for grave in graves if isinstance(grave, dict) and wanted & set(grave.get("hashes", []))), None)
+    return next(
+        (
+            grave
+            for grave in graves
+            if isinstance(grave, dict) and wanted & set(grave.get("hashes", []))
+        ),
+        None,
+    )
 
 
 def _write_tombstone(store: Store, kind: str, identifiers: list[str], today: str) -> None:
     data = _tombstone_data(store)
     salt = str(data.get("salt") or secrets.token_hex(16))
     graves = list(data.get("tombstones") or [])
-    graves.append({"kind": kind, "forgotten": today, "hashes": _hashes(identifiers, salt)})
-    store.files[TOMBSTONES] = _TOMBSTONE_HEADER + dump_yaml({"salt": salt, "tombstones": graves})
+    graves.append(
+        {"kind": kind, "forgotten": today, "hashes": _hashes(identifiers, salt)}
+    )
+    store.files[TOMBSTONES] = _TOMBSTONE_HEADER + dump_yaml(
+        {"salt": salt, "tombstones": graves}
+    )
 
 
 # ---------------------------------------------------------------------------- new
@@ -172,17 +209,28 @@ def new_entity(
         "aka": parts if singular == "person" and len(parts) > 1 else [],
         "description": description or "",
         "updated": today,
-        "review_due": (date.fromisoformat(today) + timedelta(days=review_days)).isoformat(),
+        "review_due": (
+            date.fromisoformat(today) + timedelta(days=review_days)
+        ).isoformat(),
     }
     template = "person.md" if singular == "person" else "ledger.md"
-    body = Template(data_text(f"templates/{template}")).safe_substitute(name=name.strip(), kind=singular, slug=slug)
+    body = Template(data_text(f"templates/{template}")).safe_substitute(
+        name=name.strip(), kind=singular, slug=slug
+    )
     created = [f"{key}/{ENTRY_FILE}"]
     if "POLICY.md" not in store.files:
         store.files["POLICY.md"] = data_text("templates/POLICY.md")
         created.append("POLICY.md")
     store[key] = {ENTRY_FILE: join_frontmatter(meta, body)}
     warning = store.location_warning()
-    return {"key": key, "id": slug, "kind": singular, "path": store.path_of(key), "created": created, "warnings": [warning] if warning else []}
+    return {
+        "key": key,
+        "id": slug,
+        "kind": singular,
+        "path": store.path_of(key),
+        "created": created,
+        "warnings": [warning] if warning else [],
+    }
 
 
 # ----------------------------------------------------------------------- remember
@@ -199,7 +247,9 @@ def append_observation(
 ) -> dict[str, Any]:
     """Append one dated, sourced entry to the entity's ``log/YYYY-MM.md`` (and, for ``identity``, to ``identities.yaml``)."""
     if kind not in OBSERVATION_KINDS:
-        raise AcquaintError(f"kind must be one of {', '.join(OBSERVATION_KINDS)}; got {kind!r}")
+        raise AcquaintError(
+            f"kind must be one of {', '.join(OBSERVATION_KINDS)}; got {kind!r}"
+        )
     text = " ".join(text.split())
     if not text:
         raise AcquaintError("nothing to remember: the text is empty")
@@ -218,18 +268,26 @@ def append_observation(
     log_name = f"log/{today[:7]}.md"
     existing = entity.text(log_name)
     if UNREADABLE in existing:
-        raise AcquaintError(f"{key}/{log_name} is not valid UTF-8; fix its encoding before appending to it")
+        raise AcquaintError(
+            f"{key}/{log_name} is not valid UTF-8; fix its encoding before appending to it"
+        )
     warnings = [message for _, message in policy_hits(text)]
 
     if kind == "identity":
         platform, sep, value = text.partition(":")
         if not sep or not platform.strip() or not value.strip():
-            raise AcquaintError("an identity is written platform:value, e.g. 'email:ada@example.org'")
+            raise AcquaintError(
+                "an identity is written platform:value, e.g. 'email:ada@example.org'"
+            )
         _append_identity(entity, platform.strip().lower(), value.strip(), source, today)
 
     entry_id = next_log_id(existing)
     entry = format_log_entry(entry_id, today, kind, text, source=source or _UNSOURCED)
-    separator = "" if not existing or existing.endswith("\n\n") else ("\n" if existing.endswith("\n") else "\n\n")
+    separator = (
+        ""
+        if not existing or existing.endswith("\n\n")
+        else ("\n" if existing.endswith("\n") else "\n\n")
+    )
     store.append_text(key, log_name, separator + entry)
     if source is None:
         warnings.append(
@@ -248,22 +306,41 @@ def append_observation(
     }
 
 
-def _append_identity(entity: Entity, platform: str, value: str, source: str | None, today: str) -> None:
+def _append_identity(
+    entity: Entity, platform: str, value: str, source: str | None, today: str
+) -> None:
     current = entity.text("identities.yaml", "identities: []\n")
     data, errors = load_yaml(current)
     if errors or UNREADABLE in current or not isinstance(data, dict):
-        raise AcquaintError(f"{entity.key}/identities.yaml does not parse; fix it before adding to it")
+        raise AcquaintError(
+            f"{entity.key}/identities.yaml does not parse; fix it before adding to it"
+        )
     identities = list(data.get("identities") or [])
-    if any(isinstance(i, dict) and str(i.get("platform")) == platform and str(i.get("value")) == value for i in identities):
+    if any(
+        isinstance(i, dict)
+        and str(i.get("platform")) == platform
+        and str(i.get("value")) == value
+        for i in identities
+    ):
         return
-    identities.append({"platform": platform, "value": value, "source": source or _UNSOURCED, "first_seen": today, "status": "active"})
+    identities.append(
+        {
+            "platform": platform,
+            "value": value,
+            "source": source or _UNSOURCED,
+            "first_seen": today,
+            "status": "active",
+        }
+    )
     entity["identities.yaml"] = dump_yaml({**data, "identities": identities})
 
 
 # ------------------------------------------------------------------------- rename
 
 
-def _relink(store: Store, kind: str, folder: str, old_slug: str, new_slug: str) -> tuple[list[str], list[str]]:
+def _relink(
+    store: Store, kind: str, folder: str, old_slug: str, new_slug: str
+) -> tuple[list[str], list[str]]:
     """Rewrite references to a renamed entity in other records; never inside URLs, logs or research.
 
     Markdown: ``kind:slug`` and ``folder:slug`` tokens standing on their own (not inside a
@@ -272,9 +349,14 @@ def _relink(store: Store, kind: str, folder: str, old_slug: str, new_slug: str) 
     (single or in a list); a rewritten YAML file is written back without its comments.
     Returns ``(files rewritten, YAML files whose comments were dropped)``.
     """
-    old_refs = {f"{kind}:{old_slug}": f"{kind}:{new_slug}", f"{folder}:{old_slug}": f"{folder}:{new_slug}"}
+    old_refs = {
+        f"{kind}:{old_slug}": f"{kind}:{new_slug}",
+        f"{folder}:{old_slug}": f"{folder}:{new_slug}",
+    }
     old_key, new_key = f"{folder}/{old_slug}", f"{folder}/{new_slug}"
-    ref_re = re.compile(r"(?<![\w/.:@=&?#-])(" + "|".join(map(re.escape, old_refs)) + r")(?![\w/-])")
+    ref_re = re.compile(
+        r"(?<![\w/.:@=&?#-])(" + "|".join(map(re.escape, old_refs)) + r")(?![\w/-])"
+    )
 
     def in_markdown(text: str) -> str:
         def replace(found: re.Match) -> str:
@@ -312,7 +394,9 @@ def _relink(store: Store, kind: str, folder: str, old_slug: str, new_slug: str) 
             data, errors = load_yaml(text)
             if errors or in_yaml(data) == data:
                 continue
-            updated = (_TOMBSTONE_HEADER if path == TOMBSTONES else "") + dump_yaml(in_yaml(data))
+            updated = (_TOMBSTONE_HEADER if path == TOMBSTONES else "") + dump_yaml(
+                in_yaml(data)
+            )
             if re.search(r"(^|\s)#", text):
                 comments_dropped.append(path)
         else:
@@ -323,11 +407,18 @@ def _relink(store: Store, kind: str, folder: str, old_slug: str, new_slug: str) 
     return relinked, comments_dropped
 
 
-def rename_entity(store: Store, ref: str, to: str, *, today: str | None = None) -> dict[str, Any]:
+def rename_entity(
+    store: Store, ref: str, to: str, *, today: str | None = None
+) -> dict[str, Any]:
     """Give an entity a new id (``to`` is a slug) or a new name and id (``to`` is a name); links elsewhere follow."""
     key = _find(store, ref)
     entity = store[key]
-    old_slug, old_name, kind, folder = entity.slug, entity.name, entity.kind, entity.kind_dir
+    old_slug, old_name, kind, folder = (
+        entity.slug,
+        entity.name,
+        entity.kind,
+        entity.kind_dir,
+    )
     new_slug = to if to == slugify(to) else slugify(to)
     new_name = old_name if to == new_slug else to.strip()
     new_key = validate_key(f"{folder}/{new_slug}")
@@ -338,10 +429,15 @@ def rename_entity(store: Store, ref: str, to: str, *, today: str | None = None) 
     profile = entity.text(ENTRY_FILE)
     meta, body, errors = split_frontmatter(profile)
     if errors or UNREADABLE in profile:
-        raise AcquaintError(f"{key}/{ENTRY_FILE} does not parse; fix it before renaming: {(errors or ['not valid UTF-8'])[0]}")
+        raise AcquaintError(
+            f"{key}/{ENTRY_FILE} does not parse; fix it before renaming: {(errors or ['not valid UTF-8'])[0]}"
+        )
 
     store.move(key, new_key)
-    aka = [str(a) for a in _as_list(meta.get("aka")) if a not in (None, "")] + [old_slug, old_name]
+    aka = [str(a) for a in _as_list(meta.get("aka")) if a not in (None, "")] + [
+        old_slug,
+        old_name,
+    ]
     meta.update(
         id=new_slug,
         name=new_name,
@@ -350,7 +446,13 @@ def rename_entity(store: Store, ref: str, to: str, *, today: str | None = None) 
     )
     store.files[f"{new_key}/{ENTRY_FILE}"] = join_frontmatter(meta, body)
     relinked, comments_dropped = _relink(store, kind, folder, old_slug, new_slug)
-    return {"from": key, "to": new_key, "name": new_name, "relinked": relinked, "yaml_comments_dropped": comments_dropped}
+    return {
+        "from": key,
+        "to": new_key,
+        "name": new_name,
+        "relinked": relinked,
+        "yaml_comments_dropped": comments_dropped,
+    }
 
 
 # ------------------------------------------------------------------------- forget
@@ -362,7 +464,9 @@ def _forget_key(store: Store, ref: str) -> str:
     if "/" not in candidate and ":" not in candidate:
         ids = store.find_id(candidate)
         if len(ids) > 1:
-            raise AcquaintError(f"{ref!r} names more than one entity: {', '.join(ids)}; say which, e.g. {Entity(store, ids[1]).ref}")
+            raise AcquaintError(
+                f"{ref!r} names more than one entity: {', '.join(ids)}; say which, e.g. {Entity(store, ids[1]).ref}"
+            )
         candidate = ids[0] if ids else f"people/{candidate}"
     elif "/" not in candidate:
         kind, _, slug = candidate.partition(":")
@@ -385,11 +489,20 @@ def _forget_key(store: Store, ref: str) -> str:
 
 def _references(store: Store, entity: Entity, identifiers: list[str]) -> list[dict]:
     """Other records that still name the entity: its references, its key, its full name, its handles."""
-    needles = {entity.ref, f"{entity.kind_dir}:{entity.slug}", entity.key, *(i for i in identifiers if len(i) >= 4)}
+    needles = {
+        entity.ref,
+        f"{entity.kind_dir}:{entity.slug}",
+        entity.key,
+        *(i for i in identifiers if len(i) >= 4),
+    }
     needles.discard(entity.slug)
     found = []
     for path in list(store.files):
-        if path.startswith(entity.key + "/") or not path.endswith((".md", ".yaml", ".yml")) or path == TOMBSTONES:
+        if (
+            path.startswith(entity.key + "/")
+            or not path.endswith((".md", ".yaml", ".yml"))
+            or path == TOMBSTONES
+        ):
             continue
         text = store.files[path].lower()
         mentions = sorted(n for n in needles if n.lower() in text)
@@ -398,7 +511,9 @@ def _references(store: Store, entity: Entity, identifiers: list[str]) -> list[di
     return found
 
 
-def forget_entity(store: Store, ref: str, *, confirm: bool = False, today: str | None = None) -> dict[str, Any]:
+def forget_entity(
+    store: Store, ref: str, *, confirm: bool = False, today: str | None = None
+) -> dict[str, Any]:
     """Remove an entity's whole folder, hidden files included, after writing a salted tombstone.
 
     Without ``confirm`` it only reports what it would remove, and which other records
@@ -409,14 +524,25 @@ def forget_entity(store: Store, ref: str, *, confirm: bool = False, today: str |
     key = _forget_key(store, ref)
     entity = Entity(store, key)
     name_parts = {part.lower() for part in entity.name.split()}
-    aka = [a for a in entity.aka if a.lower() not in name_parts]  # bare name parts would block unrelated people
-    identifiers = [entity.slug, entity.name, *aka, *(str(i.get("value", "")) for i in entity.identities)]
+    aka = [
+        a for a in entity.aka if a.lower() not in name_parts
+    ]  # bare name parts would block unrelated people
+    identifiers = [
+        entity.slug,
+        entity.name,
+        *aka,
+        *(str(i.get("value", "")) for i in entity.identities),
+    ]
     identifiers = [i for i in dict.fromkeys(identifiers) if normalize(i)]
     plan = {
         "key": key,
         "files": [f"{key}/{name}" for name in store.all_files(key)],
         "tombstone_identifiers": len({normalize(i) for i in identifiers}),
-        "references": _references(store, entity, [i for i in identifiers if i != entity.slug and i.lower() not in name_parts]),
+        "references": _references(
+            store,
+            entity,
+            [i for i in identifiers if i != entity.slug and i.lower() not in name_parts],
+        ),
     }
     if not confirm:
         return {**plan, "done": False}

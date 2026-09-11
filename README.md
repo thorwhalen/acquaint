@@ -125,13 +125,15 @@ What this does **not** protect: a private repository is access control, not encr
 ```python
 from acquaint import Store, who, brief
 
-who("ada", field="aka")["value"]              # ['Ada', 'Lovelace']
+who("ada", field="aka")["value"]  # ['Ada', 'Lovelace']
 print(brief("ada-lovelace", purpose="ask")["text"])
 
-store = Store()                                # MutableMapping[str, Entity] over a dol files store
-entity = store["people/ada-lovelace"]          # a mapping of that person's files, plus parsed views
+store = Store()  # MutableMapping[str, Entity] over a dol files store
+entity = store[
+    "people/ada-lovelace"
+]  # a mapping of that person's files, plus parsed views
 entity.identities, entity.rules, entity.sections["Write to them"]
-Store(files={})                                # any MutableMapping[str, str] of files: a dict, a remote store
+Store(files={})  # any MutableMapping[str, str] of files: a dict, a remote store
 ```
 
 ## Design

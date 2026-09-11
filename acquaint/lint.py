@@ -31,13 +31,34 @@ from collections import Counter
 from datetime import date
 from typing import Any
 
-from acquaint.records import blank_frontmatter, load_yaml, parse_log, sectioned_items, source_problem, split_frontmatter
+from acquaint.records import (
+    blank_frontmatter,
+    load_yaml,
+    parse_log,
+    sectioned_items,
+    source_problem,
+    split_frontmatter,
+)
 from acquaint.resources import data_yaml
 from acquaint.store import ENTRY_FILE, UNREADABLE, AcquaintError, Entity, Store, kind_dir
 
-__all__ = ["AI_TOLERANCES", "PREFERENCE_SECTIONS", "SOURCED_FILES", "lint_store", "policy_hits"]
+__all__ = [
+    "AI_TOLERANCES",
+    "PREFERENCE_SECTIONS",
+    "SOURCED_FILES",
+    "lint_store",
+    "policy_hits",
+]
 
-PREFERENCE_SECTIONS = {"reach", "write to them", "read them", "don't", "dont", "norms", "now"}
+PREFERENCE_SECTIONS = {
+    "reach",
+    "write to them",
+    "read them",
+    "don't",
+    "dont",
+    "norms",
+    "now",
+}
 SOURCED_FILES = ("style.md", "views.md")
 AI_TOLERANCES = ("tolerant", "neutral", "averse")
 _NEEDS_SOURCE = {"preference", "view", "rule"}
@@ -56,8 +77,17 @@ def policy_hits(text: str) -> list[tuple[str, str]]:
     ]
 
 
-def _finding(severity: str, key: str, file: str, line: int | None, rule: str, message: str) -> dict:
-    return {"severity": severity, "entity": key, "file": file, "line": line, "rule": rule, "message": message}
+def _finding(
+    severity: str, key: str, file: str, line: int | None, rule: str, message: str
+) -> dict:
+    return {
+        "severity": severity,
+        "entity": key,
+        "file": file,
+        "line": line,
+        "rule": rule,
+        "message": message,
+    }
 
 
 def _link_exists(ref: Any, keys: set[str], ids: set[str]) -> bool:
@@ -73,7 +103,9 @@ def _link_exists(ref: Any, keys: set[str], ids: set[str]) -> bool:
     return ref in ids
 
 
-def _lint_entity(store: Store, key: str, today: str, keys: set[str], ids: set[str]) -> list[dict]:
+def _lint_entity(
+    store: Store, key: str, today: str, keys: set[str], ids: set[str]
+) -> list[dict]:
     entity = Entity(store, key)
     found: list[dict] = []
 
@@ -86,24 +118,62 @@ def _lint_entity(store: Store, key: str, today: str, keys: set[str], ids: set[st
     text_files = [name for name in entity if name.endswith((".md", ".yaml", ".yml"))]
     for name in text_files:
         if name != ENTRY_FILE and UNREADABLE in entity[name]:
-            add("error", name, None, "unparseable", f"not valid UTF-8 (undecodable bytes shown as {UNREADABLE})")
+            add(
+                "error",
+                name,
+                None,
+                "unparseable",
+                f"not valid UTF-8 (undecodable bytes shown as {UNREADABLE})",
+            )
 
     meta = entity.meta
     if meta and meta.get("id") not in (None, entity.slug):
-        add("warning", ENTRY_FILE, None, "id-mismatch", f"frontmatter id {meta.get('id')!r} differs from the folder {entity.slug!r}")
+        add(
+            "warning",
+            ENTRY_FILE,
+            None,
+            "id-mismatch",
+            f"frontmatter id {meta.get('id')!r} differs from the folder {entity.slug!r}",
+        )
     if meta.get("review_due") and str(meta["review_due"]) < today:
-        add("warning", ENTRY_FILE, None, "review-due", f"review was due {meta['review_due']}")
+        add(
+            "warning",
+            ENTRY_FILE,
+            None,
+            "review-due",
+            f"review was due {meta['review_due']}",
+        )
     raw_aka = meta.get("aka")
-    if any(not isinstance(a, str) for a in (raw_aka if isinstance(raw_aka, list) else [])):
-        add("warning", ENTRY_FILE, None, "aka-not-text", "aliases should be text; quote numbers and dates")
+    if any(
+        not isinstance(a, str) for a in (raw_aka if isinstance(raw_aka, list) else [])
+    ):
+        add(
+            "warning",
+            ENTRY_FILE,
+            None,
+            "aka-not-text",
+            "aliases should be text; quote numbers and dates",
+        )
 
     budgets = data_yaml("policy.yaml")["budgets"]
     profile = entity.text(ENTRY_FILE)
     lines = profile.count("\n") + (0 if profile.endswith("\n") or not profile else 1)
     if lines > budgets["profile_lines_error"]:
-        add("error", ENTRY_FILE, None, "too-long", f"{lines} lines; the entry file is capped at {budgets['profile_lines_error']}")
+        add(
+            "error",
+            ENTRY_FILE,
+            None,
+            "too-long",
+            f"{lines} lines; the entry file is capped at {budgets['profile_lines_error']}",
+        )
     elif lines > budgets["profile_lines_warn"]:
-        add("warning", ENTRY_FILE, None, "long", f"{lines} lines; keep the entry file under {budgets['profile_lines_warn']} and link the rest from More")
+        add(
+            "warning",
+            ENTRY_FILE,
+            None,
+            "long",
+            f"{lines} lines; keep the entry file under {budgets['profile_lines_warn']} and link the rest from More",
+        )
 
     for section, number, item in sectioned_items(blank_frontmatter(profile)):
         title = (section or "").lower()
@@ -114,9 +184,21 @@ def _lint_entity(store: Store, key: str, today: str, keys: set[str], ids: set[st
         if title == "now":
             until = _UNTIL_RE.search(item)
             if not until:
-                add("warning", ENTRY_FILE, number, "now-without-expiry", "Now items carry (until: YYYY-MM-DD)")
+                add(
+                    "warning",
+                    ENTRY_FILE,
+                    number,
+                    "now-without-expiry",
+                    "Now items carry (until: YYYY-MM-DD)",
+                )
             elif until.group(1) < today:
-                add("warning", ENTRY_FILE, number, "now-expired", f"expired {until.group(1)}")
+                add(
+                    "warning",
+                    ENTRY_FILE,
+                    number,
+                    "now-expired",
+                    f"expired {until.group(1)}",
+                )
 
     for file in SOURCED_FILES:
         for _, number, item in sectioned_items(blank_frontmatter(entity.text(file))):
@@ -124,41 +206,99 @@ def _lint_entity(store: Store, key: str, today: str, keys: set[str], ids: set[st
                 add("error", file, number, "unsourced", problem)
     if "style.md" in entity:
         tolerance = split_frontmatter(entity["style.md"])[0].get("ai_tolerance")
-        if tolerance not in (None, "", "unknown") and str(tolerance).strip().lower() not in AI_TOLERANCES:
-            add("error", "style.md", None, "bad-ai-tolerance", f"ai_tolerance is {tolerance!r}; use tolerant, neutral or averse")
+        if (
+            tolerance not in (None, "", "unknown")
+            and str(tolerance).strip().lower() not in AI_TOLERANCES
+        ):
+            add(
+                "error",
+                "style.md",
+                None,
+                "bad-ai-tolerance",
+                f"ai_tolerance is {tolerance!r}; use tolerant, neutral or averse",
+            )
 
     for log_name in (name for name in entity if name.startswith("log/")):
         entries = parse_log(entity[log_name])
         for entry_id, count in Counter(e["id"] for e in entries).items():
             if count > 1:
-                add("warning", log_name, None, "duplicate-entry-id", f"{entry_id} appears {count} times")
+                add(
+                    "warning",
+                    log_name,
+                    None,
+                    "duplicate-entry-id",
+                    f"{entry_id} appears {count} times",
+                )
         for entry in entries:
             where = f"{log_name}#{entry['id']}"
             source = entry.get("source", "")
-            unsourced = not source or source == "none given" or source_problem(f"[source: {source}]")
+            unsourced = (
+                not source
+                or source == "none given"
+                or source_problem(f"[source: {source}]")
+            )
             if unsourced and entry["kind"] in _NEEDS_SOURCE:
-                add("error", where, None, "unsourced", f"a logged {entry['kind']} needs a source")
+                add(
+                    "error",
+                    where,
+                    None,
+                    "unsourced",
+                    f"a logged {entry['kind']} needs a source",
+                )
             elif unsourced:
-                add("warning", where, None, "unsourced-observation", "observation has no source yet")
+                add(
+                    "warning",
+                    where,
+                    None,
+                    "unsourced-observation",
+                    "observation has no source yet",
+                )
 
     for rule in entity.rules:
         label = f"rule {rule.get('id') or rule.get('when')}"
         do = rule.get("do")
         if do is None:
-            add("error", "rules.yaml", None, "rule-without-do", f"{label} says when but not what to do")
+            add(
+                "error",
+                "rules.yaml",
+                None,
+                "rule-without-do",
+                f"{label} says when but not what to do",
+            )
         elif isinstance(do, dict):
             fallback = do.get("fallback")
-            for value in [do.get("channel"), *(fallback if isinstance(fallback, list) else [fallback])]:
+            for value in [
+                do.get("channel"),
+                *(fallback if isinstance(fallback, list) else [fallback]),
+            ]:
                 if value is not None and not (isinstance(value, str) and value.strip()):
-                    add("error", "rules.yaml", None, "bad-channel", f"{label}: {value!r} is not a channel name")
+                    add(
+                        "error",
+                        "rules.yaml",
+                        None,
+                        "bad-channel",
+                        f"{label}: {value!r} is not a channel name",
+                    )
         if not rule.get("source") or source_problem(f"[source: {rule.get('source')}]"):
             add("error", "rules.yaml", None, "unsourced", f"{label} has no source")
     for identity in entity.identities:
         if not identity.get("platform") or not identity.get("value"):
-            add("error", "identities.yaml", None, "identity-incomplete", f"identity {identity} needs platform and value")
+            add(
+                "error",
+                "identities.yaml",
+                None,
+                "identity-incomplete",
+                f"identity {identity} needs platform and value",
+            )
     for link in entity.links:
         if not _link_exists(link.get("to", ""), keys, ids):
-            add("warning", "links.yaml", None, "unknown-link", f"link to {link.get('to')!r} names no entity in the store")
+            add(
+                "warning",
+                "links.yaml",
+                None,
+                "unknown-link",
+                f"link to {link.get('to')!r} names no entity in the store",
+            )
 
     for file in (name for name in text_files if not name.startswith("research/")):
         for number, line in enumerate(entity[file].splitlines(), start=1):
@@ -174,12 +314,16 @@ def _tombstone_problem(store: Store) -> str | None:
     data, errors = load_yaml(text)
     if errors or UNREADABLE in text:
         return f"does not parse ({(errors or ['not valid UTF-8'])[0]}); until fixed, forgotten people can be re-created"
-    if data is not None and (not isinstance(data, dict) or (data.get("tombstones") and not data.get("salt"))):
+    if data is not None and (
+        not isinstance(data, dict) or (data.get("tombstones") and not data.get("salt"))
+    ):
         return "has tombstones but no salt (or is not a mapping); none of them can be matched"
     return None
 
 
-def lint_store(store: Store, key: str | None = None, *, today: str | None = None) -> dict[str, Any]:
+def lint_store(
+    store: Store, key: str | None = None, *, today: str | None = None
+) -> dict[str, Any]:
     """Lint one entity (by store key) or the whole store: ``{"errors": [...], "warnings": [...], "checked": n}``."""
     today = today or date.today().isoformat()
     all_keys = list(store)
@@ -189,17 +333,50 @@ def lint_store(store: Store, key: str | None = None, *, today: str | None = None
     for k in targets:
         try:
             findings += _lint_entity(store, k, today, keys, ids)
-        except Exception as error:  # one unreadable record is reported, never the end of the run
-            findings.append(_finding("error", k, "", None, "unreadable", f"could not be checked: {type(error).__name__}: {error}"))
+        except (
+            Exception
+        ) as error:  # one unreadable record is reported, never the end of the run
+            findings.append(
+                _finding(
+                    "error",
+                    k,
+                    "",
+                    None,
+                    "unreadable",
+                    f"could not be checked: {type(error).__name__}: {error}",
+                )
+            )
     if key is None:
         for path in store.misnamed():
-            findings.append(_finding("error", "", path, None, "misnamed", "the store cannot address this entry file: use a lowercase kind/id folder and PROFILE.md, not a link"))
+            findings.append(
+                _finding(
+                    "error",
+                    "",
+                    path,
+                    None,
+                    "misnamed",
+                    "the store cannot address this entry file: use a lowercase kind/id folder and PROFILE.md, not a link",
+                )
+            )
         if problem := _tombstone_problem(store):
-            findings.append(_finding("error", "", _TOMBSTONES, None, "unparseable", problem))
+            findings.append(
+                _finding("error", "", _TOMBSTONES, None, "unparseable", problem)
+            )
         if targets and "POLICY.md" not in store.files:
-            findings.append(_finding("warning", "", "POLICY.md", None, "no-policy", "the store has no POLICY.md; `acquaint new` seeds one"))
+            findings.append(
+                _finding(
+                    "warning",
+                    "",
+                    "POLICY.md",
+                    None,
+                    "no-policy",
+                    "the store has no POLICY.md; `acquaint new` seeds one",
+                )
+            )
         if warning := store.location_warning():
-            findings.append(_finding("warning", "", "", None, "data-root-in-repository", warning))
+            findings.append(
+                _finding("warning", "", "", None, "data-root-in-repository", warning)
+            )
     return {
         "errors": [f for f in findings if f["severity"] == "error"],
         "warnings": [f for f in findings if f["severity"] == "warning"],
