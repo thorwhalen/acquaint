@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "acquaint"
-version = "0.0.2"
+version = "0.0.3"
 description = "People, and what they are involved in, for AI agents: who someone is, how to reach them, how to read them, how to write to them."
 readme = "README.md"
 requires-python = ">=3.11"
