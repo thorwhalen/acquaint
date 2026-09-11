@@ -1,33 +1,41 @@
 #!/bin/sh
 # acquaint pre-push guard, installed by `acquaint sync init`.
 #
-# Refuses to push this profile store anywhere except the private repository it was set
-# up for: the remote URL must be the one recorded at init, and `gh` must report the
-# repository as PRIVATE at the moment of the push. It fails closed: no configuration,
-# no `gh`, or any other answer means no push.
+# Refuses to push this profile store anywhere except the private GitHub repository it
+# was set up for. Every one of these must hold, or nothing is pushed:
+#   - the push goes through the remote named origin (not a URL, not another remote);
+#   - origin's configured URL is the one recorded at init, and no pushurl overrides it;
+#   - that URL names the recorded repository;
+#   - `gh` reports that repository as PRIVATE right now.
+# It fails closed: missing configuration, a missing `gh`, or any other answer means no push.
 #
-# This is a seatbelt, not a lock. `git push --no-verify` skips it, and a private
-# repository is access control, not encryption.
+# A seatbelt, not a lock: `git push --no-verify` skips it, and whoever controls this
+# repository's git config or the `gh` on PATH controls what it sees.
 
-remote_url="$2"
+remote_name="$1"
 repo=$(git config --get acquaint.repo)
 expected=$(git config --get acquaint.remote)
-gh_cmd="${ACQUAINT_GH:-gh}"
 
-if [ -z "$repo" ] || [ -z "$expected" ]; then
-  echo "acquaint: no sync configuration (acquaint.repo, acquaint.remote); refusing to push." >&2
+refuse() {
+  echo "acquaint: $1; refusing to push profile data." >&2
   exit 1
-fi
+}
 
-if [ "$remote_url" != "$expected" ]; then
-  echo "acquaint: refusing to push to '$remote_url'; this store syncs only to '$expected'." >&2
-  exit 1
-fi
+[ -n "$repo" ] && [ -n "$expected" ] || refuse "no sync configuration (acquaint.repo, acquaint.remote)"
+[ "$remote_name" = "origin" ] || refuse "pushes go through origin only, not '$remote_name'"
+[ "$(git config --get remote.origin.url)" = "$expected" ] || refuse "origin is not '$expected'"
+for pushurl in $(git config --get-all remote.origin.pushurl); do
+  [ "$pushurl" = "$expected" ] || refuse "origin has a different pushurl '$pushurl'"
+done
 
-visibility=$("$gh_cmd" repo view "$repo" --json visibility -q .visibility 2>/dev/null)
-if [ "$visibility" != "PRIVATE" ]; then
-  echo "acquaint: $repo is '${visibility:-unknown}', not PRIVATE; refusing to push profile data." >&2
-  exit 1
-fi
+named=$(printf '%s\n' "$expected" | sed -E -e 's#^gcrypt::##' -e 's#^(ssh://)?git@github\.com[:/]##' -e 's#^https://github\.com/##' -e 's#\.git$##' -e 's#/$##')
+case "$expected" in
+  *github.com[:/]*) ;;
+  *) refuse "'$expected' is not a GitHub repository URL" ;;
+esac
+[ "$(printf '%s' "$named" | tr 'A-Z' 'a-z')" = "$(printf '%s' "$repo" | tr 'A-Z' 'a-z')" ] || refuse "origin names '$named', not $repo"
+
+visibility=$(gh repo view "$repo" --json visibility -q .visibility 2>/dev/null)
+[ "$visibility" = "PRIVATE" ] || refuse "$repo is '${visibility:-unknown}', not PRIVATE"
 
 exit 0

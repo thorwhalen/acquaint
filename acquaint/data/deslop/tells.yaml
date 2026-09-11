@@ -4,8 +4,11 @@
 #
 # Tiers (after the Vale `signs-of-ai-writing` logic and the research behind acquaint):
 #   E  near-certain artifact, always fix
-#   W  likely pattern, fix unless it is the operator's own habit
+#   W  likely pattern, fix unless it is the author's own habit
 #   S  common in human writing too; fix when it clusters, or for an averse reader
+#
+# Ordinary human courtesy ("I hope this finds you well", "happy to help", "sorry for the
+# delay") is S at most: a reader who is not averse should never see it fail the gate.
 #
 # Patterns are case-insensitive, multi-line regular expressions. `.` stands in for an
 # apostrophe so straight and curly quotes both match. Examples are fictional.
@@ -28,8 +31,7 @@ rules:
     tier: E
     message: assistant chatter left in the draft
     patterns:
-      - '\b(certainly!|great question|i hope this (helps|finds you well)|happy to help|let me know if you.d like)'
-      - '\bas an ai\b'
+      - '\b(certainly!|great question|i hope this helps|as an ai\b)'
 
   - id: unfilled-placeholder
     tier: E
@@ -51,7 +53,6 @@ rules:
     message: throat-clearing; delete it and keep the point
     patterns:
       - '\bit.s (important|worth) (to note|noting)\b'
-      - '\b(notably|interestingly|essentially|in essence),'
 
   - id: summary-closer
     tier: E
@@ -68,6 +69,12 @@ rules:
       - '\bin today.s (fast-paced|digital|ever-evolving) world\b'
       - '\b(dive deep|deep dive|at its core|the beauty of|navigate the complexities)\b'
       - '\bplays? an? (vital|key|crucial|pivotal) role\b'
+
+  - id: filler-adverb
+    tier: W
+    message: a filler adverb opening a sentence; start with the point
+    patterns:
+      - '(^|[.!?]\s+)(notably|interestingly|essentially|in essence),'
 
   - id: empty-transition
     tier: W
@@ -113,6 +120,13 @@ rules:
     patterns:
       - '\b(what a (great|fantastic|wonderful)|brilliant (idea|question|point)|you.re absolutely right)\b'
 
+  - id: stock-pleasantry
+    tier: S
+    message: a stock pleasantry; fine from a person, a tell when it pads a generated draft
+    patterns:
+      - '\bi hope (this|my) (email |message |note )?finds you well\b'
+      - '\b(happy to help|let me know if you.d like|feel free to reach out|don.t hesitate to reach out)\b'
+
   - id: rhetorical-opener
     tier: S
     message: a rhetorical question as an opener
@@ -139,11 +153,11 @@ rules:
     patterns:
       - '!(?=\s|$)'
 
-# Messages the operator writes themself (decision: condolence, apology, conflict and
-# performance feedback are never drafted for sending).
+# Messages the operator writes themself: condolence, apology for real harm, conflict,
+# performance feedback. Routine apologies (for a delay, a typo, a mix-up) are not these.
 relational:
   message: this reads as a relational message; the operator writes it
   patterns:
     - '\b(condolences?|sorry for your loss|passed away|funeral)\b'
-    - '\b(i apologi[sz]e|my apologies|i.m (so |very )?sorry (that|for))\b'
+    - '\b(i apologi[sz]e|my apologies|i.m (so |very |truly )?sorry)\b(?![^.!?\n]{0,40}\b(delay|delayed|late|slow|wait|waiting|confusion|typo|mix-?up|oversight|double|resend|trouble|noise)\b)'
     - '\b(performance review|let you go|terminat(e|ion) (of )?your)\b'

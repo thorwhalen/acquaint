@@ -1,7 +1,8 @@
-"""The deterministic deslop check: tiers by tolerance, counted rules, blocklists, the catalogue seam."""
+"""The deterministic deslop check: tiers by tolerance, counted rules, blocklists, the catalogue seam, ordinary courtesy."""
 
 import pytest
 
+from acquaint import tools
 from acquaint.deslop import lint_text, recipient_card
 from acquaint.store import Store
 
@@ -35,6 +36,27 @@ def test_tolerance_decides_what_is_enforced(text, tolerance, ok):
     assert result["findings"], "findings are reported even when not enforced"
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I hope this finds you well. The export is ready.",
+        "Happy to help with the export.",
+        "Let me know if you'd like the CSV instead.",
+        "I'm sorry for the delay; the export is attached.",
+        "I apologize for the late reply. The export is attached.",
+    ],
+)
+def test_ordinary_human_courtesy_passes_for_readers_who_are_not_averse(text):
+    for tolerance in ("tolerant", "neutral"):
+        result = lint_text(text, tolerance=tolerance)
+        assert result["ok"], (tolerance, _enforced(result), result["relational"])
+
+
+def test_filler_adverbs_are_a_likely_pattern_not_an_error():
+    assert lint_text("Essentially, yes.", tolerance="tolerant")["ok"]
+    assert _enforced(lint_text("Essentially, yes.", tolerance="neutral")) == ["filler-adverb"]
+
+
 def test_overlapping_patterns_count_once():
     result = lint_text(CONTRASTIVE, tolerance="neutral")
     assert len([f for f in result["findings"] if f["rule"] == "contrastive-negation"]) == 2
@@ -52,9 +74,17 @@ def test_recipient_blocklist_from_the_writing_card():
         "style.md": "---\nai_tolerance: averse\n---\n## Blocklist\n- \"circle back\" [source: operator]\n- synergy [source: operator]\n",
     }
     card = recipient_card(store["people/ada"])
-    assert card == {"tolerance": "averse", "disclosure": None, "blocklist": ["circle back", "synergy"]}
+    assert card == {"tolerance": "averse", "disclosure": None, "blocklist": ["circle back", "synergy"], "warnings": []}
     result = lint_text("Let's circle back on Friday.", tolerance=card["tolerance"], blocklist=card["blocklist"])
     assert _enforced(result) == ["recipient-blocklist"]
+
+
+def test_a_recorded_tolerance_outside_the_vocabulary_degrades_with_a_warning(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "style.md").write_text("---\nai_tolerance: low\n---\n")
+    result = tools.style_lint("The export is ready.", recipient="ada-lovelace", data_dir=data)
+    assert result["tolerance"] == "unknown" and any("not one of" in w for w in result["warnings"])
 
 
 def test_the_catalogue_is_a_seam():
@@ -67,6 +97,6 @@ def test_the_catalogue_is_a_seam():
     assert lint_text("Great question!", catalog=catalog)["ok"], "the shipped catalogue is not consulted"
 
 
-def test_unknown_tolerance_is_an_error():
+def test_an_unknown_explicit_tolerance_is_an_error():
     with pytest.raises(ValueError, match="tolerance"):
         lint_text("hello", tolerance="indifferent")

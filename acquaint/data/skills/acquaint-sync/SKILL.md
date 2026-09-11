@@ -17,7 +17,7 @@ acquaint sync init --repo <owner>/<name>
 1. Creates the repository through `gh` as **private** if it does not exist (`--existing-only` refuses to create).
 2. **Refuses to continue** unless `gh repo view --json visibility` reports `PRIVATE`.
 3. Makes the data root a git checkout with that repository as `origin`, and records the repository and URL in its git config.
-4. Installs a **pre-push hook** that, on every push, checks that the destination is the recorded URL and that `gh` still reports `PRIVATE`, and fails closed otherwise. It points the repository's own `core.hooksPath` at that hook, because a global `core.hooksPath` would make git skip it silently.
+4. Installs a **pre-push hook** that allows a push only through `origin`, only to the URL recorded at init (no `pushurl` override), only when that URL names the checked repository, and only while `gh` still reports it `PRIVATE`; it fails closed otherwise. The repository's `core.hooksPath` points at the hook by absolute path, so linked worktrees are guarded and a global `core.hooksPath` cannot silently skip it. Only GitHub remotes are accepted, so the repository whose visibility is checked is always the one that receives the data.
 5. Commits and pushes the store.
 
 ## Daily use
@@ -40,12 +40,13 @@ acquaint sync init --repo <owner>/<name> --existing-only      # re-installs the 
 acquaint sync status
 ```
 
-A fresh clone has **no hook** until `sync init` runs in it: hooks are not part of a repository.
+A fresh clone has **no hook** until `sync init` runs in it: hooks are not part of a repository. The same goes for a data root you have moved: the hook path is absolute, so run `sync init --existing-only` again (`sync push` refuses until you do).
 
 ## What this does not protect — say it plainly when asked
 
 - **A private repository is access control, not encryption.** The host, and anyone with access to the account, can read every file.
 - **`git push --no-verify` skips the hook.** It is a seatbelt, not a lock.
+- **Whoever controls this repository's git config, global URL rewriting, or the `gh` on `PATH` controls what the guard sees.**
 - **File names and commit messages contain people's names** (`people/<given-family>/`).
 - **Deleting a folder does not delete it from history**, from other clones, or from backups. `acquaint forget` prints the history-rewrite steps; forks and copies elsewhere are beyond its reach.
 - Changing the repository to public through the GitHub website is caught at the next push or `status`, not before.

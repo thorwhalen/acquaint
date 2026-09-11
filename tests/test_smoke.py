@@ -84,4 +84,4 @@ def test_one_command_as_the_shell_line(tmp_path):
 def test_a_failed_lookup_exits_nonzero_with_a_reason(tmp_path):
     result = _acquaint(["who", "nobody"], tmp_path)
     assert result.returncode == 1
-    assert "no match for 'nobody'" in result.stderr
+    assert "no entity named 'nobody'" in result.stderr

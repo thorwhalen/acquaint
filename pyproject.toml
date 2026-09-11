@@ -37,7 +37,8 @@ acquaint = "acquaint.__main__:main"
 acquaint-mcp = "acquaint.mcp:main"
 
 [project.optional-dependencies]
-# MCP over stdio (Claude Desktop). A surface's dependency is an extra, never core.
+# MCP over stdio (Claude Desktop) is an optional surface, so its dependency is an extra.
+# The CLI is this package's primary surface, which is why `cw` is a core dependency.
 mcp = [
     "py2mcp",
 ]

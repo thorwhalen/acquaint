@@ -24,16 +24,20 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 #: Project metadata names the package's own author and URL; out of scope here.
 _EXCLUDED_FILES = {"LICENSE"}
 _SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", ".ruff_cache", ".mypy_cache", "dist", "build", ".venv", "venv", ".tox", "node_modules", "handoffs", "scratch"}
-_TEXT_SUFFIXES = {".py", ".md", ".toml", ".json", ".txt", ".yml", ".yaml", ".sh", ".cfg", ""}
+_TEXT_SUFFIXES = {".py", ".md", ".toml", ".json", ".jsonl", ".txt", ".yml", ".yaml", ".sh", ".cfg", ".ini", ".csv", ".html", ".xml", ".rst", ".ipynb", ""}
 
 PLACEHOLDER_DOMAINS = {"example.org", "example.com", "example.net"}
-#: git's SSH user, as in a remote URL; not a mailbox.
-ALLOWED_ADDRESSES = {"git" + "@" + "github.com"}
+#: git's SSH user in remote URLs (GitHub, and GitLab as an example of a refused host); not mailboxes.
+ALLOWED_ADDRESSES = {"git" + "@" + "github.com", "git" + "@" + "gitlab.com"}
 #: Fictional placeholders and this project's own GitHub owners.
 ALLOWED_OWNERS = {"example", "example-org", "octocat", "owner", "thorwhalen", "i2mint"}
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9_.+-]+@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)")
-HOME_PATH_RE = re.compile(r"/(?:Users|home)/[A-Za-z0-9_.-]+|\b[A-Za-z]:\\Users\\[A-Za-z0-9_.-]+")
+#: Home directories (a Mac user, a Linux user, root on a server), per-user temporary
+#: directories, and Windows profiles: all of them name a machine or a person.
+HOME_PATH_RE = re.compile(
+    r"/(?:Users|home)/[A-Za-z0-9_.-]+|(?<![\w.])/" + r"root/|/(?:private/)?var/folders/|/private/" + r"tmp/|\b[A-Za-z]:\\Users\\[A-Za-z0-9_.-]+"
+)
 GITHUB_URL_RE = re.compile(r"github\.com[/:]([A-Za-z0-9][A-Za-z0-9-]{0,38})(?=[/\s\"')\]]|\.git|$)")
 #: owner/name only where it names a GitHub repository: after --repo, in a gh command,
 #: or assigned to a repo variable. Path fragments like "people/ada-lovelace" are not repos.
@@ -96,6 +100,8 @@ def test_the_guard_actually_catches_leaks():
     assert emails_outside_placeholders(f"write to {planted_email}") == [planted_email]
     assert emails_outside_placeholders("write to ada" + "@" + "example.org") == []
     assert HOME_PATH_RE.search("/" + "Users" + "/someone/profiles")
+    assert HOME_PATH_RE.search("scp server:/" + "root/py/proj/profiles")
+    assert HOME_PATH_RE.search("/" + "var/folders/xy/T/tmp123")
     assert handles_outside_allowlist("see github.com/" + "someone-real" + "/notes", prose=False) == ["someone-real"]
     assert handles_outside_allowlist("gh repo create " + "someone" + "/profiles --private", prose=False) == ["someone"]
     assert handles_outside_allowlist("thanks @" + "someone-real" + " for this", prose=True) == ["someone-real"]

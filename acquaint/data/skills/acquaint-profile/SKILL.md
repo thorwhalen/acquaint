@@ -119,8 +119,8 @@ acquaint lint <id>          # must pass: no unsourced lines, nothing forbidden, 
 acquaint brief <id>         # read it as the next agent will
 ```
 
-Then spot-check three lines against their sources by opening the source, not by trusting the row. Show the operator the diff whenever it adds or changes a rule, merges identities, or removes anything.
+Then spot-check three lines against their sources by opening the source, not by trusting the row. Show the operator the whole diff and apply it only once they approve it. If the store is synced, leave the changes uncommitted so `git diff` in the data root is the review.
 
 ## Consolidating observations
 
-Agents append observations with `acquaint remember` during ordinary work. To turn them into profile lines: read the log entries since the last consolidation, and for each decide **add**, **update**, **supersede** or **leave**. Never delete an observation. Promote only what meets the Step 3 rules. Afterwards run `acquaint lint <id>`, and note in `PROFILE.md` frontmatter (`consolidated_through: log/2026-09.md#e07`) how far you got.
+Agents append observations with `acquaint remember` during ordinary work. Turning them into profile lines is a **proposal, never applied silently**. Read the log entries since the last consolidation, and for each decide **add**, **update**, **supersede** or **leave**. Never delete an observation. Promote only what meets the Step 3 rules. Present the result as a diff that names the observation ids each change rests on, and apply it only after the operator approves. Then run `acquaint lint <id>`, and note in `PROFILE.md` frontmatter (`consolidated_through: log/2026-09.md#e07`) how far you got.

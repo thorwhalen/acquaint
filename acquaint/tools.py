@@ -1,14 +1,18 @@
 """The single source of truth for every surface: plain functions, flat arguments in, JSON-ready dicts out.
 
-The CLI is ``cw`` over :data:`TOOLS`; the MCP server registers ``acquaint.tools:<name>``
-string references to the same functions; the shipped skills describe these verbs.
-Nothing in this module knows about any of those surfaces.
+The CLI is ``cw`` over :data:`TOOLS`; the MCP server exposes the same functions (by
+``acquaint.tools:<name>`` reference); the shipped skills describe these verbs. Nothing
+in this module knows about any of those surfaces.
 
 Every tool takes ``data_dir`` (default: ``$ACQUAINT_DATA_DIR``, else ``data_dir`` in
-``~/.config/acquaint/config.toml``, else ``~/.local/share/acquaint``). Every result
-carries ``ok`` and a one-line ``summary``; long human-readable content is in ``text``.
-Expected failures (no such person, an unsourced preference) come back as ``ok: False``
-or raise :class:`~acquaint.store.AcquaintError` with a message meant for the caller.
+``~/.config/acquaint/config.toml``, else ``~/.local/share/acquaint``). Every result carries
+``ok`` and a one-line ``summary``; long human-readable content is in ``text``.
+
+Tools never act on a guess. A name, alias, handle or email counts only when exactly one
+entity has it exactly; a partial match is returned as a suggestion. ``rename`` and
+``forget`` need the exact id. Library callers with their own store use the core
+functions (:func:`acquaint.lookup.find_entity`, :func:`acquaint.brief.compose_brief`, …)
+with a :class:`~acquaint.store.Store`.
 """
 
 from __future__ import annotations
@@ -20,7 +24,7 @@ from acquaint.brief import compose_brief
 from acquaint.deslop import lint_text, recipient_card
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
-from acquaint.lookup import check_text, match, reach_channels, resolve_handle
+from acquaint.lookup import check_text, find_entity, match, reach_channels, resolve_handle
 from acquaint.store import ENTRY_FILE, AcquaintError, Entity, Store, data_dir as _data_dir
 
 __all__ = [
@@ -49,23 +53,14 @@ def _store(data_dir: str | None) -> Store:
     return Store(data_dir)
 
 
-def _key(store: Store, ref: str) -> str:
-    try:
-        return store.find(ref)
-    except KeyError:
-        pass
-    found = match(store, ref)
-    keys = found["exact"] or found["partial"]
-    if len(keys) == 1:
-        return keys[0]
-    if keys:
-        raise AcquaintError(f"{ref!r} could be {', '.join(k.split('/', 1)[1] for k in keys)}; say which")
-    raise AcquaintError(f"no entity {ref!r}; `acquaint new person \"Given Family\"` creates one")
-
-
 def _field(store: Store, entity: Entity, field: str) -> Any:
     field = field.strip().lower()
-    by_platform = lambda platform: [i.get("value") for i in entity.identities if str(i.get("platform", "")).lower() == platform]  # noqa: E731
+
+    def by_platform(platform: str) -> list:
+        return [i.get("value") for i in entity.identities if str(i.get("platform", "")).lower() == platform and str(i.get("status") or "active").lower() == "active"]
+
+    if field == "aka":
+        return entity.aka
     if field in entity.meta:
         return entity.meta[field]
     if field in {"email", "emails"}:
@@ -79,30 +74,32 @@ def _field(store: Store, entity: Entity, field: str) -> Any:
     return by_platform(field) or None
 
 
+def _unreadable_warnings(found: dict) -> list[str]:
+    return [f"{row['key']} could not be read: {row['error']}" for row in found.get("unreadable", [])]
+
+
 # --------------------------------------------------------------------- read tools
 
 
 def who(name: str, *, field: str | None = None, brief: bool = False, data_dir: str | None = None) -> dict:
-    """Look up one person, project, org or group by name, alias, handle, email or id.
+    """Look up one person, project, org or group by exact id, name, alias, handle or email.
 
     Costs scale with what you ask: ``field`` returns one value (``aka``, ``email``,
     ``github``, any frontmatter key), ``brief`` the identity block, and the default the
-    whole entry file. Several matches return the candidates instead of a guess.
+    whole entry file. It never guesses: no exact match, or several, returns the
+    candidates and ``ok: false``.
     """
     store = _store(data_dir)
-    found = match(store, name)
     try:
-        keys = [store.find(name)] if (":" in name or "/" in name) else (found["exact"] or found["partial"])
-    except (KeyError, AcquaintError):
-        keys = []
-    if not keys:
-        known = [k.split("/", 1)[1] for k in list(store)[:20]]
-        return {"ok": False, "query": name, "known": known, "summary": f"no match for {name!r}; known: {', '.join(known) or '(store is empty)'}"}
-    if len(keys) > 1:
-        candidates = [{"id": store[k].slug, "key": k, "name": store[k].name} for k in keys]
-        return {"ok": False, "query": name, "candidates": candidates, "summary": f"{name!r} is ambiguous: {', '.join(c['id'] for c in candidates)}"}
+        key = find_entity(store, name)
+    except AcquaintError as error:
+        found = match(store, name)
+        candidates = [{"id": store[k].slug, "key": k, "name": store[k].name} for k in found["exact"] + found["partial"]]
+        known = [] if candidates else [k.split("/", 1)[1] for k in list(store)[:20]]
+        summary = str(error) + (f"; known: {', '.join(known) or '(store is empty)'}" if not candidates else "")
+        return {"ok": False, "query": name, "candidates": candidates, "known": known, "summary": summary, "warnings": _unreadable_warnings(found)}
 
-    entity = store[keys[0]]
+    entity = store[key]
     base = {"ok": True, "id": entity.slug, "key": entity.key, "name": entity.name}
     if entity.errors:
         base["warnings"] = [f"{entity.key}: {e}" for e in entity.errors]
@@ -120,15 +117,31 @@ def who(name: str, *, field: str | None = None, brief: bool = False, data_dir: s
 
 
 def resolve(handle: str, *, data_dir: str | None = None) -> dict:
-    """Map a channel handle (``github:octocat``, ``email:ada@example.org``, ``@octocat``) to the entity it belongs to, with the evidence."""
-    matches = resolve_handle(_store(data_dir), handle)
+    """Map a channel handle (``github:octocat``, ``email:ada@example.org``) to the entity it belongs to, with the evidence.
+
+    ``ok`` is true only when an active identity on the named platform belongs to exactly
+    one entity. A handle without a platform (``@octocat``), a match by name only, an
+    inactive identity, or several owners all return ``ok: false`` with what was found.
+    """
+    result = resolve_handle(_store(data_dir), handle)
+    matches, platform = result["matches"], result["platform"]
     ids = sorted({m["id"] for m in matches})
-    ok = len(ids) == 1
-    summary = (
-        f"{handle} → {ids[0]}" if ok else f"{handle} matches {', '.join(ids)}: do not pick one" if ids else f"{handle} matches no recorded identity"
-    )
-    text = "\n".join(f"{m['id']}  {m.get('platform') or 'name'}:{m.get('value', m['name'])}  evidence: {m['evidence']}" for m in matches)
-    return {"ok": ok, "handle": handle, "matches": matches, "summary": summary, "text": text or summary}
+    if len(ids) == 1 and platform:
+        ok, summary = True, f"{handle} → {ids[0]} (evidence: {matches[0]['evidence']})"
+    elif len(ids) == 1:
+        platforms = sorted({str(m["platform"]) for m in matches})
+        ok, summary = False, f"{handle} matches {ids[0]} on {', '.join(platforms)}; name the platform (e.g. {platforms[0]}:{handle.lstrip('@')}) before acting on it"
+    elif ids:
+        ok, summary = False, f"{handle} matches {', '.join(ids)}: do not pick one"
+    elif result["inactive"]:
+        ok, summary = False, f"{handle} matches only inactive identities ({', '.join(sorted({m['id'] + ' ' + m['status'] for m in result['inactive']}))})"
+    elif result["by_name"]:
+        ok, summary = False, f"no identity has {handle}; by name only: {', '.join(m['id'] for m in result['by_name'])}, which is not enough to act on"
+    else:
+        ok, summary = False, f"{handle} matches no recorded identity"
+    rows = matches + result["inactive"] + result["by_name"]
+    text = "\n".join(f"{m['id']}  {m.get('platform') or 'name'}:{m.get('value', m['name'])}  {m.get('status', '')}  evidence: {m['evidence']}".replace("  evidence", " evidence") for m in rows)
+    return {"ok": ok, "handle": handle, **result, "summary": summary, "text": text or summary, "warnings": _unreadable_warnings(result)}
 
 
 def check(text: str, *, data_dir: str | None = None) -> dict:
@@ -145,7 +158,7 @@ def check(text: str, *, data_dir: str | None = None) -> dict:
         lines.append(f"mentioned   {', '.join(result['mentioned'])}")
     ok = not result["conflations"]
     summary = "no conflations" if ok else f"{len(result['conflations'])} conflation(s)"
-    return {"ok": ok, **result, "summary": summary, "text": "\n".join(lines) or summary}
+    return {"ok": ok, **result, "summary": summary, "text": "\n".join(lines) or summary, "warnings": _unreadable_warnings(result)}
 
 
 def reach(
@@ -158,32 +171,36 @@ def reach(
     topic: str | None = None,
     data_dir: str | None = None,
 ) -> dict:
-    """Ordered channels for reaching someone in a context. Returns addresses; sends nothing."""
+    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing."""
     store = _store(data_dir)
-    key = _key(store, person)
+    key = find_entity(store, person)
     defaults = store.files["_defaults/rules.yaml"] if "_defaults/rules.yaml" in store.files else ""
     result = reach_channels(store, key, defaults_text=defaults, purpose=purpose, urgency=urgency, project=project, message_type=message_type, topic=topic)
     lines = [
-        f"{n}. {c['channel'] or c['instruction']}" + (f" → {c['address']}" if c["address"] else "") + f"  [{c['tier']}]"
+        f"{n}. {c['channel'] or c['instruction']}"
+        + (f" → {c['address']}" if c["address"] else "")
+        + f"  [{c['tier']}]"
+        + (f"  ({c['note']})" if c.get("note") else "")
         for n, c in enumerate(result["channels"], start=1)
     ]
-    summary = f"{len(result['channels'])} channel(s) for {store[key].slug}" if lines else f"no identities or rules recorded for {store[key].slug}"
-    return {"ok": bool(lines), "id": store[key].slug, **result, "summary": summary, "text": "\n".join(lines) or summary}
+    usable = [c for c in result["channels"] if c["address"] or c["instruction"]]
+    summary = f"{len(usable)} usable channel(s) for {store[key].slug}" if usable else f"no active identities or rules recorded for {store[key].slug}"
+    return {"ok": bool(usable), "id": store[key].slug, **result, "summary": summary, "text": "\n".join(lines) or summary}
 
 
 def brief(person: str, *, purpose: str | None = None, project: str | None = None, data_dir: str | None = None) -> dict:
     """Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps."""
     store = _store(data_dir)
-    result = compose_brief(store, _key(store, person), purpose=purpose, project=project)
+    result = compose_brief(store, find_entity(store, person), purpose=purpose, project=project)
     return {"ok": True, **result, "summary": f"brief for {result['name']}" + (f" ({purpose})" if purpose else "")}
 
 
 def lint(entity: str | None = None, *, data_dir: str | None = None) -> dict:
     """Check records: every preference, view and rule sourced; nothing POLICY.md forbids; files parse; entry files within budget."""
     store = _store(data_dir)
-    result = lint_store(store, _key(store, entity) if entity else None)
+    result = lint_store(store, find_entity(store, entity) if entity else None)
     lines = [
-        f"{f['severity']:7} {f['entity']}/{f['file']}" + (f":{f['line']}" if f["line"] else "") + f"  {f['rule']}: {f['message']}"
+        f"{f['severity']:7} {'/'.join(filter(None, [f['entity'], f['file']]))}" + (f":{f['line']}" if f["line"] else "") + f"  {f['rule']}: {f['message']}"
         for f in result["errors"] + result["warnings"]
     ]
     ok = not result["errors"]
@@ -193,10 +210,10 @@ def lint(entity: str | None = None, *, data_dir: str | None = None) -> dict:
 
 def style_lint(text: str, *, recipient: str | None = None, tolerance: str | None = None, data_dir: str | None = None) -> dict:
     """The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist."""
-    card = {"tolerance": "unknown", "blocklist": []}
+    card: dict[str, Any] = {"tolerance": "unknown", "blocklist": [], "warnings": []}
     if recipient:
         store = _store(data_dir)
-        card = recipient_card(store[_key(store, recipient)])
+        card = recipient_card(store[find_entity(store, recipient)])
     level = tolerance or card["tolerance"]
     result = lint_text(text, tolerance=level, blocklist=card["blocklist"])
     route = (
@@ -208,7 +225,7 @@ def style_lint(text: str, *, recipient: str | None = None, tolerance: str | None
     enforced = [f for f in result["findings"] if f["enforced"]]
     lines = [f"{f['tier']} {f['rule']}: {f['message']}" + (f"  …{f['excerpt']}…" if f["excerpt"] else "") for f in enforced]
     summary = f"{len(enforced)} finding(s) to fix at tolerance {level}; route: {route}"
-    return {**result, "recipient": recipient, "route": route, "summary": summary, "text": "\n".join(lines + [summary])}
+    return {**result, "recipient": recipient, "route": route, "summary": summary, "text": "\n".join(lines + [summary]), "warnings": card["warnings"]}
 
 
 # -------------------------------------------------------------------- write tools
@@ -217,7 +234,7 @@ def style_lint(text: str, *, recipient: str | None = None, tolerance: str | None
 def remember(entity: str, text: str, *, source: str | None = None, kind: str = "observation", data_dir: str | None = None) -> dict:
     """Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source."""
     store = _store(data_dir)
-    result = append_observation(store, _key(store, entity), text, source=source, kind=kind)
+    result = append_observation(store, find_entity(store, entity), text, source=source, kind=kind)
     return {"ok": True, **result, "summary": f"recorded {result['kind']} {result['ref']} for {result['id']}"}
 
 
@@ -228,16 +245,15 @@ def new(kind: str, name: str, *, qualifier: str | None = None, description: str 
 
 
 def rename(entity: str, to: str, *, data_dir: str | None = None) -> dict:
-    """Change an entity's id (``to`` is a slug) or name and id (``to`` is a name), rewriting links to it; the old forms become aliases."""
+    """Change an entity's id (``to`` is a slug) or name and id (``to`` is a name), rewriting links to it. Needs the exact id."""
     store = _store(data_dir)
-    result = rename_entity(store, _key(store, entity), to)
+    result = rename_entity(store, find_entity(store, entity, names=False), to)
     return {"ok": True, **result, "summary": f"renamed {result['from']} → {result['to']}; relinked {len(result['relinked'])} file(s)"}
 
 
 def forget(entity: str, *, confirm: bool = False, data_dir: str | None = None) -> dict:
-    """Remove an entity and leave a hashed tombstone. Without ``confirm``, only reports what would be removed."""
-    store = _store(data_dir)
-    result = forget_entity(store, _key(store, entity), confirm=confirm)
+    """Remove an entity's folder and leave a salted tombstone. Needs the exact id; without ``confirm``, only reports what would be removed."""
+    result = forget_entity(_store(data_dir), entity, confirm=confirm)
     if not result["done"]:
         summary = f"would remove {len(result['files'])} file(s) of {result['key']}; pass --confirm to do it"
         return {"ok": True, **result, "summary": summary, "text": "\n".join([*result["files"], summary])}
@@ -248,7 +264,7 @@ def forget(entity: str, *, confirm: bool = False, data_dir: str | None = None) -
 
 
 def sync_init(*, repo: str, remote_url: str | None = None, existing_only: bool = False, dry_run: bool = False, data_dir: str | None = None) -> dict:
-    """Make the data root a checkout of a PRIVATE GitHub repository (created private through ``gh`` unless ``existing_only``), with a pre-push visibility guard."""
+    """Make the data root a checkout of a PRIVATE GitHub repository (created private through ``gh`` unless ``existing_only``), with a pre-push guard."""
     result = _sync.init(_data_dir(data_dir), repo, remote_url=remote_url, create=not existing_only, dry_run=dry_run)
     if dry_run:
         return {"ok": True, **result, "summary": f"dry run: would sync the store to {repo}", "text": "\n".join(result["plan"])}
@@ -256,7 +272,7 @@ def sync_init(*, repo: str, remote_url: str | None = None, existing_only: bool =
 
 
 def sync_push(*, message: str | None = None, dry_run: bool = False, data_dir: str | None = None) -> dict:
-    """Commit, rebase onto the remote and push the store, after re-checking that the remote is the recorded, private one."""
+    """Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility."""
     result = _sync.push(_data_dir(data_dir), message=message, dry_run=dry_run)
     summary = f"would commit {result['would_commit']} change(s)" if dry_run else f"pushed to {result['repo']}" if result.get("pushed") else result.get("note", "nothing pushed")
     return {"ok": True, **result, "summary": summary}
@@ -269,12 +285,12 @@ def sync_pull(*, dry_run: bool = False, data_dir: str | None = None) -> dict:
 
 
 def sync_status(*, check_visibility: bool = True, data_dir: str | None = None) -> dict:
-    """Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the hook, and live visibility."""
+    """Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility."""
     result = _sync.status(_data_dir(data_dir), check_visibility=check_visibility)
     if not result["synced"]:
         return {"ok": True, **result, "summary": result["note"]}
-    problems = [p for p, bad in (("visibility is not PRIVATE", result.get("visibility", "PRIVATE") != "PRIVATE"), ("pre-push guard missing or changed", not result["hook_installed"])) if bad]
-    lines = [f"{k}: {v}" for k, v in result.items() if k not in {"synced"}]
+    problems = [p for p, bad in (("visibility is not PRIVATE", result.get("visibility", "PRIVATE") != "PRIVATE"), ("pre-push guard missing, changed or not active", not result["hook_installed"])) if bad]
+    lines = [f"{k}: {v}" for k, v in result.items() if k != "synced"]
     return {"ok": not problems, **result, "problems": problems, "summary": "; ".join(problems) or f"synced to {result['repo']}", "text": "\n".join(lines + problems)}
 
 
@@ -282,14 +298,15 @@ def sync_status(*, check_visibility: bool = True, data_dir: str | None = None) -
 TOOLS = [who, resolve, check, reach, brief, remember, lint, new, rename, forget, sync_init, sync_push, sync_pull, sync_status, style_lint]
 
 #: What each tool changes, for surfaces that must decide what to expose or confirm.
-#: ``read`` changes nothing; ``append`` adds to a log; ``create`` adds a record;
-#: ``rewrite`` changes existing records; ``destructive`` removes data; ``external``
-#: acts on a remote service.
+#: ``read`` changes nothing and stays local; ``append`` adds to a log; ``create`` adds a
+#: record; ``rewrite`` changes existing records; ``destructive`` removes data;
+#: ``external-read`` queries a remote service; ``external`` acts on one.
 SIDE_EFFECTS = {
     "who": "read", "resolve": "read", "check": "read", "reach": "read", "brief": "read",
-    "lint": "read", "style_lint": "read", "sync_status": "read",
+    "lint": "read", "style_lint": "read",
     "remember": "append", "new": "create",
     "rename": "rewrite", "sync_pull": "rewrite",
     "forget": "destructive",
+    "sync_status": "external-read",
     "sync_init": "external", "sync_push": "external",
 }

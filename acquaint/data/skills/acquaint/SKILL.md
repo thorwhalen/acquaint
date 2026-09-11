@@ -22,7 +22,7 @@ The point is that **consulting it is cheaper than guessing**. Use the cheapest t
 | "I am about to write to them" | `acquaint brief ada --purpose ask` → then **acquaint-write** | one record in context |
 | "Who should review this, and how do I frame it for each?" | a subagent, given the `brief` output for each person | an agent |
 
-`who` refuses to guess: on an ambiguous name it lists the candidates and exits 1. Say which you meant; do not pick one.
+Nothing acts on a guess. `who`, `brief`, `reach` and `remember` accept a name, alias, handle or email only when exactly one record has it exactly; a partial match comes back as a suggestion and several matches as candidates, with exit 1. Say which you meant; do not pick one. `rename` and `forget` need the exact id. `resolve` answers only for a handle with its platform (`github:octocat`, not `@octocat`) on an active identity.
 
 ## Before publishing prose that names people
 

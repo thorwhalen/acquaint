@@ -1,26 +1,28 @@
-"""Finding the right record: name matching, handle resolution, the conflation check, and channel choice.
+"""Finding the right record: exact references, handle resolution, the conflation check, and channel choice.
 
-All functions take a :class:`~acquaint.store.Store` (any mapping of entities) and
-return plain data. Matching is deterministic normalisation: case, punctuation and
-accents are ignored, and every candidate is returned so callers can refuse to guess.
+All functions take a :class:`~acquaint.store.Store` and return plain data. Matching is
+deterministic normalisation (case, punctuation and accents ignored). Nothing here acts
+on a partial match: partials are offered as suggestions, and :func:`find_entity` refuses
+to pick between candidates. One unreadable record is reported and skipped; it never
+takes a lookup down.
 """
 
 from __future__ import annotations
 
 import re
 import unicodedata
-from collections.abc import Mapping
 from typing import Any
 
 from acquaint.records import load_yaml
-from acquaint.store import Entity
+from acquaint.store import AcquaintError, Entity, Store
 
-__all__ = ["match", "normalize", "resolve_handle", "check_text", "reach_channels", "TIERS"]
+__all__ = ["INACTIVE", "TIERS", "check_text", "find_entity", "match", "normalize", "reach_channels", "resolve_handle"]
 
-#: Who set a rule, most authoritative first. The operator's instruction for the
-#: message at hand outranks all of these; it belongs to the caller, not the store.
+#: Who set a rule, most authoritative first. The operator's instruction for the message
+#: at hand outranks all of these; it belongs to the caller, not the store.
 TIERS = ("self", "operator", "affiliation", "observed", "default")
-_INACTIVE = {"superseded", "retracted", "expired"}
+#: Statuses that take a rule or an identity out of use.
+INACTIVE = {"superseded", "retracted", "expired", "dead"}
 _SPLIT_HINT = re.compile(r"^\W*(or|and|aka|a\.k\.a\.?|vs\.?|/|,|&|\+)\W*$", re.I)
 _NAME_LIKE = re.compile(r"\b[A-Z][a-z]+(?:[ '-][A-Z][a-z]+)+\b")
 _SENTENCE_STARTERS = {
@@ -30,41 +32,85 @@ _SENTENCE_STARTERS = {
 
 
 def normalize(text: str) -> str:
+    """Lowercase ASCII letters and digits only, for comparing names and handles.
+
+    >>> normalize("Zoë O'Example")
+    'zoeoexample'
+    """
     folded = unicodedata.normalize("NFKD", str(text)).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "", folded.lower())
 
 
-def _emails(entity: Entity) -> list[str]:
-    return [str(i["value"]) for i in entity.identities if i.get("platform") == "email" and i.get("value")]
+def _status(item: dict) -> str:
+    return str(item.get("status") or "active").lower()
 
 
 def _forms(entity: Entity) -> set[str]:
     forms = {normalize(f) for f in entity.surface_forms}
-    for email in _emails(entity):
-        forms |= {normalize(email), normalize(email.split("@")[0])}
+    for identity in entity.identities:
+        if identity.get("platform") == "email" and identity.get("value"):
+            email = str(identity["value"])
+            forms |= {normalize(email), normalize(email.split("@")[0])}
     return {f for f in forms if f}
+
+
+def _readable(store: Store) -> tuple[dict[str, Entity], list[dict]]:
+    """Entities whose identity can be read, and ``{key, error}`` for those that cannot."""
+    good, broken = {}, []
+    for key in store:
+        try:
+            entity = store[key]
+            _forms(entity)
+            good[key] = entity
+        except Exception as error:  # one bad record must not take down every lookup
+            broken.append({"key": key, "error": f"{type(error).__name__}: {error}"})
+    return good, broken
 
 
 # -------------------------------------------------------------------------- match
 
 
-def match(store: Mapping[str, Entity], query: str) -> dict[str, list[str]]:
-    """Store keys matching a name, alias, handle, email or id: ``{"exact": [...], "partial": [...]}``.
+def match(store: Store, query: str) -> dict[str, list]:
+    """Store keys matching a name, alias, handle, email or id: ``{"exact": [...], "partial": [...], "unreadable": [...]}``.
 
-    ``partial`` holds entities where the query is part of a longer form (at least
-    three characters), for "did you mean" rather than for acting on.
+    ``partial`` holds entities where the query is part of a longer form (three characters
+    or more): suggestions for a person, never something to act on.
     """
     q = normalize(query)
+    entities, broken = _readable(store)
     exact, partial = [], []
-    if not q:
-        return {"exact": exact, "partial": partial}
-    for key in store:
-        forms = _forms(store[key])
-        if q in forms or q == normalize(key.split("/", 1)[1]):
-            exact.append(key)
-        elif len(q) >= 3 and any(q in form for form in forms):
-            partial.append(key)
-    return {"exact": exact, "partial": partial}
+    if q:
+        for key, entity in entities.items():
+            forms = _forms(entity)
+            if q in forms or q == normalize(entity.slug):
+                exact.append(key)
+            elif len(q) >= 3 and any(q in form for form in forms):
+                partial.append(key)
+    return {"exact": exact, "partial": partial, "unreadable": broken}
+
+
+def find_entity(store: Store, ref: str, *, names: bool = True) -> str:
+    """The one store key a reference names, or an :class:`AcquaintError` saying why not.
+
+    Ids and refs (``ada-lovelace``, ``person:ada-lovelace``, ``people/ada-lovelace``) are
+    tried first. With ``names``, an exact name, alias, handle or email also counts when
+    exactly one entity has it. A partial match never counts; it is offered as a suggestion.
+    Operations that rewrite or remove records pass ``names=False`` and need the exact id.
+    """
+    try:
+        return store.find(ref)
+    except KeyError:
+        pass
+    found = match(store, ref)
+    if names and len(found["exact"]) == 1:
+        return found["exact"][0]
+    if names and found["exact"]:
+        raise AcquaintError(f"{ref!r} could be {', '.join(k.split('/', 1)[1] for k in found['exact'])}; say which by id")
+    suggestions = [k.split("/", 1)[1] for k in found["exact"] + found["partial"]]
+    hint = f"; did you mean {', '.join(suggestions)}?" if suggestions else ""
+    if names:
+        raise AcquaintError(f"no entity named {ref!r}{hint}")
+    raise AcquaintError(f"no entity with the id {ref!r} (this needs the exact id){hint}")
 
 
 # ------------------------------------------------------------------------ handles
@@ -90,59 +136,68 @@ def _split_handle(handle: str) -> tuple[str | None, str]:
     return None, handle
 
 
-def resolve_handle(store: Mapping[str, Entity], handle: str) -> list[dict[str, Any]]:
-    """Entities a channel handle belongs to, strongest evidence first.
+def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
+    """Who a channel handle belongs to, with the evidence: ``{"platform", "matches", "inactive", "by_name", "unreadable"}``.
 
-    ``github:octocat``, ``email:ada@example.org``, ``ada@example.org`` and ``@octocat``
-    are matched against ``identities.yaml`` (Gmail dots and ``+tags`` ignored). A
-    handle found in no identity file falls back to name matching, reported as
-    ``evidence: name only``, which is never enough to act on alone.
+    ``github:octocat``, ``email:ada@example.org`` and ``ada@example.org`` name a platform;
+    ``@octocat`` does not, so it matches that handle on any platform. Identities whose
+    status is retracted, dead, superseded or expired are reported under ``inactive``,
+    never as matches. A handle found in no identity file is matched against names under
+    ``by_name``, which is never enough to act on.
     """
     platform, value = _split_handle(handle)
     wanted = _normalise_handle(platform, value)
-    found = []
-    for key in store:
-        entity = store[key]
+    entities, broken = _readable(store)
+    matches, inactive = [], []
+    for key, entity in entities.items():
         for identity in entity.identities:
             if platform and str(identity.get("platform", "")).lower() != platform:
                 continue
             if _normalise_handle(identity.get("platform"), str(identity.get("value", ""))) != wanted:
                 continue
-            found.append(
-                {
-                    "id": entity.slug,
-                    "key": key,
-                    "name": entity.name,
-                    "platform": identity.get("platform"),
-                    "value": identity.get("value"),
-                    "evidence": identity.get("evidence") or identity.get("source") or "unrecorded",
-                    "status": identity.get("status", "active"),
-                }
-            )
-    if found or platform:
-        return found
-    names = match(store, value)
-    return [
-        {"id": store[key].slug, "key": key, "name": store[key].name, "evidence": "name only"}
-        for key in names["exact"]
-    ]
+            row = {
+                "id": entity.slug,
+                "key": key,
+                "name": entity.name,
+                "platform": identity.get("platform"),
+                "value": identity.get("value"),
+                "evidence": identity.get("evidence") or identity.get("source") or "unrecorded",
+                "status": _status(identity),
+            }
+            (inactive if row["status"] in INACTIVE else matches).append(row)
+    by_name = []
+    if not matches and not inactive and platform is None:
+        names = match(store, value)
+        by_name = [{"id": store[k].slug, "key": k, "name": store[k].name, "evidence": "name only"} for k in names["exact"]]
+    return {"platform": platform, "matches": matches, "inactive": inactive, "by_name": by_name, "unreadable": broken}
 
 
 # -------------------------------------------------------------------- conflations
 
 
-def check_text(store: Mapping[str, Entity], text: str) -> dict[str, Any]:
+def _is_citation(entity: Entity, first: str, second: str, between: str) -> bool:
+    """``Lovelace, Ada``: family name, comma, given name, which is one person in citation order."""
+    parts = entity.name.split()
+    return (
+        between.strip() == ","
+        and len(parts) > 1
+        and normalize(first) == normalize(parts[-1])
+        and normalize(second) == normalize(parts[0])
+    )
+
+
+def check_text(store: Store, text: str) -> dict[str, Any]:
     """Scan prose for people errors before it is published.
 
-    Reports the entities mentioned; **conflations** (one entity written as if it were
-    two: two different names for it joined by "or", "and", "/", "," …); **ambiguous**
-    names (one form shared by several entities); and **unknown** name-like phrases
-    that match nobody, which are either a new person to add or a misspelling.
+    Reports the entities mentioned; **conflations** (one entity written as if it were two:
+    two different names for it joined by "or", "and", "/", "," …, citation order such as
+    "Lovelace, Ada" excepted); **ambiguous** forms shared by several entities; and
+    **unknown** name-like phrases that match nobody.
     """
+    entities, broken = _readable(store)
     hits: dict[str, list[tuple[int, str]]] = {}
     owners: dict[str, set[str]] = {}
-    for key in store:
-        entity = store[key]
+    for key, entity in entities.items():
         for form in entity.surface_forms:
             if len(form) < 3:
                 continue
@@ -152,27 +207,28 @@ def check_text(store: Mapping[str, Entity], text: str) -> dict[str, Any]:
 
     conflations = []
     for key, spans in hits.items():
+        entity = entities[key]
         spans = sorted(set(spans))
         for (p1, s1), (p2, s2) in zip(spans, spans[1:]):
             if normalize(s1) == normalize(s2) or p2 < p1 + len(s1):
                 continue
             between = text[p1 + len(s1) : p2]
-            if len(between) <= 12 and _SPLIT_HINT.match(between):
+            if len(between) <= 12 and _SPLIT_HINT.match(between) and not _is_citation(entity, s1, s2, between):
                 conflations.append(
                     {
-                        "id": store[key].slug,
-                        "name": store[key].name,
+                        "id": entity.slug,
+                        "name": entity.name,
                         "forms": [s1, s2],
                         "excerpt": text[max(0, p1 - 30) : p2 + len(s2) + 30].strip(),
                     }
                 )
 
     ambiguous = [
-        {"form": form, "ids": sorted(store[k].slug for k in keys)}
+        {"form": form, "ids": sorted(entities[k].slug for k in keys)}
         for form, keys in sorted(owners.items())
         if len(keys) > 1
     ]
-    known = {f for key in store for f in _forms(store[key])}
+    known = {f for entity in entities.values() for f in _forms(entity)}
     unknown = sorted(
         {
             phrase
@@ -182,10 +238,11 @@ def check_text(store: Mapping[str, Entity], text: str) -> dict[str, Any]:
         }
     )
     return {
-        "mentioned": sorted(store[key].slug for key in hits),
+        "mentioned": sorted(entities[key].slug for key in hits),
         "conflations": conflations,
         "ambiguous": ambiguous,
         "unknown_candidates": unknown,
+        "unreadable": broken,
     }
 
 
@@ -218,40 +275,46 @@ def _tier_of(rule: dict, default: str) -> str:
     return {"self-stated": "self", "person": "self"}.get(setter, setter if setter in TIERS else default)
 
 
-def reach_channels(
-    store: Mapping[str, Entity],
-    key: str,
-    *,
-    defaults_text: str = "",
-    **context: str | None,
-) -> dict[str, Any]:
+def _address(entity: Entity, channel: str | None) -> tuple[str | None, str | None]:
+    """An active address for a channel, or ``None`` and why."""
+    if not channel:
+        return None, None
+    recorded = [i for i in entity.identities if str(i.get("platform", "")).lower() == channel.lower()]
+    active = [i for i in recorded if _status(i) == "active"]
+    if active:
+        return f"{active[0]['platform']}:{active[0].get('value')}", None
+    if recorded:
+        return None, f"no active {channel} address (the recorded one is {_status(recorded[0])})"
+    return None, None
+
+
+def reach_channels(store: Store, key: str, *, defaults_text: str = "", **context: str | None) -> dict[str, Any]:
     """Ordered channels for reaching one entity in a context (``purpose``, ``urgency``, ``project``, ``message_type``, ``topic``).
 
-    Precedence: the person's own stated rules > the operator's rules about them >
-    norms of a project or affiliation > observed habits > global defaults. Within a
-    tier the most specific matching rule wins. It returns addresses; it sends nothing.
+    Precedence: the person's own stated rules > the operator's rules about them > norms of
+    a project or affiliation > observed habits > global defaults. Within a tier the most
+    specific matching rule wins. Only active addresses are offered. It returns addresses;
+    it sends nothing.
     """
     context = {k: str(v) for k, v in context.items() if v}
     entity = store[key]
-    candidates: list[tuple[str, dict, str]] = [
-        (_tier_of(rule, "operator"), rule, f"{key}/rules.yaml") for rule in entity.rules
-    ]
+    candidates: list[tuple[str, dict, str]] = [(_tier_of(rule, "operator"), rule, f"{key}/rules.yaml") for rule in entity.rules]
     affiliations = [str(link.get("to", "")) for link in entity.links]
     if context.get("project"):
         affiliations.append(f"project:{context['project']}")
     for ref in dict.fromkeys(affiliations):
         try:
-            other = store[_ref_key(store, ref)]
-        except KeyError:
+            other = store[store.find(ref)]
+        except (KeyError, AcquaintError):
             continue
-        candidates += [(("affiliation"), rule, f"{other.key}/rules.yaml") for rule in other.rules]
+        candidates += [("affiliation", rule, f"{other.key}/rules.yaml") for rule in other.rules]
     defaults, _ = load_yaml(defaults_text) if defaults_text else ({}, [])
     for rule in (defaults or {}).get("rules", []) if isinstance(defaults, dict) else []:
         candidates.append(("default", rule, "_defaults/rules.yaml"))
 
     scored = []
     for order, (tier, rule, origin) in enumerate(candidates):
-        if str(rule.get("status", "active")).lower() in _INACTIVE:
+        if _status(rule) in INACTIVE:
             continue
         specificity = _matches(rule.get("when"), context)
         if specificity is not None:
@@ -267,10 +330,12 @@ def reach_channels(
             if label in seen:
                 continue
             seen.add(label)
+            address, note = _address(entity, channel)
             channels.append(
                 {
                     "channel": channel,
-                    "address": _address(entity, channel),
+                    "address": address,
+                    "note": note,
                     "tier": tier,
                     "instruction": None if isinstance(do, dict) else str(do),
                     "rule_from": origin,
@@ -282,31 +347,16 @@ def reach_channels(
             {
                 "channel": identity.get("platform"),
                 "address": f"{identity.get('platform')}:{identity.get('value')}",
+                "note": None,
                 "tier": "none",
-                "instruction": "no rule matched; identities in the order listed",
+                "instruction": "no rule matched; active identities in the order listed",
                 "rule_from": f"{key}/identities.yaml",
                 "source": identity.get("source"),
             }
             for identity in entity.identities
-            if str(identity.get("status", "active")).lower() == "active"
+            if _status(identity) == "active"
         ]
     return {"context": context, "channels": channels, "rules_matched": len(scored)}
-
-
-def _ref_key(store: Mapping[str, Entity], ref: str) -> str:
-    find = getattr(store, "find", None)
-    if find is None:
-        raise KeyError(ref)
-    return find(ref)
-
-
-def _address(entity: Entity, channel: str | None) -> str | None:
-    if not channel:
-        return None
-    for identity in entity.identities:
-        if str(identity.get("platform", "")).lower() == channel.lower():
-            return f"{identity['platform']}:{identity.get('value')}"
-    return None
 
 
 def _as_list(value: Any) -> list:

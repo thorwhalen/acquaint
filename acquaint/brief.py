@@ -1,11 +1,11 @@
 """The brief: everything an agent should know before writing to someone, assembled in one call.
 
-A brief is the reuse point for communication intelligence. It gathers the entry
-file's card sections, the writing card (``style.md``), positions and standing
-objections (``views.md``), how to reach them for this purpose, the norms of the
-project the message belongs to, recent observations (marked as evidence, not
-facts), reminders for the purpose, the disclosure stance, and an explicit list of
-what is **not** known, so gaps get asked about instead of filled in.
+A brief is the reuse point for communication intelligence. It gathers the entry file's
+card sections, the writing card (``style.md``), positions and standing objections
+(``views.md``), how to reach them for this purpose, the norms of the project the message
+belongs to, recent observations (marked as evidence, not facts), reminders for the
+purpose, the disclosure stance, and an explicit list of what is **not** known, so gaps
+get asked about instead of filled in.
 """
 
 from __future__ import annotations
@@ -14,13 +14,14 @@ import re
 from datetime import date
 from typing import Any
 
+from acquaint.deslop import recipient_card
 from acquaint.lint import lint_store
 from acquaint.lookup import reach_channels
-from acquaint.records import parse_log, sections, split_frontmatter
+from acquaint.records import parse_log, split_frontmatter
 from acquaint.resources import data_yaml
 from acquaint.store import AcquaintError, Store
 
-__all__ = ["compose_brief", "CARD_SECTIONS"]
+__all__ = ["CARD_SECTIONS", "compose_brief"]
 
 #: Entry-file sections a brief carries, in the order it shows them.
 CARD_SECTIONS = ("Who", "Write to them", "Read them", "Don't", "Now")
@@ -35,12 +36,13 @@ def _visible(text: str) -> str:
 
 
 def _drop_expired(text: str, today: str) -> str:
-    kept = [
-        line
-        for line in text.splitlines()
-        if not ((m := _UNTIL_RE.search(line)) and m.group(1) < today)
-    ]
-    return "\n".join(kept).strip()
+    return "\n".join(
+        line for line in text.splitlines() if not ((m := _UNTIL_RE.search(line)) and m.group(1) < today)
+    ).strip()
+
+
+def _by_title(section_map: dict[str, str]) -> dict[str, str]:
+    return {title.lower(): text for title, text in section_map.items()}
 
 
 def _recent_observations(entity, limit: int) -> list[dict]:
@@ -52,28 +54,21 @@ def _recent_observations(entity, limit: int) -> list[dict]:
     return entries[-limit:] if limit else entries
 
 
-def compose_brief(
-    store: Store,
-    key: str,
-    *,
-    purpose: str | None = None,
-    project: str | None = None,
-    today: str | None = None,
-) -> dict[str, Any]:
+def compose_brief(store: Store, key: str, *, purpose: str | None = None, project: str | None = None, today: str | None = None) -> dict[str, Any]:
     """Assemble the brief for writing to one entity, as data plus a Markdown ``text`` rendering."""
     today = today or date.today().isoformat()
     entity = store[key]
     purposes = data_yaml("purposes.yaml")
     budgets = data_yaml("policy.yaml")["budgets"]
 
-    card = {title: _visible(entity.sections.get(title, "")) for title in CARD_SECTIONS}
+    profile = _by_title(entity.sections)
+    card = {title: _visible(profile.get(title.lower(), "")) for title in CARD_SECTIONS}
     card["Now"] = _drop_expired(card["Now"], today)
-    style_meta, style_body, style_errors = split_frontmatter(entity.text("style.md")) if "style.md" in entity else ({}, "", [])
-    style_text = _visible(style_body if not style_errors or style_body else entity.text("style.md"))
+    style_text = _visible(split_frontmatter(entity.text("style.md"))[1]) if "style.md" in entity else ""
     views_text = _visible(entity.text("views.md"))
-
-    tolerance = str(style_meta.get("ai_tolerance") or "unknown").lower()
-    disclosure = style_meta.get("disclosure") or purposes["disclosure"].get(tolerance, purposes["disclosure"]["unknown"])
+    writing = recipient_card(entity)
+    tolerance = writing["tolerance"]
+    disclosure = writing["disclosure"] or purposes["disclosure"].get(tolerance, purposes["disclosure"]["unknown"])
     spec = purposes["purposes"].get(str(purpose).lower(), {}) if purpose else {}
     reminders = list(purposes["default"]["reminders"]) + list(spec.get("reminders", []))
 
@@ -89,17 +84,12 @@ def compose_brief(
     if project:
         try:
             project_key = store.find(project if ":" in project or "/" in project else f"project:{project}")
-            project_sections = store[project_key].sections
-            norms = "\n\n".join(
-                filter(None, (_visible(project_sections.get(t, "")) for t in ("Norms", "Now")))
-            )
+            project_sections = _by_title(store[project_key].sections)
+            norms = "\n\n".join(filter(None, (_visible(project_sections.get(t, "")) for t in ("norms", "now"))))
         except (KeyError, AcquaintError):
             project_key = None
 
-    affiliations = [
-        " · ".join(str(link[k]) for k in ("to", "relation", "role") if link.get(k))
-        for link in entity.links
-    ]
+    affiliations = [" · ".join(str(link[k]) for k in ("to", "relation", "role") if link.get(k)) for link in entity.links]
     observations = _recent_observations(entity, budgets["brief_observations"])
     lint = lint_store(store, key, today=today)
 
@@ -132,6 +122,7 @@ def compose_brief(
         "reminders": reminders,
         "gaps": gaps,
         "lint": {"errors": len(lint["errors"]), "warnings": len(lint["warnings"])},
+        "warnings": writing["warnings"],
     }
     result["text"] = _render(entity, result)
     return result
@@ -153,9 +144,10 @@ def _render(entity, brief: dict[str, Any]) -> str:
             where = f" → {ch['address']}" if ch["address"] else ""
             why = f"{ch['tier']} rule" if ch["tier"] != "none" else ch["instruction"]
             source = f"; source: {ch['source']}" if ch.get("source") else ""
-            out.append(f"{n}. {what}{where} ({why}{source})")
+            note = f"; {ch['note']}" if ch.get("note") else ""
+            out.append(f"{n}. {what}{where} ({why}{source}{note})")
     else:
-        out.append("No identities or channel rules recorded.")
+        out.append("No active identities or channel rules recorded.")
     out.append("")
 
     for heading in CARD_SECTIONS:

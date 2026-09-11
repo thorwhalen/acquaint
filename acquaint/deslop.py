@@ -2,7 +2,7 @@
 
 How strict the check is depends on the recipient's tolerance of AI-sounding text,
 recorded as ``ai_tolerance`` in their ``style.md`` (``tolerant``, ``neutral``,
-``averse``; unknown counts as neutral):
+``averse``; anything else counts as unknown, which is neutral):
 
 - **tolerant** enforces tier E only, with looser counts;
 - **neutral** enforces E and W;
@@ -26,10 +26,10 @@ import statistics
 from collections.abc import Iterable
 from typing import Any
 
-from acquaint.records import bullets, sections, split_frontmatter
+from acquaint.records import items, sections, split_frontmatter
 from acquaint.resources import data_yaml
 
-__all__ = ["lint_text", "recipient_card", "text_metrics", "TOLERANCES"]
+__all__ = ["TOLERANCES", "lint_text", "normalize_tolerance", "recipient_card", "text_metrics"]
 
 TOLERANCES = ("tolerant", "neutral", "averse", "unknown")
 _WORD_RE = re.compile(r"[A-Za-z0-9’']+")
@@ -38,28 +38,46 @@ _QUOTED_RE = re.compile(r"[\"“]([^\"”]+)[\"”]")
 _SOURCE_TAG_RE = re.compile(r"\[source:[^\]]*\]", re.I)
 
 
+def normalize_tolerance(value: Any) -> tuple[str, str | None]:
+    """A recorded ``ai_tolerance`` as one of :data:`TOLERANCES`, with a warning when it was something else.
+
+    >>> normalize_tolerance("Averse"), normalize_tolerance(None)
+    (('averse', None), ('unknown', None))
+    >>> normalize_tolerance("low")[0]
+    'unknown'
+    """
+    if value in (None, ""):
+        return "unknown", None
+    text = str(value).strip().lower()
+    if text in TOLERANCES:
+        return text, None
+    return "unknown", f"ai_tolerance {value!r} is not one of tolerant, neutral, averse; treated as unknown (neutral)"
+
+
 def recipient_card(entity: Any) -> dict[str, Any]:
-    """What the check needs from a recipient's writing card (``style.md``): tolerance, disclosure, blocklist.
+    """What the check needs from a recipient's writing card (``style.md``): tolerance, disclosure, blocklist, warnings.
 
     ``ai_tolerance`` and ``disclosure`` come from the card's frontmatter. Blocklist
-    phrases are the bullets of its ``## Blocklist`` section: the quoted phrase when a
-    bullet quotes one, else the bullet without its source tag.
+    phrases are the items of its ``## Blocklist`` section: the quoted phrase when an item
+    quotes one, else the item without its source tag.
     """
     text = entity.text("style.md") if "style.md" in entity else ""
     meta, body, _ = split_frontmatter(text)
+    tolerance, warning = normalize_tolerance(meta.get("ai_tolerance"))
     blocklist = []
     for title, section in sections(body).items():
-        if title.strip().lower() != "blocklist":
+        if title.lower() != "blocklist":
             continue
-        for _, bullet in bullets(section):
-            quoted = _QUOTED_RE.search(bullet)
-            phrase = quoted.group(1) if quoted else _SOURCE_TAG_RE.sub("", bullet).strip()
+        for _, item in items(section):
+            quoted = _QUOTED_RE.search(item)
+            phrase = quoted.group(1) if quoted else _SOURCE_TAG_RE.sub("", item).strip()
             if phrase:
                 blocklist.append(phrase)
     return {
-        "tolerance": str(meta.get("ai_tolerance") or "unknown").lower(),
-        "disclosure": meta.get("disclosure"),
+        "tolerance": tolerance,
+        "disclosure": meta.get("disclosure") or None,
         "blocklist": blocklist,
+        "warnings": [warning] if warning else [],
     }
 
 
@@ -102,12 +120,14 @@ def lint_text(
 
     ``blocklist`` holds phrases this recipient's card says never to use; each hit is
     tier E. ``catalog`` replaces the shipped catalogue (same schema as ``tells.yaml``).
+    An unrecognised ``tolerance`` is an error here; normalise recorded values first
+    with :func:`normalize_tolerance`.
     """
     catalog = catalog if catalog is not None else data_yaml("deslop/tells.yaml")
     levels = catalog["tolerance"]
-    level = levels.get(tolerance, levels["neutral"]) if tolerance in TOLERANCES or tolerance in levels else None
-    if level is None:
+    if tolerance not in TOLERANCES and tolerance not in levels:
         raise ValueError(f"tolerance must be one of {', '.join(TOLERANCES)}; got {tolerance!r}")
+    level = levels.get(tolerance, levels["neutral"])
     if isinstance(level, str):
         level = levels[level]
     enforce = set(level["enforce"])

@@ -1,7 +1,9 @@
-"""Sync to a private repository, tested without GitHub: ``gh`` is scripted, ``git`` is real, the remote is a local bare repository.
+"""Sync to a private repository, tested without GitHub.
 
-No real repository is created. The user's global git configuration is isolated so a
-global ``core.hooksPath`` or commit signing cannot change what is being tested.
+``gh`` is scripted: a fake runner answers Python's calls, and a fake ``gh`` first on
+``PATH`` answers the hook. ``git`` is real. The GitHub URL is redirected to a local bare
+repository with ``url.<bare>.insteadOf`` in an isolated global git config, which is also
+how a user's own URL rewriting behaves. No real repository is created.
 """
 
 import os
@@ -15,19 +17,54 @@ from acquaint import sync
 from acquaint.store import AcquaintError
 
 pytestmark = pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
-posix_only = pytest.mark.skipif(sys.platform == "win32", reason="the pre-push guard is a POSIX shell script calling a scripted gh")
+posix_only = pytest.mark.skipif(sys.platform == "win32", reason="the pre-push guard and the fake gh are POSIX shell scripts")
 REPO = "example/profiles"
+URL = "git@github.com:example/profiles.git"
+OTHER_URL = "git@github.com:example/elsewhere.git"
+
+
+def _git(*args, cwd=None):
+    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
 
 
 @pytest.fixture(autouse=True)
-def isolated_git(tmp_path, monkeypatch):
-    empty = tmp_path / "empty-gitconfig"
-    empty.write_text("")
-    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(empty))
+def gitconfig(tmp_path, monkeypatch):
+    config = tmp_path / "gitconfig"
+    config.write_text("")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(config))
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     for role in ("AUTHOR", "COMMITTER"):
         monkeypatch.setenv(f"GIT_{role}_NAME", "acquaint tests")
         monkeypatch.setenv(f"GIT_{role}_EMAIL", "tests" + "@" + "example.org")
+    return config
+
+
+def _bare(path):
+    assert _git("init", "-q", "--bare", str(path)).returncode == 0
+    return path
+
+
+@pytest.fixture
+def github(tmp_path, gitconfig):
+    """The two GitHub URLs reach local bare repositories: ``{URL: bare, OTHER_URL: bare}``."""
+    remotes = {URL: _bare(tmp_path / "profiles.git"), OTHER_URL: _bare(tmp_path / "elsewhere.git")}
+    for url, bare in remotes.items():
+        _git("config", "--file", str(gitconfig), f"url.{bare.as_posix()}.insteadOf", url)
+    return remotes
+
+
+@pytest.fixture
+def scripted_gh(tmp_path, monkeypatch):
+    """A ``gh`` executable first on PATH, for the hook; the test can change its answer."""
+    answer = tmp_path / "visibility"
+    answer.write_text("PRIVATE")
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    script = bindir / "gh"
+    script.write_text(f'#!/bin/sh\ncat "{answer}"\n')
+    script.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{bindir}{os.pathsep}{os.environ['PATH']}")
+    return answer
 
 
 class FakeGh:
@@ -49,31 +86,10 @@ class FakeGh:
         if args[1:3] == ["repo", "view"]:
             if not self.exists:
                 return done(1)
+            if ".sshUrl" in args:
+                return done(0, URL + "\n")
             return done(0, self.visibility + "\n") if "-q" in args else done(0, "{}")
         raise AssertionError(f"unexpected gh call {args}")
-
-
-def _git(*args, cwd=None):
-    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
-
-
-@pytest.fixture
-def bare(tmp_path):
-    path = tmp_path / "remote.git"
-    assert _git("init", "-q", "--bare", str(path)).returncode == 0
-    return path
-
-
-@pytest.fixture
-def scripted_gh(tmp_path, monkeypatch):
-    """A ``gh`` executable for the hook, whose answer the test can change."""
-    answer = tmp_path / "visibility"
-    answer.write_text("PRIVATE")
-    script = tmp_path / "fake-gh"
-    script.write_text(f'#!/bin/sh\ncat "{answer}"\n')
-    script.chmod(0o755)
-    monkeypatch.setenv(sync.GH_ENVVAR, str(script))
-    return answer
 
 
 @pytest.fixture
@@ -82,6 +98,15 @@ def store_root(tmp_path):
     (root / "people" / "ada-lovelace").mkdir(parents=True)
     (root / "people" / "ada-lovelace" / "PROFILE.md").write_text("---\nname: Ada Lovelace\n---\n")
     return root
+
+
+def _commit(folder, name="note.md"):
+    (folder / name).write_text("change\n")
+    _git("add", "-A", cwd=folder)
+    _git("commit", "-q", "-m", "change", cwd=folder)
+
+
+# --------------------------------------------------------------- everywhere
 
 
 def test_dry_run_plans_and_touches_nothing(store_root):
@@ -93,10 +118,21 @@ def test_dry_run_plans_and_touches_nothing(store_root):
     assert not (store_root / ".git").exists()
 
 
-def test_refuses_a_repository_that_is_not_private(store_root, bare):
+def test_refuses_a_repository_that_is_not_private(store_root):
     with pytest.raises(AcquaintError, match="not PRIVATE"):
-        sync.init(store_root, REPO, remote_url=str(bare), run=FakeGh(visibility="PUBLIC"))
+        sync.init(store_root, REPO, remote_url=URL, run=FakeGh(visibility="PUBLIC"))
     assert not (store_root / ".git").exists(), "refused before the store became a repository"
+
+
+@pytest.mark.parametrize("remote", [OTHER_URL, "git@gitlab.com:example/profiles.git", "/srv/git/profiles.git", "gcrypt::" + OTHER_URL])
+def test_the_remote_must_be_the_repository_whose_visibility_is_checked(store_root, remote):
+    with pytest.raises(AcquaintError, match="is not the GitHub repository"):
+        sync.init(store_root, REPO, remote_url=remote, run=FakeGh())
+    assert not (store_root / ".git").exists()
+
+
+def test_a_gcrypt_url_for_the_same_repository_is_accepted(store_root):
+    assert sync.init(store_root, REPO, remote_url="gcrypt::" + URL, dry_run=True)["dry_run"]
 
 
 def test_rejects_a_malformed_repo_name(store_root):
@@ -108,31 +144,34 @@ def test_status_of_a_store_that_is_not_synced(store_root):
     assert sync.status(store_root, run=FakeGh())["synced"] is False
 
 
+# ------------------------------------------------------------------ POSIX
+
+
 @posix_only
-def test_init_creates_private_pushes_and_guards(store_root, bare, scripted_gh):
+def test_init_creates_private_pushes_and_guards(store_root, github, scripted_gh):
     gh = FakeGh(exists=False)
-    result = sync.init(store_root, REPO, remote_url=str(bare), run=gh)
-    assert result["pushed"] and result["visibility"] == "PRIVATE"
+    result = sync.init(store_root, REPO, run=gh)
+    assert result["pushed"] and result["visibility"] == "PRIVATE" and result["remote"] == URL
     assert ["gh", "repo", "create", REPO, "--private", "--description", "acquaint profile store (private)"] in gh.calls
-    assert "people/ada-lovelace/PROFILE.md" in _git("--git-dir", str(bare), "ls-tree", "-r", "--name-only", "main").stdout
-    assert _git("config", "core.hooksPath", cwd=store_root).stdout.strip() == ".git/hooks"
+    assert "people/ada-lovelace/PROFILE.md" in _git("--git-dir", str(github[URL]), "ls-tree", "-r", "--name-only", "main").stdout
+    assert os.path.isabs(_git("config", "core.hooksPath", cwd=store_root).stdout.strip())
+    assert (store_root / ".gitattributes").is_file()
 
     status = sync.status(store_root, run=gh)
     assert (status["hook_installed"], status["visibility"], status["ahead"], status["behind"]) == (True, "PRIVATE", 0, 0)
 
 
 @posix_only
-def test_push_and_pull_round_trip(tmp_path, store_root, bare, scripted_gh):
+def test_push_and_pull_round_trip(tmp_path, store_root, github, scripted_gh):
     gh = FakeGh()
-    sync.init(store_root, REPO, remote_url=str(bare), run=gh)
+    sync.init(store_root, REPO, run=gh)
     (store_root / "people" / "ada-lovelace" / "PROFILE.md").write_text("---\nname: Ada Lovelace\naka: [Ada]\n---\n")
     assert sync.push(store_root, run=gh)["committed"]
 
     other = tmp_path / "other-clone"
-    assert _git("clone", "-q", "--branch", "main", str(bare), str(other)).returncode == 0
+    assert _git("clone", "-q", "--branch", "main", URL, str(other)).returncode == 0
     (other / "people" / "grace-example").mkdir(parents=True)
-    (other / "people" / "grace-example" / "PROFILE.md").write_text("---\nname: Grace Example\n---\n")
-    _git("add", "-A", cwd=other), _git("commit", "-q", "-m", "elsewhere", cwd=other)
+    _commit(other / "people" / "grace-example", "PROFILE.md")
     assert _git("push", "-q", "origin", "main", cwd=other).returncode == 0
 
     assert sync.pull(store_root, run=gh)["pulled"]
@@ -140,27 +179,67 @@ def test_push_and_pull_round_trip(tmp_path, store_root, bare, scripted_gh):
 
 
 @posix_only
-def test_the_hook_refuses_when_visibility_changes_or_the_remote_differs(tmp_path, store_root, bare, scripted_gh):
-    sync.init(store_root, REPO, remote_url=str(bare), run=FakeGh())
-    (store_root / "note.md").write_text("change\n")
-    _git("add", "-A", cwd=store_root), _git("commit", "-q", "-m", "change", cwd=store_root)
+def test_the_hook_refuses_every_other_destination_and_lost_privacy(store_root, github, scripted_gh):
+    sync.init(store_root, REPO, run=FakeGh())
+    _commit(store_root)
 
     scripted_gh.write_text("PUBLIC")
     refused = _git("push", "origin", "HEAD:main", cwd=store_root)
     assert refused.returncode != 0 and "not PRIVATE" in refused.stderr
-
     scripted_gh.write_text("PRIVATE")
-    elsewhere = tmp_path / "elsewhere.git"
-    _git("init", "-q", "--bare", str(elsewhere))
-    wrong_remote = _git("push", str(elsewhere), "HEAD:main", cwd=store_root)
-    assert wrong_remote.returncode != 0 and "syncs only to" in wrong_remote.stderr
+
+    to_url = _git("push", str(github[OTHER_URL]), "HEAD:main", cwd=store_root)
+    assert to_url.returncode != 0 and "origin only" in to_url.stderr
+
+    _git("remote", "add", "mirror", OTHER_URL, cwd=store_root)
+    to_other_remote = _git("push", "mirror", "HEAD:main", cwd=store_root)
+    assert to_other_remote.returncode != 0 and "origin only" in to_other_remote.stderr
+
+    _git("config", "remote.origin.pushurl", OTHER_URL, cwd=store_root)
+    via_pushurl = _git("push", "origin", "HEAD:main", cwd=store_root)
+    assert via_pushurl.returncode != 0 and "pushurl" in via_pushurl.stderr
+    _git("config", "--unset-all", "remote.origin.pushurl", cwd=store_root)
+
+    _git("remote", "set-url", "origin", OTHER_URL, cwd=store_root)
+    _git("config", "acquaint.remote", OTHER_URL, cwd=store_root)
+    repointed = _git("push", "origin", "HEAD:main", cwd=store_root)
+    assert repointed.returncode != 0 and "not example/profiles" in repointed.stderr
+    assert _git("--git-dir", str(github[OTHER_URL]), "rev-parse", "--verify", "main").returncode != 0, "nothing reached the other repository"
 
 
 @posix_only
-def test_push_rechecks_visibility_and_origin_in_python(tmp_path, store_root, bare, scripted_gh):
-    sync.init(store_root, REPO, remote_url=str(bare), run=FakeGh())
+def test_a_linked_worktree_is_guarded_too(tmp_path, store_root, github, scripted_gh):
+    sync.init(store_root, REPO, run=FakeGh())
+    worktree = tmp_path / "worktree"
+    assert _git("worktree", "add", "-q", "-b", "side", str(worktree), cwd=store_root).returncode == 0
+    _commit(worktree)
+
+    to_url = _git("push", str(github[OTHER_URL]), "HEAD:refs/heads/side", cwd=worktree)
+    assert to_url.returncode != 0 and "origin only" in to_url.stderr
+    scripted_gh.write_text("PUBLIC")
+    refused = _git("push", "origin", "HEAD:refs/heads/side", cwd=worktree)
+    assert refused.returncode != 0 and "not PRIVATE" in refused.stderr
+
+
+@posix_only
+def test_python_push_and_pull_recheck_everything(tmp_path, store_root, github, scripted_gh):
+    sync.init(store_root, REPO, run=FakeGh())
     with pytest.raises(AcquaintError, match="not PRIVATE"):
         sync.push(store_root, run=FakeGh(visibility="PUBLIC"))
-    _git("remote", "set-url", "origin", str(tmp_path / "somewhere-else.git"), cwd=store_root)
+    with pytest.raises(AcquaintError, match="not PRIVATE"):
+        sync.pull(store_root, run=FakeGh(visibility="PUBLIC"))
+
+    _git("config", "core.hooksPath", str(tmp_path / "some-other-hooks"), cwd=store_root)
+    with pytest.raises(AcquaintError, match="guard is not active"):
+        sync.push(store_root, run=FakeGh())
+    sync.init(store_root, REPO, create=False, run=FakeGh())
+    assert sync.push(store_root, run=FakeGh())["pushed"]
+
+    _git("config", "remote.origin.pushurl", OTHER_URL, cwd=store_root)
+    with pytest.raises(AcquaintError, match="pushurl"):
+        sync.push(store_root, run=FakeGh())
+    _git("config", "--unset-all", "remote.origin.pushurl", cwd=store_root)
+
+    _git("remote", "set-url", "origin", OTHER_URL, cwd=store_root)
     with pytest.raises(AcquaintError, match="refusing"):
         sync.push(store_root, run=FakeGh())

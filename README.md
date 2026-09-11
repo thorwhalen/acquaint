@@ -49,7 +49,7 @@ The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and t
 | Verb | Does |
 |---|---|
 | `who NAME [-f FIELD] [-b]` | one field, the identity block, or the whole entry file; lists candidates instead of guessing |
-| `resolve HANDLE` | `github:octocat`, `email:…`, `@octocat` → the person, with the evidence |
+| `resolve HANDLE` | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on |
 | `check TEXT` | before publishing: one person written as two ("Ada or Lovelace"), shared names, unknown names |
 | `reach PERSON [--purpose --urgency --project --message-type --topic]` | ordered channels: the person's own rules > the operator's rules > project norms > observed habits > defaults |
 | `brief PERSON [--purpose --project]` | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known |
@@ -57,11 +57,13 @@ The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and t
 | `lint [ENTITY]` | sources on every preference; parseable files; entry-file budget; policy tripwires |
 | `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
 | `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
-| `rename ENTITY TO` | new id or name; links elsewhere rewritten; old forms kept as aliases |
-| `forget ENTITY [--confirm]` | remove, leaving a hashed tombstone so the person is not silently re-created |
+| `rename ID TO` | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases |
+| `forget ID [--confirm]` | remove the whole folder, leaving a salted tombstone so the person is not silently re-created |
 | `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below |
 
 `--json` prints the result dict; `-` as the text of `check` or `style-lint` reads stdin.
+
+Nothing acts on a guess: a name, alias, handle or email counts only when exactly one record has it exactly, and a partial match comes back as a suggestion. `rename` and `forget` need the exact id.
 
 ## Sources
 
@@ -93,6 +95,8 @@ Six skills ship inside the package (`acquaint/data/skills/`) and install with `g
 gh skill install thorwhalen/acquaint acquaint --agent claude-code
 ```
 
+`gh skill` needs a recent `gh`; otherwise symlink the folders from the installed package's `acquaint/data/skills/` into `~/.claude/skills/`. If you already have a user-level skill named `deslop`, skip acquaint's or install it under another name: two skills with the same name at the same scope replace each other.
+
 ## MCP
 
 ```bash
@@ -103,7 +107,7 @@ pip install "acquaint[mcp]"
 {"mcpServers": {"acquaint": {"command": "acquaint-mcp"}}}
 ```
 
-The server exposes the tools that read, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`, `sync_status`). Renaming, forgetting and syncing stay at the terminal.
+The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server's (set `ACQUAINT_DATA_DIR` in the client configuration), never the model's.
 
 ## Private sync
 
@@ -112,9 +116,9 @@ acquaint sync init --repo <owner>/<name> --dry-run
 acquaint sync init --repo <owner>/<name>
 ```
 
-`sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook that re-checks the remote and the visibility on every push. `push` and `status` check again.
+`sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook, active in every worktree, that allows a push only through `origin`, only to the URL recorded at init, only when that URL names the checked repository, and only while `gh` still reports it private. `push`, `pull` and `status` check again. Only GitHub remotes are accepted.
 
-What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; file names and commit messages contain people's names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` encrypts contents, names and history: pass `--remote-url "gcrypt::git@github.com:<owner>/<name>.git"`.
+What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; whoever controls the repository's git config or the `gh` on `PATH` controls what the guard sees; moving the data root disables the hook until `sync init --existing-only` runs again; file names and commit messages contain people's names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` encrypts contents, names and history: pass `--remote-url "gcrypt::git@github.com:<owner>/<name>.git"`.
 
 ## Python
 
