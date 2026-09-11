@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>acquaint.records &mdash; acquaint 0.0.1 documentation</title>
+  <title>acquaint.records &mdash; acquaint 0.0.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -142,7 +142,9 @@
     <span class="s2">"split_frontmatter"</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">_FRONTMATTER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\A---[ \t]*\n(?P&lt;yaml&gt;.*?)\n---[ \t]*(?:\n|\Z)(?P&lt;body&gt;.*)\Z"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+<span class="n">_FRONTMATTER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"\A---[ \t]*\n(?P&lt;yaml&gt;.*?)\n---[ \t]*(?:\n|\Z)(?P&lt;body&gt;.*)\Z"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span>
+<span class="p">)</span>
 <span class="n">_HEADING_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^ {0,3}(?P&lt;hashes&gt;#{1,6})[ \t]+(?P&lt;title&gt;.*?)[ \t]*$"</span><span class="p">)</span>
 <span class="n">_BULLET_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^(?P&lt;indent&gt;[ \t]*)(?:[-*+]|\d{1,3}[.)])[ \t]+(?P&lt;text&gt;\S.*)$"</span><span class="p">)</span>
 <span class="n">_THEMATIC_BREAK_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$"</span><span class="p">)</span>
@@ -152,10 +154,15 @@
 <span class="c1">#: Quoted words, with at least one word character inside: straight or curly double quotes,</span>
 <span class="c1">#: curly single quotes, or straight single quotes that open after a non-word character (so</span>
 <span class="c1">#: the apostrophes in "it's what they're like" are not quotes, and 'don't email me' is one).</span>
-<span class="n">_QUOTE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"</span><span class="se">\"</span><span class="s2">[^</span><span class="se">\"</span><span class="s2">\n]*\w[^</span><span class="se">\"</span><span class="s2">\n]*</span><span class="se">\"</span><span class="s2">|“[^”\n]*\w[^”\n]*”|‘[^’\n]*\w[^’\n]*’|(?&lt;!\w)'[^\n]*\w[^\n]*'(?!\w)"</span><span class="p">)</span>
+<span class="n">_QUOTE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"</span><span class="se">\"</span><span class="s2">[^</span><span class="se">\"</span><span class="s2">\n]*\w[^</span><span class="se">\"</span><span class="s2">\n]*</span><span class="se">\"</span><span class="s2">|“[^”\n]*\w[^”\n]*”|‘[^’\n]*\w[^’\n]*’|(?&lt;!\w)'[^\n]*\w[^\n]*'(?!\w)"</span>
+<span class="p">)</span>
 <span class="n">_MONTH</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"</span>
 <span class="n">_WEEKDAY</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(?:mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)"</span>
-<span class="n">_TIMESTAMP_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">(?:[t ]\d{1,2}:\d</span><span class="si">{2}</span><span class="s2">(?::\d</span><span class="si">{2}</span><span class="s2">(?:\.\d+)?)?)?(?:z|[+-]\d</span><span class="si">{2}</span><span class="s2">:?\d</span><span class="si">{2}</span><span class="s2">)?"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">_TIMESTAMP_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">(?:[t ]\d{1,2}:\d</span><span class="si">{2}</span><span class="s2">(?::\d</span><span class="si">{2}</span><span class="s2">(?:\.\d+)?)?)?(?:z|[+-]\d</span><span class="si">{2}</span><span class="s2">:?\d</span><span class="si">{2}</span><span class="s2">)?"</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="c1">#: Everything a date, a time or "observed last Tuesday" can be made of; a reference made only of these is date-only.</span>
 <span class="n">_DATE_NOISE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
     <span class="sa">rf</span><span class="s2">"\b(?:</span><span class="si">{</span><span class="n">_MONTH</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">_WEEKDAY</span><span class="si">}</span><span class="s2">|observed|seen|noted|on|in|at|around|circa|ca|about|of|the|am|pm|utc|gmt|q[1-4]"</span>
@@ -170,7 +177,8 @@
     <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">_LOG_HEADING_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="sa">r</span><span class="s2">"^##[ \t]+(?P&lt;id&gt;e\d+)[ \t]*[·|–—-][ \t]*(?P&lt;date&gt;\S+)[ \t]*[·|–—-][ \t]*(?P&lt;kind&gt;\S+)[ \t]*$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span>
+    <span class="sa">r</span><span class="s2">"^##[ \t]+(?P&lt;id&gt;e\d+)[ \t]*[·|–—-][ \t]*(?P&lt;date&gt;\S+)[ \t]*[·|–—-][ \t]*(?P&lt;kind&gt;\S+)[ \t]*$"</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">_LOG_ID_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^##[ \t]+e(\d+)\b"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
 <span class="n">_LOG_FIELD_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^-[ \t]+(?P&lt;key&gt;[a-z_]+):[ \t]*(?P&lt;value&gt;.*)$"</span><span class="p">)</span>
@@ -222,7 +230,9 @@
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">fold</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">ascii_text</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">"NFKD"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">,</span> <span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
+        <span class="n">ascii_text</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">"NFKD"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">,</span> <span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"ascii"</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-z0-9]+"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">ascii_text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
 
     <span class="n">slug</span> <span class="o">=</span> <span class="n">fold</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -231,7 +241,9 @@
     <span class="k">if</span> <span class="n">qualifier</span><span class="p">:</span>
         <span class="n">qualified</span> <span class="o">=</span> <span class="n">fold</span><span class="p">(</span><span class="n">qualifier</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">qualified</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cannot use </span><span class="si">{</span><span class="n">qualifier</span><span class="si">!r}</span><span class="s2"> as a qualifier: no letters or digits"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"cannot use </span><span class="si">{</span><span class="n">qualifier</span><span class="si">!r}</span><span class="s2"> as a qualifier: no letters or digits"</span>
+            <span class="p">)</span>
         <span class="n">slug</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s2">--</span><span class="si">{</span><span class="n">qualified</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">return</span> <span class="n">slug</span></div>
 
@@ -288,7 +300,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_represent_list</span><span class="p">(</span><span class="n">dumper</span><span class="p">:</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeDumper</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">yaml</span><span class="o">.</span><span class="n">Node</span><span class="p">:</span>
-    <span class="n">scalars</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+    <span class="n">scalars</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_sequence</span><span class="p">(</span><span class="s2">"tag:yaml.org,2002:seq"</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">flow_style</span><span class="o">=</span><span class="n">scalars</span><span class="p">)</span>
 
 
@@ -306,7 +320,14 @@
 <span class="sd">    links:</span>
 <span class="sd">    - to: org:x</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Dumper</span><span class="o">=</span><span class="n">_Dumper</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">Dumper</span><span class="o">=</span><span class="n">_Dumper</span><span class="p">,</span>
+        <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 
@@ -376,19 +397,28 @@
 <span class="sd">    A fence opens with three or more backticks or tildes and closes only with a line of</span>
 <span class="sd">    the same character, at least as long, and nothing else on it.</span>
 <span class="sd">    """</span>
-    <span class="n">visible</span> <span class="o">=</span> <span class="n">_COMMENT_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="n">visible</span> <span class="o">=</span> <span class="n">_COMMENT_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">normalize_newlines</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">fence</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">visible</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">found</span> <span class="o">=</span> <span class="n">_FENCE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fence</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"`"</span> <span class="ow">and</span> <span class="s2">"`"</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span>
+                <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"`"</span> <span class="ow">and</span> <span class="s2">"`"</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span>
+            <span class="p">):</span>
                 <span class="n">fence</span> <span class="o">=</span> <span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)))</span>
                 <span class="k">yield</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="kc">False</span>
             <span class="k">continue</span>
         <span class="n">marker</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"fence"</span><span class="p">)</span> <span class="k">if</span> <span class="n">found</span> <span class="k">else</span> <span class="s2">""</span>
-        <span class="k">if</span> <span class="n">marker</span> <span class="ow">and</span> <span class="n">marker</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">fence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">fence</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">marker</span>
+            <span class="ow">and</span> <span class="n">marker</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">fence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">fence</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">found</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">):</span>
             <span class="n">fence</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">yield</span> <span class="n">number</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="kc">True</span>
 
@@ -409,12 +439,19 @@
     <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">in_code</span> <span class="ow">in</span> <span class="n">_lines</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
         <span class="n">heading</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">in_code</span> <span class="k">else</span> <span class="n">_HEADING_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">heading</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"hashes"</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="n">normalize_title</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"title"</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"hashes"</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">normalize_title</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"title"</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heading</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"hashes"</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="p">[])</span>
         <span class="k">elif</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="s2">""</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">if</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span></div>
 
 
 
@@ -635,7 +672,13 @@
 <div class="viewcode-block" id="format_log_entry">
 <a class="viewcode-back" href="../../module_docs/acquaint/records.html#acquaint.records.format_log_entry">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_log_entry</span><span class="p">(</span>
-    <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">fields</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""One log entry: a ``## id · date · kind`` heading, the observation on one line, then ``- key: value`` fields.</span>
 
@@ -648,7 +691,11 @@
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"## </span><span class="si">{</span><span class="n">entry_id</span><span class="si">}</span><span class="s2"> · </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2"> · </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">line</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- source: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span><span class="p">]</span>
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span>
+    <span class="p">]</span>
     <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span></div>
 
 </pre></div>

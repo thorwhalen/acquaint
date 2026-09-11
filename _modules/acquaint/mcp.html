@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>acquaint.mcp &mdash; acquaint 0.0.1 documentation</title>
+  <title>acquaint.mcp &mdash; acquaint 0.0.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -110,7 +110,14 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">acquaint.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">SIDE_EFFECTS</span><span class="p">,</span> <span class="n">TOOLS</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"DEFAULT_EFFECTS"</span><span class="p">,</span> <span class="s2">"HIDDEN_PARAMETERS"</span><span class="p">,</span> <span class="s2">"INSTRUCTIONS"</span><span class="p">,</span> <span class="s2">"main"</span><span class="p">,</span> <span class="s2">"mk_server"</span><span class="p">,</span> <span class="s2">"refs"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"DEFAULT_EFFECTS"</span><span class="p">,</span>
+    <span class="s2">"HIDDEN_PARAMETERS"</span><span class="p">,</span>
+    <span class="s2">"INSTRUCTIONS"</span><span class="p">,</span>
+    <span class="s2">"main"</span><span class="p">,</span>
+    <span class="s2">"mk_server"</span><span class="p">,</span>
+    <span class="s2">"refs"</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="n">DEFAULT_EFFECTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"read"</span><span class="p">,</span> <span class="s2">"append"</span><span class="p">,</span> <span class="s2">"create"</span><span class="p">)</span>
 <span class="n">HIDDEN_PARAMETERS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"data_dir"</span><span class="p">,)</span>
@@ -133,7 +140,11 @@
 <span class="sd">    (True, False, False)</span>
 <span class="sd">    """</span>
     <span class="n">allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">effects</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"acquaint.tools:</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">TOOLS</span> <span class="k">if</span> <span class="n">SIDE_EFFECTS</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">"acquaint.tools:</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">TOOLS</span>
+        <span class="k">if</span> <span class="n">SIDE_EFFECTS</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="ow">in</span> <span class="n">allowed</span>
+    <span class="p">]</span></div>
 
 
 
@@ -151,7 +162,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">tool</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="n">tool</span><span class="o">.</span><span class="n">__signature__</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hidden</span><span class="p">])</span>
+    <span class="n">tool</span><span class="o">.</span><span class="n">__signature__</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hidden</span><span class="p">]</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">tool</span>
 
 
@@ -161,7 +174,11 @@
 <span class="w">    </span><span class="sd">"""A FastMCP server over the selected tools, with ``data_dir`` hidden (not started)."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">py2mcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">mk_mcp_server</span>
 
-    <span class="k">return</span> <span class="n">mk_mcp_server</span><span class="p">([</span><span class="n">_without</span><span class="p">(</span><span class="n">_resolve</span><span class="p">(</span><span class="n">ref</span><span class="p">))</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">(</span><span class="n">effects</span><span class="o">=</span><span class="n">effects</span><span class="p">)],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"acquaint"</span><span class="p">,</span> <span class="n">instructions</span><span class="o">=</span><span class="n">INSTRUCTIONS</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">mk_mcp_server</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">_without</span><span class="p">(</span><span class="n">_resolve</span><span class="p">(</span><span class="n">ref</span><span class="p">))</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">(</span><span class="n">effects</span><span class="o">=</span><span class="n">effects</span><span class="p">)],</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"acquaint"</span><span class="p">,</span>
+        <span class="n">instructions</span><span class="o">=</span><span class="n">INSTRUCTIONS</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 
@@ -172,7 +189,9 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">server</span> <span class="o">=</span> <span class="n">mk_server</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="s1">'acquaint-mcp needs the mcp extra: pip install "acquaint[mcp]"'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
+            <span class="s1">'acquaint-mcp needs the mcp extra: pip install "acquaint[mcp]"'</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
     <span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
 
