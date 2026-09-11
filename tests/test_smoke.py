@@ -111,3 +111,24 @@ def test_reach_exit_status_tells_a_matched_rule_without_an_address_apart(tmp_pat
     assert followed.returncode == 0, (advice, followed.stderr)
     reached = _acquaint(["reach", "person:ada-lovelace", "--urgency", "high"], tmp_path)
     assert reached.returncode == 0 and "pager → pager:example-rotation" in reached.stdout, (reached.stdout, reached.stderr)
+
+
+def test_remember_refuses_an_identity_equal_to_an_inactive_one_until_reactivated(tmp_path):
+    """Issue #17: refused with exit 1 and the entry named, not "recorded"; the printed command reactivates it."""
+    assert _acquaint(["new", "person", "Ada Lovelace"], tmp_path).returncode == 0
+    handle = ["remember", "ada-lovelace", "pager:example-rotation", "--kind", "identity"]
+    assert _acquaint([*handle, "--source", "operator"], tmp_path).returncode == 0
+    identities = tmp_path / "people" / "ada-lovelace" / "identities.yaml"
+    identities.write_text(identities.read_text(encoding="utf-8").replace("status: active", "status: stale"), encoding="utf-8")
+
+    refused = _acquaint([*handle, "--source", "https://example.org/roster"], tmp_path)
+    assert refused.returncode == 1 and "already recorded for person:ada-lovelace as stale" in refused.stderr, refused.stderr
+    assert "recorded identity" not in refused.stdout + refused.stderr
+    assert _acquaint(["resolve", "pager:example-rotation"], tmp_path).returncode == 1, "still inactive"
+
+    command = shlex.split(refused.stderr.split("run: ", 1)[1])
+    assert command[0] == "acquaint" and command[-1] == "--reactivate", command
+    reactivated = _acquaint(command[1:], tmp_path)
+    assert reactivated.returncode == 0, reactivated.stderr
+    assert "reactivated identity pager:example-rotation (was stale) for ada-lovelace" in reactivated.stdout
+    assert _acquaint(["resolve", "pager:example-rotation"], tmp_path).returncode == 0

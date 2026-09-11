@@ -43,6 +43,7 @@ acquaint remember ada-lovelace "email:ada@example.org" --kind identity --source 
 
 - During a task you only **append** observations. You never edit someone's entry file, writing card or rules on the hot path; consolidation is a separate, reviewed job (**acquaint-profile**).
 - Kinds: `observation` (default), `interaction`, `identity`, `preference`, `view`, `rule`. The last three require `--source`.
+- An identity equal to one already recorded as inactive (`stale`, `retracted`, …) is refused, and the message names that entry. Do not add `--reactivate` yourself: tell the operator, who decides whether the address is current again.
 - A source is a permalink, a log anchor (`log/2026-09.md#e03`), the person's words (`self: "…"`), `operator`, or `none located` when you looked and found nothing. **A date alone is not a source**; an unsourced claim with a date looks observed when it was not.
 - Never record health, religion, politics, ethnicity, sexuality, union membership, government or financial identifiers, credentials, personality labels, moods, or whole message bodies. The full rule is the store's `POLICY.md`. Write every line as if the person will read it.
 

@@ -2,8 +2,9 @@
 
 The hot path is append-only. :func:`append_observation` never edits an entry file, a
 writing card or a rule: it appends a dated, sourced entry to ``log/YYYY-MM.md`` (or a
-handle to ``identities.yaml``). Turning observations into profile lines is a separate,
-reviewed pass.
+handle to ``identities.yaml``). The one change it makes to an existing line is making an
+inactive handle active again, and only when asked (``reactivate``). Turning observations
+into profile lines is a separate, reviewed pass.
 
 These functions take exact references (``ada-lovelace``, ``person:ada-lovelace``,
 ``people/ada-lovelace``); matching names to ids is the caller's job
@@ -16,12 +17,13 @@ import hashlib
 import os
 import re
 import secrets
+import shlex
 from datetime import date, timedelta
 from string import Template
 from typing import Any
 
 from acquaint.lint import policy_hits
-from acquaint.lookup import normalize
+from acquaint.lookup import USABLE_STATUSES, normalize
 from acquaint.records import (
     dump_yaml,
     format_log_entry,
@@ -243,13 +245,20 @@ def append_observation(
     *,
     source: str | None = None,
     kind: str = "observation",
+    reactivate: bool = False,
     today: str | None = None,
 ) -> dict[str, Any]:
-    """Append one dated, sourced entry to the entity's ``log/YYYY-MM.md`` (and, for ``identity``, to ``identities.yaml``)."""
+    """Append one dated, sourced entry to the entity's ``log/YYYY-MM.md`` (and, for ``identity``, to ``identities.yaml``).
+
+    An identity equal to an inactive one is refused, naming that entry, unless
+    ``reactivate`` is set (see :func:`_append_identity`). A refusal writes nothing.
+    """
     if kind not in OBSERVATION_KINDS:
         raise AcquaintError(
             f"kind must be one of {', '.join(OBSERVATION_KINDS)}; got {kind!r}"
         )
+    if reactivate and kind != "identity":
+        raise AcquaintError("--reactivate applies to --kind identity only")
     text = " ".join(text.split())
     if not text:
         raise AcquaintError("nothing to remember: the text is empty")
@@ -273,13 +282,21 @@ def append_observation(
         )
     warnings = [message for _, message in policy_hits(text)]
 
+    identity = None
     if kind == "identity":
         platform, sep, value = text.partition(":")
         if not sep or not platform.strip() or not value.strip():
             raise AcquaintError(
                 "an identity is written platform:value, e.g. 'email:ada@example.org'"
             )
-        _append_identity(entity, platform.strip().lower(), value.strip(), source, today)
+        identity = _append_identity(
+            entity,
+            platform.strip().lower(),
+            value.strip(),
+            source,
+            today,
+            reactivate=reactivate,
+        )
 
     entry_id = next_log_id(existing)
     entry = format_log_entry(entry_id, today, kind, text, source=source or _UNSOURCED)
@@ -302,13 +319,32 @@ def append_observation(
         "kind": kind,
         "source": source,
         "source_kind": source_kind(source) if source else None,
+        "identity": identity,
         "warnings": warnings,
     }
 
 
 def _append_identity(
-    entity: Entity, platform: str, value: str, source: str | None, today: str
-) -> None:
+    entity: Entity,
+    platform: str,
+    value: str,
+    source: str | None,
+    today: str,
+    *,
+    reactivate: bool = False,
+) -> dict[str, Any]:
+    """Add ``platform:value`` to ``identities.yaml``: ``{"handle", "change", "previous_status"}``.
+
+    ``change`` is ``added``, ``already_active`` or ``reactivated``. An entry with the same
+    value and an inactive status (``stale``, ``retracted``, …) is never kept silently: it
+    is refused, naming the entry and the command that reactivates it, unless
+    ``reactivate`` is set. Reactivating needs a source; the entry becomes ``active`` with
+    that source and keeps its old status and source beside it.
+    """
+
+    def status_of(identity: dict) -> str:  # as acquaint.lookup reads it: none recorded means active
+        return str(identity.get("status") or "active").strip().lower()
+
     current = entity.text("identities.yaml", "identities: []\n")
     data, errors = load_yaml(current)
     if errors or UNREADABLE in current or not isinstance(data, dict):
@@ -316,23 +352,66 @@ def _append_identity(
             f"{entity.key}/identities.yaml does not parse; fix it before adding to it"
         )
     identities = list(data.get("identities") or [])
-    if any(
-        isinstance(i, dict)
+    handle = f"{platform}:{value}"
+    same = [
+        i
+        for i in identities
+        if isinstance(i, dict)
         and str(i.get("platform")) == platform
         and str(i.get("value")) == value
-        for i in identities
-    ):
-        return
-    identities.append(
-        {
-            "platform": platform,
-            "value": value,
-            "source": source or _UNSOURCED,
-            "first_seen": today,
-            "status": "active",
-        }
-    )
+    ]
+    if any(status_of(i) in USABLE_STATUSES for i in same):
+        return {"handle": handle, "change": "already_active", "previous_status": None}
+    if same and not reactivate:
+        entry = same[0]
+        command = " ".join(
+            [
+                "acquaint remember",
+                entity.ref,
+                shlex.quote(handle),
+                "--kind identity --source",
+                shlex.quote(source) if source else "<source>",
+                "--reactivate",
+            ]
+        )
+        raise AcquaintError(
+            f"{handle} is already recorded for {entity.ref} as {status_of(entry)}"
+            f" (source: {entry.get('source') or _UNSOURCED},"
+            f" first seen {entry.get('first_seen') or 'unknown'},"
+            f" in {entity.key}/identities.yaml), so nothing was recorded."
+            f" If it is current again, run: {command}"
+        )
+    if same:
+        if source is None:
+            raise AcquaintError(
+                f"reactivating {handle} needs --source: what shows it is current again"
+            )
+        entry = same[0]
+        previous, old_source = status_of(entry), entry.get("source")
+        entry.update(
+            {
+                "source": source,
+                "status": "active",
+                "previous_status": previous,
+                "reactivated": today,
+            }
+        )
+        if old_source:
+            entry["previous_source"] = old_source
+        change = "reactivated"
+    else:
+        identities.append(
+            {
+                "platform": platform,
+                "value": value,
+                "source": source or _UNSOURCED,
+                "first_seen": today,
+                "status": "active",
+            }
+        )
+        previous, change = None, "added"
     entity["identities.yaml"] = dump_yaml({**data, "identities": identities})
+    return {"handle": handle, "change": change, "previous_status": previous}
 
 
 # ------------------------------------------------------------------------- rename

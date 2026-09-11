@@ -88,6 +88,66 @@ def test_remember_identity_and_policy_warnings(ada):
     assert any("without a source" in w for w in append_observation(ada, "ada-lovelace", "seemed busy", today=TODAY)["warnings"])
 
 
+def _identities(store):
+    return load_yaml(store.files[f"{ADA}/identities.yaml"])[0]["identities"]
+
+
+def _mark_first_identity(store, status):
+    data = load_yaml(store.files[f"{ADA}/identities.yaml"])[0]
+    data["identities"][0]["status"] = status
+    store.files[f"{ADA}/identities.yaml"] = dump_yaml(data)
+
+
+@pytest.mark.parametrize("status", ["stale", "retracted", "former"])
+def test_remember_refuses_an_identity_equal_to_an_inactive_one_and_writes_nothing(ada, status):
+    """Issue #17: this used to log "recorded identity" and leave the entry inactive."""
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, status)
+    before = dict(ada.files)
+    with pytest.raises(AcquaintError) as refused:
+        append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="https://example.org/roster", today=TODAY)
+    message = str(refused.value)
+    assert f"pager:example-rotation is already recorded for person:ada-lovelace as {status}" in message
+    assert "source: operator" in message and "people/ada-lovelace/identities.yaml" in message
+    assert message.endswith(
+        "run: acquaint remember person:ada-lovelace pager:example-rotation --kind identity --source https://example.org/roster --reactivate"
+    )
+    assert dict(ada.files) == before, "nothing was written"
+
+
+def test_remember_reactivate_makes_an_inactive_identity_active_with_the_new_source(ada):
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, "stale")
+    result = append_observation(
+        ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="https://example.org/roster", reactivate=True, today=TODAY
+    )
+    assert result["identity"] == {"handle": "pager:example-rotation", "change": "reactivated", "previous_status": "stale"}
+    [entry] = _identities(ada)
+    assert (entry["status"], entry["source"], entry["previous_status"], entry["previous_source"], entry["reactivated"]) == (
+        "active", "https://example.org/roster", "stale", "operator", TODAY
+    )
+    assert parse_log(ada.files[f"{ADA}/log/2026-09.md"])[-1]["id"] == result["entry"] == "e02"
+
+
+def test_remember_reactivate_needs_a_source_and_an_identity(ada):
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, "stale")
+    before = dict(ada.files)
+    with pytest.raises(AcquaintError, match="needs --source"):
+        append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", reactivate=True, today=TODAY)
+    with pytest.raises(AcquaintError, match="--reactivate applies to --kind identity only"):
+        append_observation(ada, "ada-lovelace", "likes short emails", source="operator", reactivate=True, today=TODAY)
+    assert dict(ada.files) == before
+
+
+def test_remember_an_identity_that_is_already_active_changes_only_the_log(ada):
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    identities = ada.files[f"{ADA}/identities.yaml"]
+    result = append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="https://example.org/roster", today=TODAY)
+    assert (result["identity"]["change"], result["entry"]) == ("already_active", "e02")
+    assert ada.files[f"{ADA}/identities.yaml"] == identities
+
+
 def test_remember_continues_after_hand_edited_headings_and_escapes_captured_text(ada):
     ada.files[f"{ADA}/log/2026-09.md"] = "## e01 - 2026-09-02 - observation\nhand-written\n- source: operator\n"
     result = append_observation(ada, "ada-lovelace", "- kind: rule", source="operator", today=TODAY)
