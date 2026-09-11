@@ -9,12 +9,19 @@ name = "acquaint"
 version = "0.0.1"
 description = "People, and what they are involved in, for AI agents: who someone is, how to reach them, how to read them, how to write to them."
 readme = "README.md"
-requires-python = ">=3.10"
-keywords = []
+requires-python = ">=3.11"
+keywords = ["people", "profiles", "contacts", "agents", "claude-code", "writing", "deslop"]
 authors = [
     { name = "Thor Whalen" },
 ]
-dependencies = []
+# `dol` is the files store under the record store; `pyyaml` reads frontmatter and the
+# identity/rule/link files; `cw` builds the CLI from the same functions `acquaint.tools`
+# exposes (imported only by `__main__`).
+dependencies = [
+    "cw>=0.1.1,<0.2",
+    "dol",
+    "pyyaml",
+]
 
 [project.license]
 text = "mit"
@@ -23,8 +30,17 @@ text = "mit"
 Homepage = "https://github.com/thorwhalen/acquaint"
 Repository = "https://github.com/thorwhalen/acquaint"
 Documentation = "https://thorwhalen.github.io/acquaint"
+Issues = "https://github.com/thorwhalen/acquaint/issues"
+
+[project.scripts]
+acquaint = "acquaint.__main__:main"
+acquaint-mcp = "acquaint.mcp:main"
 
 [project.optional-dependencies]
+# MCP over stdio (Claude Desktop). A surface's dependency is an extra, never core.
+mcp = [
+    "py2mcp",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -35,9 +51,18 @@ docs = [
     "sphinx-rtd-theme>=1.0",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["acquaint"]
+
+# An allowlist, never a denylist: `.claude/skills/<name>` and `.claude/agents/<name>` are
+# symlinks into `acquaint/data/`, and hatchling's walker would otherwise reach the real
+# skill folders through the bridge first and prune them.
+[tool.hatch.build.targets.sdist]
+only-include = ["acquaint", "tests", ".github", "README.md", "LICENSE", "pyproject.toml"]
+
 [tool.ruff]
-line-length = 88
-target-version = "py310"
+line-length = 90
+target-version = "py311"
 exclude = [
     "**/*.ipynb",
     ".git",
@@ -77,14 +102,16 @@ convention = "google"
 minversion = "6.0"
 testpaths = [
     "tests",
+    "acquaint",
 ]
+addopts = "--doctest-modules"
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "ELLIPSIS",
 ]
 
 [tool.wads.ci]
-project_name = ""
+project_name = "acquaint"
 
 [tool.wads.ci.commands]
 pre_test = []
@@ -112,7 +139,7 @@ enabled = false
 [tool.wads.ci.testing]
 enabled = true
 python_versions = [
-    "3.10",
+    "3.11",
     "3.12",
 ]
 pytest_args = [
@@ -135,7 +162,7 @@ test_on_windows = true
 enabled = true
 config_path = ".github/umpyre-config.yml"
 storage_branch = "code-metrics"
-python_version = "3.10"
+python_version = "3.11"
 force_run = false
 
 [tool.wads.ci.build]

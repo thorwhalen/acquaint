@@ -1,0 +1,33 @@
+#!/bin/sh
+# acquaint pre-push guard, installed by `acquaint sync init`.
+#
+# Refuses to push this profile store anywhere except the private repository it was set
+# up for: the remote URL must be the one recorded at init, and `gh` must report the
+# repository as PRIVATE at the moment of the push. It fails closed: no configuration,
+# no `gh`, or any other answer means no push.
+#
+# This is a seatbelt, not a lock. `git push --no-verify` skips it, and a private
+# repository is access control, not encryption.
+
+remote_url="$2"
+repo=$(git config --get acquaint.repo)
+expected=$(git config --get acquaint.remote)
+gh_cmd="${ACQUAINT_GH:-gh}"
+
+if [ -z "$repo" ] || [ -z "$expected" ]; then
+  echo "acquaint: no sync configuration (acquaint.repo, acquaint.remote); refusing to push." >&2
+  exit 1
+fi
+
+if [ "$remote_url" != "$expected" ]; then
+  echo "acquaint: refusing to push to '$remote_url'; this store syncs only to '$expected'." >&2
+  exit 1
+fi
+
+visibility=$("$gh_cmd" repo view "$repo" --json visibility -q .visibility 2>/dev/null)
+if [ "$visibility" != "PRIVATE" ]; then
+  echo "acquaint: $repo is '${visibility:-unknown}', not PRIVATE; refusing to push profile data." >&2
+  exit 1
+fi
+
+exit 0

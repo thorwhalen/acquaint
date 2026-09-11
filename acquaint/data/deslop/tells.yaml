@@ -1,0 +1,149 @@
+# The tells catalogue behind `acquaint style-lint`: patterns that make prose read as
+# machine-written. Deterministic, auditable, and deliberately incomplete; the LLM
+# critique pass in the deslop skill covers what regular expressions cannot.
+#
+# Tiers (after the Vale `signs-of-ai-writing` logic and the research behind acquaint):
+#   E  near-certain artifact, always fix
+#   W  likely pattern, fix unless it is the operator's own habit
+#   S  common in human writing too; fix when it clusters, or for an averse reader
+#
+# Patterns are case-insensitive, multi-line regular expressions. `.` stands in for an
+# apostrophe so straight and curly quotes both match. Examples are fictional.
+
+tolerance:
+  tolerant: {enforce: [E], em_dash_per_100w_max: 1.5, contrastive_max: 2, triads_max: 4}
+  neutral: {enforce: [E, W], em_dash_per_100w_max: 0.7, contrastive_max: 1, triads_max: 2}
+  averse: {enforce: [E, W, S], em_dash_per_100w_max: 0.3, contrastive_max: 0, triads_max: 1}
+  unknown: neutral
+
+metrics:
+  # Rhythm is only judged on text long enough to have one.
+  min_sentences_for_rhythm: 6
+  sentence_len_cv_min: 0.35
+  # Headers and bold in a message this short are a formatting tell.
+  short_message_words: 150
+
+rules:
+  - id: chat-leftover
+    tier: E
+    message: assistant chatter left in the draft
+    patterns:
+      - '\b(certainly!|great question|i hope this (helps|finds you well)|happy to help|let me know if you.d like)'
+      - '\bas an ai\b'
+
+  - id: unfilled-placeholder
+    tier: E
+    message: a placeholder is still unfilled
+    patterns:
+      - '\[ASK:[^\]]*\]'
+      - '\[(insert|your name|recipient|company name)[^\]]*\]'
+      - '\{\{[^}]+\}\}'
+
+  - id: cutoff-disclaimer
+    tier: E
+    message: a model disclaimer leaked into the draft
+    patterns:
+      - '\bas of my (last|knowledge) (update|cutoff)'
+      - '\bi (do not|don.t) have (access to )?real-time'
+
+  - id: throat-clearing
+    tier: E
+    message: throat-clearing; delete it and keep the point
+    patterns:
+      - '\bit.s (important|worth) (to note|noting)\b'
+      - '\b(notably|interestingly|essentially|in essence),'
+
+  - id: summary-closer
+    tier: E
+    message: a closer that restates the message; end on the last real point
+    patterns:
+      - '\b(in conclusion|to sum up|in summary),'
+
+  - id: ai-vocabulary
+    tier: W
+    message: vocabulary models overuse; say the plain thing
+    patterns:
+      - '\b(delve[sd]?|delving|tapestry|realm|robust|seamless(ly)?|leverag(e|es|ed|ing)|vibrant|pivotal|testament to|boasts?|fosters?|underscores?|showcas(e|es|ed|ing))\b'
+      - '\b(elevate[sd]?|empower(s|ed|ing)?|unlock(s|ed|ing)?|unleash(es|ed|ing)?|game-changer|cutting-edge|intricate|meticulous(ly)?)\b'
+      - '\bin today.s (fast-paced|digital|ever-evolving) world\b'
+      - '\b(dive deep|deep dive|at its core|the beauty of|navigate the complexities)\b'
+      - '\bplays? an? (vital|key|crucial|pivotal) role\b'
+
+  - id: empty-transition
+    tier: W
+    message: an empty transition; let the sentences connect on their own
+    patterns:
+      - '(^|[.!?]\s+)(moreover|furthermore|additionally),'
+
+  - id: copula-avoidance
+    tier: W
+    message: '"serves as" / "stands as": say "is"'
+    patterns:
+      - '\b(serves|stands) as (a|an|the)\b'
+
+  - id: contrastive-negation
+    tier: W
+    count_against: contrastive_max
+    message: the "not X, but Y" construction; state Y
+    patterns:
+      - '\b(is|are|was|were|it.s|this is|that.s)(n.t| not) (just|only|merely|simply|about)\b[^.!?\n]{0,80}?(\bit.s\b|\bbut\b|—)'
+      - '\bnot (just|only|merely) [^.!?\n]{1,60}?,? but\b'
+
+  - id: ing-trailer
+    tier: W
+    message: a trailing "-ing" clause that adds commentary, not content
+    patterns:
+      - ',\s+(highlighting|showcasing|underscoring|emphasi[sz]ing|demonstrating|reflecting|making it)\b[^.!?\n]*[.!?]'
+
+  - id: significance-inflation
+    tier: W
+    message: significance inflation; show the thing instead
+    patterns:
+      - '\b(game[- ]changing|groundbreaking|revolutionary|transformative|a new era)\b'
+
+  - id: vague-attribution
+    tier: W
+    message: a claim attributed to nobody; cite the source or drop it
+    patterns:
+      - '\b(experts (say|agree|believe)|studies (show|suggest)|research (shows|suggests)|many (believe|say))\b'
+
+  - id: sycophancy
+    tier: W
+    message: praise of the reader or their idea
+    patterns:
+      - '\b(what a (great|fantastic|wonderful)|brilliant (idea|question|point)|you.re absolutely right)\b'
+
+  - id: rhetorical-opener
+    tier: S
+    message: a rhetorical question as an opener
+    patterns:
+      - '\A\s*(what if|have you ever wondered|imagine)\b[^?\n]*\?'
+
+  - id: hedge-stack
+    tier: S
+    message: stacked hedges; keep one, and make it specific
+    patterns:
+      - '\b(could|may|might) (potentially|possibly|perhaps)\b'
+      - '\bit (seems|appears) that it (might|may|could)\b'
+
+  - id: triad
+    tier: S
+    count_against: triads_max
+    message: lists of three everywhere; break some into twos and fours
+    patterns:
+      - '\b[\w-]+, [\w-]+,? and [\w-]+\b'
+
+  - id: exclamation
+    tier: S
+    message: an exclamation mark in professional prose
+    patterns:
+      - '!(?=\s|$)'
+
+# Messages the operator writes themself (decision: condolence, apology, conflict and
+# performance feedback are never drafted for sending).
+relational:
+  message: this reads as a relational message; the operator writes it
+  patterns:
+    - '\b(condolences?|sorry for your loss|passed away|funeral)\b'
+    - '\b(i apologi[sz]e|my apologies|i.m (so |very )?sorry (that|for))\b'
+    - '\b(performance review|let you go|terminat(e|ion) (of )?your)\b'

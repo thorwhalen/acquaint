@@ -1,0 +1,55 @@
+# What `acquaint lint` warns about, per POLICY.md "Never record".
+#
+# These are keyword tripwires, not a classifier: a hit is a WARNING asking a human to
+# look, never an automatic deletion. False positives are expected ("health check" is
+# not health data), which is why nothing here is an error.
+#
+# Each pattern is a case-insensitive regular expression matched against profile lines.
+
+never_record:
+  special-category:
+    message: "special-category data (stated or inferred) must not be recorded"
+    patterns:
+      - '\b(diagnos\w*|illness|disease|disabilit\w*|pregnan\w*|medication|therapy|therapist|mental health|chronic)\b'
+      - '\b(religio\w*|church|mosque|synagogue|temple|atheis\w*|faith)\b'
+      - '\b(political (views?|opinions?|affiliation)|votes? for|party member)\b'
+      - '\b(ethnic\w*|race|racial)\b'
+      - '\b(sexual orientation|gay|lesbian|bisexual|transgender)\b'
+      - '\b(trade[- ]union|union member\w*)\b'
+      - '\b(genetic|biometric)\b'
+  identifiers:
+    message: "government, financial or criminal identifiers must not be recorded"
+    patterns:
+      - '\b(passport (no|number)|social security|national insurance number|tax id)\b'
+      - '\b(bank account|iban|credit card|routing number)\b'
+      - '\b(criminal record|convict\w*|arrest\w*|immigration status|visa status)\b'
+  credentials:
+    message: "credentials must never be recorded"
+    patterns:
+      - '\b(password|passcode|api[_ -]?key|secret key|private key)\b'
+      - '\b(ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,})'
+  personality-labels:
+    message: "record the behaviour you saw, not a personality label"
+    patterns:
+      - '\b(introvert\w*|extravert\w*|extrovert\w*|narcissis\w*|neurotic\w*|psychopath\w*)\b'
+      - '\b(MBTI|DISC profile|Big Five|OCEAN score|[IE][NS][TF][JP])\b'
+  moods:
+    message: "moods and transient emotional states are not recorded"
+    patterns:
+      - '\b(depressed|anxious|angry at|upset about|in a bad mood|moody)\b'
+
+# Captured third-party text is data, not instructions. Imperative, agent-directed text
+# inside an observation is flagged so a later agent does not obey it.
+instruction_like:
+  message: "reads like an instruction to an agent; quote it or remove it"
+  patterns:
+    - '\b(ignore (all|any|the) (previous|prior|above) instructions)\b'
+    - '\b(you are now|act as|system prompt|disregard (the|your) (rules|instructions))\b'
+
+# Size budgets for the entry file, which agents read first, and how long a new record
+# goes before `lint` asks for it to be re-verified.
+budgets:
+  profile_lines_warn: 120
+  profile_lines_error: 200
+  review_due_days: 180
+  brief_observations: 5

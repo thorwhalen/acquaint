@@ -1,0 +1,70 @@
+# Reminders `acquaint brief` adds for the purpose of a message.
+#
+# Generic writing guidance only: nothing here is about any person. What a specific
+# recipient needs comes from their own records, which always outrank these lines.
+# `relational: true` marks messages the operator writes themself.
+
+default:
+  reminders:
+    - "Voice is the operator's; register moves toward the reader; positions never bend toward the reader."
+    - "Shorter usually wins for practical messages, never at the cost of a fact the reader needs."
+    - "Never invent a specific (a number, a memory, a shared experience). Put [ASK: …] where one is needed."
+
+purposes:
+  ask:
+    reminders:
+      - "One ask per message, stated in the first two sentences."
+      - "When an agent may be reading on their side, number the questions and give each a default."
+  reply:
+    reminders:
+      - "Answer what was asked, in the order it was asked, before adding anything."
+  inform:
+    reminders:
+      - "Lead with what changed and what, if anything, they need to do."
+  escalate:
+    reminders:
+      - "State the decision needed, the options, and your recommendation, in that order."
+  propose:
+    reminders:
+      - "Say what to try, how to try it, and how to say yes or no."
+  deliver:
+    reminders:
+      - "Say what is live and where; include the one thing to check first."
+  decline:
+    relational: true
+    reminders:
+      - "Declines are the operator's to send. Draft only, and flag it."
+  thank:
+    reminders:
+      - "Name the specific thing they did; skip the superlatives."
+  apology:
+    relational: true
+    reminders:
+      - "Apologies are written by the operator. Supply facts, not sentences."
+  condolence:
+    relational: true
+    reminders:
+      - "Condolences are written by the operator. Do not draft one."
+  conflict:
+    relational: true
+    reminders:
+      - "Conflict is handled by the operator. Summarise positions; do not draft a reply."
+  feedback:
+    relational: true
+    reminders:
+      - "Performance feedback is the operator's to write. Supply observations with sources."
+
+# Decision recorded for the default disclosure stance when a recipient's tolerance of
+# AI-assisted writing is unknown.
+disclosure:
+  unknown: >-
+    Treat as neutral: no proactive disclosure line; never state or imply that a message
+    was written without assistance; answer honestly if asked; the operator approves
+    anything sent.
+  neutral: >-
+    No proactive disclosure line; never state or imply that a message was written
+    without assistance; answer honestly if asked.
+  tolerant: "No special handling."
+  averse: >-
+    An explicit disclosure decision by the operator is required before sending, and the
+    operator approves the message.

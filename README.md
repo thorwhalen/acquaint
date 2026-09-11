@@ -1,7 +1,135 @@
-
 # acquaint
 
 People, and what they are involved in, for AI agents: who someone is, how to reach them, how to read them, how to write to them.
 
+```bash
+pip install acquaint
 
-To install:	```pip install acquaint```
+acquaint new person "Ada Lovelace"
+acquaint remember ada-lovelace "prefers email for anything with attachments" --source "https://example.org/thread/1"
+acquaint who ada -f aka                      # → Ada, Lovelace
+acquaint brief ada-lovelace --purpose ask    # everything to know before writing to her
+```
+
+Tell an agent "write to Ada about the export" and it can find out, without being told again, who that is, where to reach her for this, what register to use, what to avoid, and where to record what it learns. The "how" is written down once, per person, and every agent, skill and tool reads it through the same verbs.
+
+Records are hand-editable Markdown, one folder per person (or project, org, group), kept **outside any code repository**. Every preference carries its source, and `acquaint lint` fails when one does not.
+
+## What it records, and what it never does
+
+A profile holds observable behaviour with evidence: "replies in one or two lines", "wants the decision first", quoted and linked. It never holds personality labels, moods, or special-category data (health, religion, politics, ethnicity, sexuality, union membership), stated or inferred, nor credentials, identifiers, or whole message bodies. Every store gets a `POLICY.md` stating this, and `lint` warns on tripwires.
+
+The test for every line: would it survive being handed to the person it is about?
+
+## Where the data lives
+
+The data root is the first of: the `data_dir` argument, `$ACQUAINT_DATA_DIR`, `data_dir` in `~/.config/acquaint/config.toml`, `~/.local/share/acquaint`.
+
+```
+POLICY.md                       what may be recorded
+people/ada-lovelace/
+  PROFILE.md                    entry file: identity frontmatter + Who · Reach · Write to them · Read them · Don't · Now · More
+  identities.yaml               handles and addresses, with evidence
+  rules.yaml                    channel rules: when → do, who set it, source
+  links.yaml                    affiliations: project, org, group; role; period
+  style.md                      the writing card: AI tolerance, register, do, don't, blocklist, exemplars
+  views.md                      positions and standing objections, sourced
+  sources.md                    where their writing lives, how authorship was verified
+  log/2026-09.md                append-only observations
+projects/<id>/PROFILE.md        What & status · Where things live · Who · Agents & skills · Norms · Now
+orgs/<id>/  groups/<id>/  …     any other kind
+```
+
+Only `PROFILE.md` is required. A malformed file is reported and skipped; it never breaks lookups of anyone else.
+
+## The verbs
+
+The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+
+| Verb | Does |
+|---|---|
+| `who NAME [-f FIELD] [-b]` | one field, the identity block, or the whole entry file; lists candidates instead of guessing |
+| `resolve HANDLE` | `github:octocat`, `email:…`, `@octocat` → the person, with the evidence |
+| `check TEXT` | before publishing: one person written as two ("Ada or Lovelace"), shared names, unknown names |
+| `reach PERSON [--purpose --urgency --project --message-type --topic]` | ordered channels: the person's own rules > the operator's rules > project norms > observed habits > defaults |
+| `brief PERSON [--purpose --project]` | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known |
+| `remember ENTITY TEXT [--source --kind]` | append a dated, sourced observation (or identity, preference, view, rule) |
+| `lint [ENTITY]` | sources on every preference; parseable files; entry-file budget; policy tripwires |
+| `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
+| `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
+| `rename ENTITY TO` | new id or name; links elsewhere rewritten; old forms kept as aliases |
+| `forget ENTITY [--confirm]` | remove, leaving a hashed tombstone so the person is not silently re-created |
+| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below |
+
+`--json` prints the result dict; `-` as the text of `check` or `style-lint` reads stdin.
+
+## Sources
+
+End every preference, view or rule with a source tag:
+
+```markdown
+## Write to them
+- Lead with the decision, then the options. [source: self: "give me the recommendation first"]
+- Short replies on chat, fuller ones by email. [source: log/2026-09.md#e03]
+- No attachments over chat. [source: https://example.org/thread/1]
+```
+
+A source is a permalink, a log or research anchor, the person's own words, `operator`, or `none located`. **A date alone is not a source**: an unsourced claim with a date attached reads as observed when it was not.
+
+## Agent skills
+
+Six skills ship inside the package (`acquaint/data/skills/`) and install with `gh skill`:
+
+| Skill | For |
+|---|---|
+| `acquaint` | the router: lookups at the right cost, `check` before publishing, `remember` with sources |
+| `acquaint-profile` | building a profile from someone's own writing, with parallel `profile-reader` agents |
+| `acquaint-write` | writing for a known reader, and sparring with a simulated one (`recipient-reader` agent) |
+| `acquaint-read` | interpreting a message from a known person; AI-processing as a likelihood with evidence |
+| `deslop` | prose without machine-writing tells, calibrated to the reader |
+| `acquaint-sync` | private sync, and what it does not protect |
+
+```bash
+gh skill install thorwhalen/acquaint acquaint --agent claude-code
+```
+
+## MCP
+
+```bash
+pip install "acquaint[mcp]"
+```
+
+```json
+{"mcpServers": {"acquaint": {"command": "acquaint-mcp"}}}
+```
+
+The server exposes the tools that read, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`, `sync_status`). Renaming, forgetting and syncing stay at the terminal.
+
+## Private sync
+
+```bash
+acquaint sync init --repo <owner>/<name> --dry-run
+acquaint sync init --repo <owner>/<name>
+```
+
+`sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook that re-checks the remote and the visibility on every push. `push` and `status` check again.
+
+What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; file names and commit messages contain people's names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` encrypts contents, names and history: pass `--remote-url "gcrypt::git@github.com:<owner>/<name>.git"`.
+
+## Python
+
+```python
+from acquaint import Store, who, brief
+
+who("ada", field="aka")["value"]              # ['Ada', 'Lovelace']
+print(brief("ada-lovelace", purpose="ask")["text"])
+
+store = Store()                                # MutableMapping[str, Entity] over a dol files store
+entity = store["people/ada-lovelace"]          # a mapping of that person's files, plus parsed views
+entity.identities, entity.rules, entity.sections["Write to them"]
+Store(files={})                                # any MutableMapping[str, str] of files: a dict, a remote store
+```
+
+## Design
+
+The seams, surfaces and deliberate non-seams are in [Discussion #1](https://github.com/thorwhalen/acquaint/discussions/1).
