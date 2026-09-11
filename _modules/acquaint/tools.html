@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>acquaint.tools &mdash; acquaint 0.0.2 documentation</title>
+  <title>acquaint.tools &mdash; acquaint 0.0.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/documentation_options.js?v=47de8214"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -513,18 +513,27 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"observation"</span><span class="p">,</span>
+    <span class="n">reactivate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source."""</span>
+<span class="w">    </span><span class="sd">"""Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source. An identity equal to an inactive one (``stale``, ``retracted``, …) is refused, naming that entry and the command with which the operator can make it active again."""</span>
     <span class="n">store</span> <span class="o">=</span> <span class="n">_store</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">append_observation</span><span class="p">(</span>
-        <span class="n">store</span><span class="p">,</span> <span class="n">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">entity</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span>
+        <span class="n">store</span><span class="p">,</span>
+        <span class="n">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">entity</span><span class="p">),</span>
+        <span class="n">text</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+        <span class="n">reactivate</span><span class="o">=</span><span class="n">reactivate</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">"ok"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">result</span><span class="p">,</span>
-        <span class="s2">"summary"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"recorded </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'kind'</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'ref'</span><span class="p">]</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-    <span class="p">}</span></div>
+    <span class="n">identity</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"identity"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"change"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"reactivated"</span><span class="p">:</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"reactivated identity </span><span class="si">{</span><span class="n">identity</span><span class="p">[</span><span class="s1">'handle'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (was </span><span class="si">{</span><span class="n">identity</span><span class="p">[</span><span class="s1">'previous_status'</span><span class="p">]</span><span class="si">}</span><span class="s2">) for </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">; logged </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'ref'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">elif</span> <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"change"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"already_usable"</span><span class="p">:</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">identity</span><span class="p">[</span><span class="s1">'handle'</span><span class="p">]</span><span class="si">}</span><span class="s2"> is already a usable identity for </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">; logged </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'ref'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"recorded </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'kind'</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'ref'</span><span class="p">]</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"ok"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">result</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">:</span> <span class="n">summary</span><span class="p">}</span></div>
 
 
 

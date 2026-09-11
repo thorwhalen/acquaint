@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>acquaint.lookup &mdash; acquaint 0.0.2 documentation</title>
+  <title>acquaint.lookup &mdash; acquaint 0.0.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="../../_static/documentation_options.js?v=47de8214"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -113,6 +113,7 @@
     <span class="s2">"check_text"</span><span class="p">,</span>
     <span class="s2">"find_entity"</span><span class="p">,</span>
     <span class="s2">"match"</span><span class="p">,</span>
+    <span class="s2">"normalise_handle"</span><span class="p">,</span>
     <span class="s2">"normalize"</span><span class="p">,</span>
     <span class="s2">"reach_channels"</span><span class="p">,</span>
     <span class="s2">"resolve_handle"</span><span class="p">,</span>
@@ -261,7 +262,10 @@
 <span class="c1"># ------------------------------------------------------------------------ handles</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_normalise_handle</span><span class="p">(</span><span class="n">platform</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="normalise_handle">
+<a class="viewcode-back" href="../../module_docs/acquaint/lookup.html#acquaint.lookup.normalise_handle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalise_handle</span><span class="p">(</span><span class="n">platform</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A handle's comparable form: an email lowercased, with Gmail dots and ``+tags`` folded; any other value lowercased, without a leading ``@``."""</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"email"</span> <span class="ow">or</span> <span class="p">(</span>
         <span class="n">platform</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^@\s]+@[^@\s]+"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -270,7 +274,8 @@
         <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"gmail.com"</span><span class="p">,</span> <span class="s2">"googlemail.com"</span><span class="p">}:</span>
             <span class="n">local</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"+"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">"</span>
-    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"@"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"@"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_handle</span><span class="p">(</span><span class="n">handle</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -297,7 +302,7 @@
 <span class="sd">    names under ``by_name``, which is never enough to act on.</span>
 <span class="sd">    """</span>
     <span class="n">platform</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_split_handle</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_normalise_handle</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">normalise_handle</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
     <span class="n">entities</span><span class="p">,</span> <span class="n">broken</span> <span class="o">=</span> <span class="n">_readable</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
     <span class="n">matches</span><span class="p">,</span> <span class="n">inactive</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -305,7 +310,7 @@
             <span class="k">if</span> <span class="n">platform</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="n">platform</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="p">(</span>
-                <span class="n">_normalise_handle</span><span class="p">(</span>
+                <span class="n">normalise_handle</span><span class="p">(</span>
                     <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
                 <span class="p">)</span>
                 <span class="o">!=</span> <span class="n">wanted</span>
