@@ -88,6 +88,101 @@ def test_remember_identity_and_policy_warnings(ada):
     assert any("without a source" in w for w in append_observation(ada, "ada-lovelace", "seemed busy", today=TODAY)["warnings"])
 
 
+def _identities(store):
+    return load_yaml(store.files[f"{ADA}/identities.yaml"])[0]["identities"]
+
+
+def _mark_first_identity(store, status):
+    data = load_yaml(store.files[f"{ADA}/identities.yaml"])[0]
+    data["identities"][0]["status"] = status
+    store.files[f"{ADA}/identities.yaml"] = dump_yaml(data)
+
+
+@pytest.mark.parametrize("status", ["stale", "retracted", "former"])
+def test_remember_refuses_an_identity_equal_to_an_inactive_one_and_writes_nothing(ada, status):
+    """Issue #17: this used to log "recorded identity" and leave the entry inactive."""
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, status)
+    before = dict(ada.files)
+    with pytest.raises(AcquaintError) as refused:
+        append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="https://example.org/roster", today=TODAY)
+    message = str(refused.value)
+    assert f"pager:example-rotation is already recorded for person:ada-lovelace as {status}" in message
+    assert "source: operator" in message and "people/ada-lovelace/identities.yaml" in message
+    assert message.endswith(
+        "the operator can reactivate it with:"
+        " acquaint remember person:ada-lovelace pager:example-rotation --kind identity --reactivate --source https://example.org/roster"
+    )
+    assert dict(ada.files) == before, "nothing was written"
+
+
+def test_remember_reactivate_makes_an_inactive_identity_active_with_the_new_source(ada):
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, "stale")
+    result = append_observation(
+        ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="https://example.org/roster", reactivate=True, today=TODAY
+    )
+    assert result["identity"] == {"handle": "pager:example-rotation", "change": "reactivated", "previous_status": "stale"}
+    [entry] = _identities(ada)
+    assert (entry["status"], entry["source"], entry["previous_status"], entry["previous_source"], entry["reactivated"]) == (
+        "active", "https://example.org/roster", "stale", "operator", TODAY
+    )
+    assert parse_log(ada.files[f"{ADA}/log/2026-09.md"])[-1]["id"] == result["entry"] == "e02"
+
+
+def test_remember_reactivate_needs_a_source_and_an_identity(ada):
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, "stale")
+    before = dict(ada.files)
+    with pytest.raises(AcquaintError, match="needs --source"):
+        append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", reactivate=True, today=TODAY)
+    with pytest.raises(AcquaintError, match="--reactivate applies to --kind identity only"):
+        append_observation(ada, "ada-lovelace", "likes short emails", source="operator", reactivate=True, today=TODAY)
+    with pytest.raises(AcquaintError, match="needs --source"):
+        append_observation(ada, "ada-lovelace", "signal:+10000000000", kind="identity", reactivate=True, today=TODAY)
+    assert dict(ada.files) == before
+
+
+@pytest.mark.parametrize("status", ["active", "relay"])
+def test_remember_an_identity_that_is_already_usable_changes_only_the_log(ada, status):
+    append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", today=TODAY)
+    _mark_first_identity(ada, status)
+    identities = ada.files[f"{ADA}/identities.yaml"]
+    result = append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="https://example.org/roster", today=TODAY)
+    assert (result["identity"]["change"], result["entry"]) == ("already_usable", "e02")
+    assert ada.files[f"{ADA}/identities.yaml"] == identities
+
+
+@pytest.mark.parametrize(
+    "recorded, remembered",
+    [
+        (("Pager", "example-rotation"), "pager:example-rotation"),
+        (("email", "Ada.Lovelace" + "@" + "Example.org"), "email:ada.lovelace" + "@" + "example.org"),
+        (("github", "@octocat"), "github:octocat"),
+    ],
+)
+def test_remember_compares_identities_as_resolve_does(ada, recorded, remembered):
+    platform, value = recorded
+    stale = {"platform": platform, "value": value, "evidence": "https://example.org/old-roster", "status": "stale"}
+    ada.files[f"{ADA}/identities.yaml"] = dump_yaml({"identities": [stale]})
+    with pytest.raises(AcquaintError) as refused:
+        append_observation(ada, "ada-lovelace", remembered, kind="identity", source="operator", today=TODAY)
+    assert f"{platform}:{value} is already recorded" in str(refused.value)
+    assert "source: https://example.org/old-roster" in str(refused.value)
+    result = append_observation(ada, "ada-lovelace", remembered, kind="identity", source="operator", reactivate=True, today=TODAY)
+    [entry] = _identities(ada)
+    assert result["identity"]["change"] == "reactivated" and "evidence" not in entry
+    assert (entry["status"], entry["source"], entry["previous_evidence"]) == ("active", "operator", "https://example.org/old-roster")
+
+
+def test_remember_reactivate_with_nothing_to_reactivate_says_so(ada):
+    added = append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", reactivate=True, today=TODAY)
+    usable = append_observation(ada, "ada-lovelace", "pager:example-rotation", kind="identity", source="operator", reactivate=True, today=TODAY)
+    assert [r["identity"]["change"] for r in (added, usable)] == ["added", "already_usable"]
+    assert any("nothing to do" in w and "not recorded before" in w for w in added["warnings"])
+    assert any("nothing to do" in w and "already usable" in w for w in usable["warnings"])
+
+
 def test_remember_continues_after_hand_edited_headings_and_escapes_captured_text(ada):
     ada.files[f"{ADA}/log/2026-09.md"] = "## e01 - 2026-09-02 - observation\nhand-written\n- source: operator\n"
     result = append_observation(ada, "ada-lovelace", "- kind: rule", source="operator", today=TODAY)

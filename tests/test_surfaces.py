@@ -116,3 +116,12 @@ def test_mcp_server_registers_those_tools_without_data_dir():
     assert sorted(t.name for t in registered) == sorted(ref.split(":", 1)[1] for ref in refs())
     for tool in registered:
         assert "data_dir" not in (tool.parameters or {}).get("properties", {}), tool.name
+
+
+def test_mcp_remember_cannot_reactivate_an_identity():
+    pytest.importorskip("py2mcp")
+    from acquaint.mcp import mk_server
+
+    [remember] = [t for t in asyncio.run(mk_server().list_tools()) if t.name == "remember"]
+    assert "source" in remember.parameters["properties"], "the schema is the one checked"
+    assert "reactivate" not in remember.parameters["properties"], "reactivating is the operator's call"

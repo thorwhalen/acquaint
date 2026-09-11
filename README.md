@@ -53,7 +53,7 @@ The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and t
 | `check TEXT` | before publishing: one person written as two ("Ada or Lovelace"), shared names, unknown names |
 | `reach PERSON [--purpose --urgency --project --message-type --topic]` | ordered channels: the person's own rules > the operator's rules > project norms > observed habits > defaults |
 | `brief PERSON [--purpose --project]` | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known |
-| `remember ENTITY TEXT [--source --kind]` | append a dated, sourced observation (or identity, preference, view, rule) |
+| `remember ENTITY TEXT [--source --kind --reactivate]` | append a dated, sourced observation (or identity, preference, view, rule); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate` |
 | `lint [ENTITY]` | sources on every preference; parseable files; entry-file budget; policy tripwires |
 | `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
 | `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
@@ -109,7 +109,7 @@ pip install "acquaint[mcp]"
 {"mcpServers": {"acquaint": {"command": "acquaint-mcp"}}}
 ```
 
-The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server's (set `ACQUAINT_DATA_DIR` in the client configuration), never the model's.
+The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server's (set `ACQUAINT_DATA_DIR` in the client configuration), never the model's. Neither is `remember`'s `reactivate`: making an inactive identity active again is the operator's call.
 
 ## Private sync
 

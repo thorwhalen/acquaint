@@ -7,7 +7,9 @@ renaming, forgetting and syncing are operator actions and stay at the terminal.
 
 The data root is the server's, never the model's: ``data_dir`` is removed from every
 tool's schema, so a model cannot write profiles into whatever directory it is working
-in. Point the server elsewhere with ``ACQUAINT_DATA_DIR`` in the client configuration::
+in. ``remember``'s ``reactivate`` is removed too: making an inactive identity active
+again changes a recorded status, which is the operator's call. Point the server
+elsewhere with ``ACQUAINT_DATA_DIR`` in the client configuration::
 
     {"mcpServers": {"acquaint": {"command": "acquaint-mcp"}}}
 """
@@ -31,7 +33,7 @@ __all__ = [
 ]
 
 DEFAULT_EFFECTS = ("read", "append", "create")
-HIDDEN_PARAMETERS = ("data_dir",)
+HIDDEN_PARAMETERS = ("data_dir", "reactivate")
 INSTRUCTIONS = (
     "Local profiles of the people (and projects, orgs, groups) the user works with. "
     "Use `who` for one fact about someone, `brief` before writing to someone, `check` on prose "
@@ -77,7 +79,7 @@ def _without(func: Callable, hidden: Iterable[str] = HIDDEN_PARAMETERS) -> Calla
 
 
 def mk_server(*, effects: Iterable[str] = DEFAULT_EFFECTS):
-    """A FastMCP server over the selected tools, with ``data_dir`` hidden (not started)."""
+    """A FastMCP server over the selected tools, with :data:`HIDDEN_PARAMETERS` hidden (not started)."""
     from py2mcp import mk_mcp_server
 
     return mk_mcp_server(
