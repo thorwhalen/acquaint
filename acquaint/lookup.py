@@ -207,9 +207,7 @@ def resolve_handle(store: Store, handle: str) -> dict[str, Any]:
             if platform and str(identity.get("platform", "")).lower() != platform:
                 continue
             if (
-                normalise_handle(
-                    identity.get("platform"), str(identity.get("value", ""))
-                )
+                normalise_handle(identity.get("platform"), str(identity.get("value", "")))
                 != wanted
             ):
                 continue

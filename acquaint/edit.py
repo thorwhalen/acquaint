@@ -358,7 +358,9 @@ def _append_identity(
     evidence beside it.
     """
 
-    def status_of(identity: dict) -> str:  # as acquaint.lookup reads it: none recorded means active
+    def status_of(
+        identity: dict,
+    ) -> str:  # as acquaint.lookup reads it: none recorded means active
         return str(identity.get("status") or "active").strip().lower()
 
     current = entity.text("identities.yaml", "identities: []\n")
