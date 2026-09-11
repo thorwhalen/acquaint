@@ -63,6 +63,8 @@ The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and t
 
 `--json` prints the result dict; `-` as the text of `check` or `style-lint` reads stdin.
 
+Exit status: 0 on success; 1 when the result is not ok (the reason is on stderr); 2 for a usage error; 3 when `reach` matched a rule but no usable address is recorded for its channel (the rule is still listed, and the reason says what to add).
+
 Nothing acts on a guess: a name, alias, handle or email counts only when exactly one record has it exactly, and a partial match comes back as a suggestion. `rename` and `forget` need the exact id.
 
 ## Sources

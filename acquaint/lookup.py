@@ -379,7 +379,7 @@ def _address(entity: Entity, channel: str) -> tuple[str | None, str | None]:
             None,
             f"no usable {channel} address (the recorded one is {_status(recorded[0])})",
         )
-    return None, None
+    return None, f"no {channel} address recorded"
 
 
 def _channels_of(do: Any) -> tuple[list[str], list[str]]:

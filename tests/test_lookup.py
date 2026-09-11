@@ -179,3 +179,55 @@ def test_resolve_tool_is_ok_only_for_a_usable_identity_on_a_named_platform(tmp_p
     assert tools.resolve("github:octocat", data_dir=data)["ok"]
     assert not tools.resolve("@octocat", data_dir=data)["ok"]
     assert not tools.resolve("Ada", data_dir=data)["ok"]
+
+
+def test_reach_reports_a_matched_rule_whose_channel_has_no_address(tmp_path):
+    """Issue #14: a matched rule is a result, not "nothing recorded", and the missing address is named."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules({"when": {"urgency": "high"}, "do": {"channel": "pager"}, "set_by": "self", "source": "operator"}),
+        encoding="utf-8",
+    )
+    matched = tools.reach("ada-lovelace", urgency="high", data_dir=data)
+    assert (matched["ok"], matched["outcome"]) == (False, "no_address")
+    assert "no active identit" not in matched["summary"]
+    assert "1 rule(s) matched for ada-lovelace, but no usable address is recorded for pager" in matched["summary"]
+    assert 'acquaint remember person:ada-lovelace "pager:<address>" --kind identity' in matched["summary"], "it says what to add"
+    assert matched["text"] == "1. pager  [self]  (no pager address recorded)"
+
+    tools.remember("ada-lovelace", "pager:example-rotation", kind="identity", source="operator", data_dir=data)
+    reached = tools.reach("ada-lovelace", urgency="high", data_dir=data)
+    assert (reached["ok"], reached["outcome"]) == (True, "reachable")
+    assert reached["channels"][0]["address"] == "pager:example-rotation" and reached["channels"][0]["note"] is None
+
+
+def test_reach_does_not_say_nothing_is_recorded_when_rules_exist(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    rules = tmp_path / "people" / "ada-lovelace" / "rules.yaml"
+    cases = {
+        "no rules": None,
+        "a rule for another context": {"when": {"urgency": "high"}, "do": {"channel": "pager"}, "source": "operator"},
+        "a retracted rule": {"when": {}, "do": {"channel": "pager"}, "status": "retracted", "source": "operator"},
+        "a matched rule that names no channel": {"when": {}, "do": {}, "source": "operator"},
+    }
+    for case, rule in cases.items():
+        if rule:
+            rules.write_text(_rules(rule), encoding="utf-8")
+        result = tools.reach("ada-lovelace", data_dir=data)
+        assert (result["ok"], result["outcome"]) == (False, "no_channel"), case
+        assert result["summary"] == "no matching rule names a channel for ada-lovelace, and no active identity is recorded", case
+
+
+def test_reach_notes_an_addressless_channel_even_when_another_is_usable(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    tools.remember("ada-lovelace", "email:ada@example.org", kind="identity", source="operator", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules({"when": {}, "do": {"channel": "pager", "fallback": "email"}, "set_by": "self", "source": "operator"}),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", data_dir=data)
+    assert (result["ok"], result["outcome"], result["summary"]) == (True, "reachable", "1 usable channel(s) for ada-lovelace")
+    assert result["text"].splitlines() == ["1. pager  [self]  (no pager address recorded)", "2. email → email:ada@example.org  [self]"]

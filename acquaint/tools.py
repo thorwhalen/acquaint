@@ -256,7 +256,7 @@ def reach(
     topic: str | None = None,
     data_dir: str | None = None,
 ) -> dict:
-    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing."""
+    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. ``outcome`` is ``reachable``, ``no_address`` (a rule matched, but no usable address is recorded for its channels) or ``no_channel``."""
     store = _store(data_dir)
     key = find_entity(store, person)
     defaults = (
@@ -274,22 +274,34 @@ def reach(
         message_type=message_type,
         topic=topic,
     )
+    entity = store[key]
+    channels, slug = result["channels"], entity.slug
     lines = [
         f"{n}. {c['channel'] or c['instruction']}"
         + (f" → {c['address']}" if c["address"] else "")
         + f"  [{c['tier']}]"
         + (f"  ({c['note']})" if c.get("note") else "")
-        for n, c in enumerate(result["channels"], start=1)
+        for n, c in enumerate(channels, start=1)
     ]
-    usable = [c for c in result["channels"] if c["address"] or c["instruction"]]
-    summary = (
-        f"{len(usable)} usable channel(s) for {store[key].slug}"
-        if usable
-        else f"no active identities or rules recorded for {store[key].slug}"
-    )
+    usable = [c for c in channels if c["address"] or c["instruction"]]
+    # A listed channel is usable, or it came from a matched rule and names a channel with no usable address.
+    unaddressed = [c["channel"] for c in channels if c["channel"] and not c["address"]]
+    if usable:
+        outcome, summary = "reachable", f"{len(usable)} usable channel(s) for {slug}"
+    elif channels:
+        outcome = "no_address"
+        summary = (
+            f"{result['rules_matched']} rule(s) matched for {slug}, but no usable address is recorded"
+            f" for {', '.join(unaddressed)}; record a current one with"
+            f' `acquaint remember {entity.ref} "{unaddressed[0]}:<address>" --kind identity --source <source>`'
+        )
+    else:
+        outcome = "no_channel"
+        summary = f"no matching rule names a channel for {slug}, and no active identity is recorded"
     return {
         "ok": bool(usable),
-        "id": store[key].slug,
+        "outcome": outcome,
+        "id": slug,
         **result,
         "summary": summary,
         "text": "\n".join(lines) or summary,
