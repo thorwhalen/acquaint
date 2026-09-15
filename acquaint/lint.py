@@ -17,7 +17,8 @@ Errors fail ``acquaint lint``; warnings ask a person to look. The rules:
   ``operator`` nor ``self``; a ``label``, ``sealed_from``, ``clearance`` or ``default_tier``
   without ``label_source: operator``; an unknown tier, label or clearance; an ``open`` or
   ``involved`` tier without ``review_by``; a tier date not written ``YYYY-MM-DD``; a seal
-  naming no record; a malformed ``[label: …]`` or ``[sealed-from: …]`` tag (**error**). A
+  naming no record; a malformed ``[label: …]`` or ``[sealed-from: …]`` tag; an
+  ``interaction`` log entry whose ``disclosed:`` names no record (**error**). A
   permissive tier past its ``review_by``, a project whose ``Where things live`` names a
   public repository while its label is not ``clear``, a seal on someone with a current
   link to the sealed record, a field on a kind that does not read it, and non-text
@@ -42,6 +43,7 @@ from typing import Any
 
 from acquaint.records import (
     blank_frontmatter,
+    disclosed_refs,
     fact_tags,
     item_blocks,
     load_yaml,
@@ -360,7 +362,13 @@ def _lint_disclosure(
             check_fact(file, number, item)
     for log_name in (name for name in entity if name.startswith("log/")):
         for entry in parse_log(entity[log_name]):
-            check_fact(f"{log_name}#{entry['id']}", None, entry["text"])
+            where = f"{log_name}#{entry['id']}"
+            check_fact(where, None, entry["text"])
+            for ref in disclosed_refs(entry.get("disclosed", "")):
+                if not _link_exists(ref, keys, ids):
+                    add("error", where, None, "unknown-disclosed", f"disclosed: {ref} names no record in the store")
+            if entry.get("disclosed") and entry["kind"] != "interaction":
+                add("warning", where, None, "misplaced-field", f"disclosed: is read on interaction entries only; this is a {entry['kind']}")
 
 
 def _lint_entity(

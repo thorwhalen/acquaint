@@ -15,7 +15,7 @@ from acquaint.store import AcquaintError
 
 TOOL_NAMES = [
     "who", "resolve", "check", "reach", "brief", "remember", "lint", "new", "rename",
-    "forget", "sync_init", "sync_push", "sync_pull", "sync_status", "style_lint",
+    "forget", "sync_init", "sync_push", "sync_pull", "sync_status", "style_lint", "disclosure",
 ]
 SURFACE_LIBS = {"argh", "cw", "click", "typer", "fastapi", "starlette", "uvicorn", "flask", "mcp", "fastmcp", "qh", "uf", "py2mcp"}
 EFFECTS = {"read", "append", "create", "rewrite", "destructive", "external-read", "external"}
@@ -37,7 +37,7 @@ def test_the_tool_list_is_complete_and_classified():
 
 
 def test_tools_take_flat_serialisable_arguments():
-    allowed = {"str", "str | None", "bool"}
+    allowed = {"str", "str | None", "bool", "list[str]", "list[str] | None"}
     for tool in tools.TOOLS:
         assert (tool.__doc__ or "").strip(), f"{tool.__name__} needs a docstring: it is the CLI help and the MCP description"
         for param in inspect.signature(tool).parameters.values():

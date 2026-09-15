@@ -35,6 +35,7 @@ import yaml
 __all__ = [
     "NONE_LOCATED",
     "blank_frontmatter",
+    "disclosed_refs",
     "dump_yaml",
     "fact_tags",
     "format_log_entry",
@@ -479,6 +480,19 @@ def fact_tags(text: str) -> dict[str, Any]:
                 f"{written!r} lists ids separated by commas, e.g. [sealed-from: ada-lovelace, person:bram]"
             )
     return {"label": label, "sealed_from": sealed_from, "problems": problems}
+
+
+def disclosed_refs(value: Any) -> list[str]:
+    """The record references a log entry's ``disclosed:`` field lists, lowercased: ``project:heron, org:example`` or ``[project:heron]``.
+
+    >>> disclosed_refs("[project:heron, Org:Example-Client]"), disclosed_refs(""), disclosed_refs(["project:heron"])
+    (['project:heron', 'org:example-client'], [], ['project:heron'])
+    """
+    if isinstance(value, (list, tuple)):
+        parts = [str(v) for v in value]
+    else:
+        parts = str(value or "").strip().strip("[]").split(",")
+    return [p.strip().strip("'\"").lower() for p in parts if p.strip().strip("'\"")]
 
 
 def source_kind(ref: str) -> str:

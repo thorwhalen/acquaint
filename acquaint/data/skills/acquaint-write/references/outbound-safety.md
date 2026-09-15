@@ -42,9 +42,11 @@ A brief tunes the words to one person. It does not make the channel private. "Wr
 - **Tiers** on people, set by the operator only: `acquaint who ada -f tier` gives `open`, `involved`, `need-to-know` or `reviewed`. A `reviewed` recipient's messages all go to the operator first; a lapsed permissive tier reads `need-to-know`.
 - **Labels, seals and vocabulary** on projects, orgs, groups and people: `-f label` (`red` > `amber` > `green` > `clear`), `-f sealed_from` (who must hear nothing about the record, whatever their tier), `-f vocabulary` (codenames that identify it). An org or group may carry `clearance`; an org or project may carry `default_tier`.
 - **Fact tags**: a line tagged `[label: …]` or `[sealed-from: …]` stays out of any draft whose readers are not cleared for it. Leave it out, or ask the operator.
+- **What each reader may be told**: `acquaint disclosure ada bram --project heron` gives each reader's tier and clearance, the least clearance, the seals, the terms to keep out of the draft (`vocabulary`), what each was already told, and the gaps. With `--audience-json FILE` (a correspond `Audience` record) the readers the channel cannot list count too: a public channel holds the draft to `clear`.
+- **What was already told**: after a message goes out, `acquaint remember ada "…" --kind interaction --disclosed project:heron` records the records it identified, never its text.
 
 ## Proposed in the report, not built yet
 
 - **correspond** computes an `Audience` for any conversation reference, and anything unknown resolves to public (§10.2).
-- **acquaint** computes, from the records above and an audience, what each reader may be told and which terms to keep out (`acquaint disclosure`), and puts the ceiling into the brief (§10.3).
+- **acquaint** puts the ceiling, the terms not to identify and the facts withheld into the brief (§10.3).
 - **liaise** evaluates a draft against both and returns a verdict (send, delay, revise, approve, refuse). A command outside cases would let this skill check a draft before handing it over (§10.4).

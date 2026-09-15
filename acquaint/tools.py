@@ -23,6 +23,7 @@ from typing import Any
 from acquaint import sync as _sync
 from acquaint.brief import compose_brief
 from acquaint.deslop import lint_text, recipient_card
+from acquaint.disclosure import disclose as _disclose
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
 from acquaint.lookup import check_text, find_entity, match, reach_channels, resolve_handle
@@ -35,6 +36,7 @@ __all__ = [
     "TOOLS",
     "brief",
     "check",
+    "disclosure",
     "forget",
     "lint",
     "new",
@@ -367,6 +369,58 @@ def lint(entity: str | None = None, *, data_dir: str | None = None) -> dict:
     return {"ok": ok, **result, "summary": summary, "text": "\n".join(lines + [summary])}
 
 
+def disclosure(
+    people: list[str],
+    *,
+    projects: list[str] | None = None,
+    audience: str | None = None,
+    today: str | None = None,
+    data_dir: str | None = None,
+) -> dict:
+    """Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond ``audience`` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. ``projects`` limits the records to those plus people. Reads only."""
+    result = _disclose(
+        _store(data_dir),
+        people,
+        projects=projects or (),
+        audience=audience,
+        today=today,
+    )
+    lines = []
+    for slug, person in result["people"].items():
+        involved = f"; involved in {', '.join(person['involved_in'])}" if person["involved_in"] else ""
+        lapsed = f" (recorded {person['recorded_tier']}, lapsed)" if person["lapsed"] else ""
+        source = person["source"] or "nothing recorded"
+        told = ", ".join(f"{t['entity']} ({t['date']})" for t in person["already_told"])
+        lines.append(
+            f"{slug}: {person['tier']}{lapsed} → clearance {person['clearance']} [{source}]{involved}"
+            + (f"; already told {told}" if told else "")
+        )
+    if result["audience"]:
+        audience_line = result["audience"]
+        lines.append(
+            f"audience: {audience_line['scope']}"
+            + ("" if audience_line["complete"] else ", not every reader listed")
+            + (f", unlisted readers at {audience_line['ceiling']}" if audience_line["ceiling"] else "")
+            + (f" ({audience_line['organisation']})" if audience_line["organisation"] else "")
+        )
+    lines.append(f"least clearance: {result['least_clearance']}")
+    lines += [f"sealed: {s['entity']} from {s['from']}" for s in result["seals"]]
+    records = sorted({v["entity"] for v in result["vocabulary"]})
+    if records:
+        lines.append(f"do not identify ({len(result['vocabulary'])} term(s)):")
+        lines += [
+            f"  {ref} [{result['entities'][ref]['label']}]: "
+            + ", ".join(v["term"] for v in result["vocabulary"] if v["entity"] == ref)
+            for ref in records
+        ]
+    lines += [f"gap: {name}: {', '.join(values)}" for name, values in result["gaps"].items() if values]
+    summary = (
+        f"least clearance {result['least_clearance']}; {len(records)} record(s) not to identify, "
+        f"{len(result['seals'])} seal(s), {sum(map(len, result['gaps'].values()))} gap(s)"
+    )
+    return {"ok": True, **result, "summary": summary, "text": "\n".join(lines + [summary])}
+
+
 def style_lint(
     text: str,
     *,
@@ -416,10 +470,11 @@ def remember(
     *,
     source: str | None = None,
     kind: str = "observation",
+    disclosed: list[str] | None = None,
     reactivate: bool = False,
     data_dir: str | None = None,
 ) -> dict:
-    """Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source. An identity equal to an inactive one (``stale``, ``retracted``, …) is refused, naming that entry and the command with which the operator can make it active again."""
+    """Append a dated observation (``observation``, ``interaction``, ``identity``, ``preference``, ``view``, ``rule``) to an entity's log, with its source. An ``interaction`` may list the records the message identified (``disclosed``: exact ids, never the text). An identity equal to an inactive one (``stale``, ``retracted``, …) is refused, naming that entry and the command with which the operator can make it active again."""
     store = _store(data_dir)
     result = append_observation(
         store,
@@ -428,6 +483,7 @@ def remember(
         source=source,
         kind=kind,
         reactivate=reactivate,
+        disclosed=disclosed or (),
     )
     identity = result.get("identity") or {}
     if identity.get("change") == "reactivated":
@@ -609,6 +665,7 @@ TOOLS = [
     sync_pull,
     sync_status,
     style_lint,
+    disclosure,
 ]
 
 #: What each tool changes, for surfaces that must decide what to expose or confirm.
@@ -623,6 +680,7 @@ SIDE_EFFECTS = {
     "brief": "read",
     "lint": "read",
     "style_lint": "read",
+    "disclosure": "read",
     "remember": "append",
     "new": "create",
     "rename": "rewrite",
