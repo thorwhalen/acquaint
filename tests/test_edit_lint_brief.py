@@ -473,3 +473,21 @@ def test_brief_assembles_card_style_views_norms_and_gaps(ada):
 def test_brief_marks_relational_purposes(ada):
     brief = compose_brief(ada, ADA, purpose="condolence", today=TODAY)
     assert brief["relational"] and "do not draft the text" in brief["text"]
+
+
+def test_lint_on_a_rules_address_and_a_bare_do(ada):
+    """Issue #16: a stated address must be text, and a one-word ``do`` reaches nothing."""
+    ada.files[f"{ADA}/rules.yaml"] = dump_yaml(
+        {
+            "rules": [
+                {"when": {}, "do": "pager", "source": "operator"},
+                {"when": {"urgency": "high"}, "do": {"channel": "github", "address": ["a", "b"]}, "source": "operator"},
+                {"when": {"project": "heron"}, "do": {"channel": "github", "address": "github:example/heron"}, "source": "operator"},
+            ]
+        }
+    )
+    result = lint_store(ada, ADA, today=TODAY)
+    assert _error_rules(result) == [("rules.yaml", "bad-address")], "the stated address of the third rule is fine"
+    warnings = {(w["file"], w["rule"]) for w in result["warnings"]}
+    assert ("rules.yaml", "do-is-a-bare-channel") in warnings
+    assert any("do: {channel: pager}" in w["message"] for w in result["warnings"]), "it says how to write it"

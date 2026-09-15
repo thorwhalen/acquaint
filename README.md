@@ -30,7 +30,8 @@ POLICY.md                       what may be recorded
 people/ada-lovelace/
   PROFILE.md                    entry file: identity frontmatter + Who · Reach · Write to them · Read them · Don't · Now · More
   identities.yaml               handles and addresses, with evidence
-  rules.yaml                    channel rules: when → do, who set it, source
+  rules.yaml                    channel rules: when → do (channel, and the address
+                                when the channel is addressed by conversation), who set it, source
   links.yaml                    affiliations: project, org, group; role; period
   style.md                      the writing card: AI tolerance, register, do, don't, blocklist, exemplars
   views.md                      positions and standing objections, sourced

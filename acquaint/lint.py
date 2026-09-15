@@ -10,7 +10,9 @@ Errors fail ``acquaint lint``; warnings ask a person to look. The rules:
   (``Don’t:``, ``## Reach ##``, an indented ``## Now``);
 - a logged ``preference``, ``view`` or ``rule`` has a source (**error**); a logged
   observation without one is a **warning**, and so is a repeated entry id;
-- ``rules.yaml`` rules have ``do``, channel names that are text, and a ``source``;
+- ``rules.yaml`` rules have ``do``, channel names that are text, an ``address`` that is
+  text when one is stated, and a ``source``; a ``do`` that is one bare word is a
+  **warning**, since it reads as an instruction and reaches nothing;
   identities have a platform and a value; a writing card's ``ai_tolerance`` is tolerant,
   neutral or averse (**error**);
 - a file that does not parse, or is not valid UTF-8, an entry file the store cannot
@@ -265,13 +267,38 @@ def _lint_entity(
                 "rule-without-do",
                 f"{label} says when but not what to do",
             )
+        elif isinstance(do, str) and do.strip() and not do.split()[1:]:
+            # `do: pager` reads as a free-text instruction, so reach returns no channel
+            # and no address for it, silently. The writer almost always meant a channel.
+            add(
+                "warning",
+                "rules.yaml",
+                None,
+                "do-is-a-bare-channel",
+                f"{label}: do is the single word {do.strip()!r}; write "
+                f"`do: {{channel: {do.strip()}}}` if that is a channel, since a bare "
+                f"string is read as an instruction and reaches nothing",
+            )
         elif isinstance(do, dict):
             fallback = do.get("fallback")
             for value in [
                 do.get("channel"),
                 *(fallback if isinstance(fallback, list) else [fallback]),
             ]:
-                if value is not None and not (isinstance(value, str) and value.strip()):
+                if value is None:
+                    continue
+                if isinstance(value, dict):
+                    channel = value.get("channel")
+                    if not (isinstance(channel, str) and channel.strip()):
+                        add(
+                            "error",
+                            "rules.yaml",
+                            None,
+                            "bad-channel",
+                            f"{label}: {value!r} needs a channel name",
+                        )
+                    continue
+                if not (isinstance(value, str) and value.strip()):
                     add(
                         "error",
                         "rules.yaml",
@@ -279,6 +306,15 @@ def _lint_entity(
                         "bad-channel",
                         f"{label}: {value!r} is not a channel name",
                     )
+            address = do.get("address")
+            if address is not None and not (isinstance(address, str) and address.strip()):
+                add(
+                    "error",
+                    "rules.yaml",
+                    None,
+                    "bad-address",
+                    f"{label}: {address!r} is not an address",
+                )
         if not rule.get("source") or source_problem(f"[source: {rule.get('source')}]"):
             add("error", "rules.yaml", None, "unsourced", f"{label} has no source")
     for identity in entity.identities:

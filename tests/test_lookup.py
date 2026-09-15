@@ -231,3 +231,81 @@ def test_reach_notes_an_addressless_channel_even_when_another_is_usable(tmp_path
     result = tools.reach("ada-lovelace", data_dir=data)
     assert (result["ok"], result["outcome"], result["summary"]) == (True, "reachable", "1 usable channel(s) for ada-lovelace")
     assert result["text"].splitlines() == ["1. pager  [self]  (no pager address recorded)", "2. email → email:ada@example.org  [self]"]
+
+
+def test_reach_returns_the_address_a_rule_states(tmp_path):
+    """Issue #16: a channel addressed by conversation, not by person, gets its address from the rule."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    tools.remember("ada-lovelace", "github:ada", kind="identity", source="operator", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(
+            {
+                "when": {"project": "heron"},
+                "do": {"channel": "github", "address": "github:example/heron"},
+                "set_by": "operator",
+                "source": "operator",
+            }
+        ),
+        encoding="utf-8",
+    )
+    stated = tools.reach("ada-lovelace", project="heron", data_dir=data)
+    assert (stated["ok"], stated["outcome"]) == (True, "reachable")
+    channel = stated["channels"][0]
+    assert channel["address"] == "github:example/heron", "the rule's address, not the github:ada handle"
+    assert channel["address_kind"] == "stated"
+    assert channel["note"] is None
+
+    # Without the rule's context the identity is all there is, and it is marked as derived.
+    derived = tools.reach("ada-lovelace", data_dir=data)
+    assert derived["channels"][0]["address"] == "github:ada"
+    assert derived["channels"][0]["address_kind"] == "identity"
+
+
+def test_reach_states_an_address_per_fallback_and_needs_no_identity(tmp_path):
+    """A fallback states its own address, and a stated address needs no identity on the record."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(
+            {
+                "when": {},
+                "do": {
+                    "channel": "github",
+                    "address": "github:example/heron",
+                    "fallback": [{"channel": "webinbox", "address": "webinbox:heron"}, "email"],
+                },
+                "set_by": "operator",
+                "source": "operator",
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", data_dir=data)
+    assert (result["ok"], result["outcome"]) == (True, "reachable")
+    assert [(c["channel"], c["address"], c["address_kind"]) for c in result["channels"]] == [
+        ("github", "github:example/heron", "stated"),
+        ("webinbox", "webinbox:heron", "stated"),
+        ("email", None, None),
+    ]
+    assert result["text"].splitlines()[-1] == "3. email  [operator]  (no email address recorded)"
+
+
+def test_reach_ignores_a_fallback_entry_with_no_channel(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    tools.remember("ada-lovelace", "email:ada@example.org", kind="identity", source="operator", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(
+            {
+                "when": {},
+                "do": {"channel": "email", "fallback": [{"address": "github:example/heron"}]},
+                "set_by": "operator",
+                "source": "operator",
+            }
+        ),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", data_dir=data)
+    assert [c["channel"] for c in result["channels"]] == ["email"]
+    assert "ignored" in result["channels"][0]["note"], "the entry is named, not dropped in silence"

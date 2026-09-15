@@ -382,19 +382,50 @@ def _address(entity: Entity, channel: str) -> tuple[str | None, str | None]:
     return None, f"no {channel} address recorded"
 
 
-def _channels_of(do: Any) -> tuple[list[str], list[str]]:
-    """The channel names a rule's ``do`` asks for, in order, and notes about values that are not channel names."""
+def _stated(value: Any) -> tuple[str | None, str | None]:
+    """One entry of a rule's ``do``, as ``(channel, stated address)``.
+
+    A plain string names a channel and states no address. A mapping may state one with
+    ``address``, which is what a channel addressed by conversation rather than by person
+    needs: ``{"channel": "github", "address": "github:example/heron"}``.
+    """
+    if isinstance(value, str) and value.strip():
+        return value.strip(), None
+    if isinstance(value, dict):
+        channel, address = value.get("channel"), value.get("address")
+        if isinstance(channel, str) and channel.strip():
+            stated = address.strip() if isinstance(address, str) and address.strip() else None
+            return channel.strip(), stated
+    return None, None
+
+
+def _channels_of(do: Any) -> tuple[list[tuple[str, str | None]], list[str]]:
+    """The channels a rule's ``do`` asks for, in order, each with the address it states, and notes about values that are not channels.
+
+    ``do.address`` states the address of ``do.channel``; a ``fallback`` entry states its
+    own, as a mapping. A stated address is returned as it is written, so it may be any
+    reference the channel takes, not only one built from an identity.
+    """
     if not isinstance(do, dict):
         return [], []
-    names, notes = [], []
-    for value in [do.get("channel"), *_as_list(do.get("fallback"))]:
+    entries, notes = [], []
+    primary, primary_address = _stated(do.get("channel"))
+    if primary is not None:
+        address = do.get("address")
+        if primary_address is None and isinstance(address, str) and address.strip():
+            primary_address = address.strip()
+        entries.append((primary, primary_address))
+    elif do.get("channel") is not None:
+        notes.append(f"ignored {do.get('channel')!r}: a channel is a name such as email")
+    for value in _as_list(do.get("fallback")):
         if value is None:
             continue
-        if isinstance(value, str) and value.strip():
-            names.append(value.strip())
-        else:
+        channel, stated = _stated(value)
+        if channel is None:
             notes.append(f"ignored {value!r}: a channel is a name such as email")
-    return names, notes
+            continue
+        entries.append((channel, stated))
+    return entries, notes
 
 
 def reach_channels(
@@ -406,6 +437,13 @@ def reach_channels(
     a project or affiliation > observed habits > global defaults. Within a tier the most
     specific matching rule wins. Only usable addresses are offered; a rule value that is
     not a channel name is skipped with a note. It returns addresses; it sends nothing.
+
+    Each channel carries ``address_kind``: ``stated`` when the rule gave the address,
+    ``identity`` when it was built from one of the entity's identities, ``None`` when
+    there is no address. The distinction matters because an identity-built address is a
+    *handle* (``github:ada``), and a channel addressed by conversation rather than by
+    person (GitHub, a web inbox, a chat channel) does not take one. Such a channel's rule
+    states its address.
     """
     context = {k: str(v) for k, v in context.items() if v}
     entity = store[key]
@@ -440,20 +478,27 @@ def reach_channels(
     channels, seen = [], set()
     for _, _, _, tier, rule, origin in scored:
         do = rule.get("do", {})
-        names, notes = _channels_of(do)
-        entries = [(name, None) for name in names] or (
-            [(None, str(do))] if do not in ({}, None, "") else []
-        )
-        for channel, instruction in entries:
+        stated_entries, notes = _channels_of(do)
+        entries: list[tuple[str | None, str | None, str | None]] = [
+            (channel, stated, None) for channel, stated in stated_entries
+        ] or ([(None, None, str(do))] if do not in ({}, None, "") else [])
+        for channel, stated, instruction in entries:
             label = channel or instruction
             if label in seen:
                 continue
             seen.add(label)
-            address, note = _address(entity, channel) if channel else (None, None)
+            if stated is not None:
+                address, note, kind = stated, None, "stated"
+            elif channel:
+                address, note = _address(entity, channel)
+                kind = "identity" if address else None
+            else:
+                address, note, kind = None, None, None
             channels.append(
                 {
                     "channel": channel,
                     "address": address,
+                    "address_kind": kind,
                     "note": "; ".join(filter(None, [note, *notes])) or None,
                     "tier": tier,
                     "instruction": instruction,
@@ -466,6 +511,7 @@ def reach_channels(
             {
                 "channel": identity.get("platform"),
                 "address": f"{identity.get('platform')}:{identity.get('value')}",
+                "address_kind": "identity",
                 "note": None,
                 "tier": "none",
                 "instruction": "no rule matched; usable identities in the order listed",
