@@ -44,12 +44,13 @@ Everything fails closed, and every doubt is listed under ``gaps``, never guessed
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import date
 from typing import Any
 
 from acquaint.lookup import find_entity, resolve_handle
-from acquaint.records import disclosed_refs, parse_log, source_kind
+from acquaint.records import disclosed_refs, normalize_newlines, parse_log, source_kind
 from acquaint.store import ENTRY_FILE, AcquaintError, Entity, Store
 from acquaint.trust import (
     CLEARANCE_KINDS,
@@ -93,6 +94,9 @@ _MOST_RESTRICTIVE_LABEL = LABELS[0]
 _PERSON_KIND = "person"
 _INTERACTION = "interaction"
 _LINKS_FILE = "links.yaml"
+_IDENTITIES_FILE = "identities.yaml"
+_RAW_FIELD_RE = re.compile(r"^\s*(name|aka|vocabulary)\s*:\s*(.*)$")
+_RAW_ITEM_RE = re.compile(r"^\s*-\s+(.*)$")
 _TIER_DATES = ("valid_from", "valid_to", "review_by")
 _LINK_DATES = ("since", "until")
 _GAPS = ("unrecorded", "ambiguous", "not_a_person", "no_tier", "organisation", "unreadable", "unresolved_seals")
@@ -166,9 +170,17 @@ def _find_key(store: Store, ref: Any) -> str | None:
         return None
 
 
-def _person_key(store: Store, ref: str) -> str | None:
-    """A reference as a record key, a bare id preferring the person with that id (seals and readers name people)."""
-    ref = ref.strip().lstrip("@")
+def _person_key(store: Store, ref: str, *, handle_prefix: bool = False) -> str | None:
+    """A reference as a record key, a bare id preferring the person with that id (seals and readers name people).
+
+    ``handle_prefix`` reads ``@bram`` as the id ``bram``: right for a seal, which only
+    restricts, and wrong for a reader, where ``@bram`` on an unnamed platform need not be Bram.
+    """
+    ref = ref.strip()
+    if handle_prefix:
+        ref = ref.lstrip("@")
+    elif ref.startswith("@"):
+        return None
     if ":" not in ref and "/" not in ref:
         people = [k for k in store.find_id(ref) if store[k].kind == _PERSON_KIND]
         if len(people) == 1:
@@ -272,7 +284,7 @@ def _resolve_reader(store: Store, text: str) -> tuple[str | None, str | None, li
     """``(key, None, [])`` for an exact id, reference or channel identity with a named platform; else ``(None, problem, candidate keys)``."""
     text = str(text).strip()
     key = _person_key(store, text) if ":" not in text or text.split(":", 1)[0] in {"person", "people"} else None
-    if key is None and ":" not in text and "/" not in text:
+    if key is None and ":" not in text and "/" not in text and not text.startswith("@"):
         candidates = store.find_id(text)
         if len(candidates) > 1:
             return None, "ambiguous", candidates
@@ -284,7 +296,10 @@ def _resolve_reader(store: Store, text: str) -> tuple[str | None, str | None, li
     owners = sorted({m["key"] for m in found["matches"]})
     if len(owners) == 1 and found["platform"]:
         return owners[0], None, []
-    return None, "ambiguous" if owners else "unrecorded", owners
+    # Who it could still be: inactive and name-only owners, and anyone whose identities cannot be read.
+    candidates = {m["key"] for m in found["matches"] + found["inactive"] + found["by_name"]}
+    candidates |= {k for k in store if store[k].kind == _PERSON_KIND and _broken(store[k], _IDENTITIES_FILE)}
+    return None, "ambiguous" if owners else "unrecorded", sorted(candidates)
 
 
 def parse_audience(audience: str | Mapping | None) -> dict[str, Any] | None:
@@ -388,9 +403,36 @@ def _label(entity: Entity) -> str:
     return default
 
 
+def _raw_terms(text: str) -> list[str]:
+    """``name``, ``aka`` and ``vocabulary`` values read line by line from an entry file whose frontmatter does not parse.
+
+    >>> _raw_terms('---\\nname: [Osprey\\naka: [Grey, "the fish hawk"]\\nvocabulary:\\n  - O.\\nlabel: red\\n---\\n')
+    ['Osprey', 'Grey', 'the fish hawk', 'O.']
+    """
+    lines = normalize_newlines(text).split("\n")
+    if lines and lines[0].strip() == "---":
+        lines = lines[1:]
+    terms, field = [], None
+    for line in lines:
+        if line.strip() == "---":
+            break
+        found = _RAW_FIELD_RE.match(line)
+        item = _RAW_ITEM_RE.match(line)
+        if found:
+            field, value = found.group(1), found.group(2).strip()
+            parts = [value] if field == "name" else value.strip("[]").split(",")
+            terms += [part.strip().strip("[]'\"") for part in parts]
+        elif item and field in ("aka", "vocabulary"):
+            terms.append(item.group(1).strip().strip("'\""))
+        elif line[:1].strip():
+            field = None
+    return [term for term in terms if term]
+
+
 def _terms(entity: Entity) -> list[str]:
-    """Name, aliases, vocabulary, id and recorded handles, each once (compared without case)."""
-    raw = [entity.name, *entity.aka, *_listed(entity.meta.get("vocabulary")), entity.slug, entity.slug.replace("-", " ")]
+    """Name, aliases, vocabulary, id and recorded handles, each once (compared without case); read leniently when the entry file does not parse."""
+    raw = _raw_terms(entity.text(ENTRY_FILE)) if _broken(entity, ENTRY_FILE) else []
+    raw += [entity.name, *entity.aka, *_listed(entity.meta.get("vocabulary")), entity.slug, entity.slug.replace("-", " ")]
     raw += [identity.get("value") for identity in entity.identities]
     seen: dict[str, str] = {}
     for term in raw:
@@ -404,17 +446,22 @@ def _sealed(store: Store, entity: Entity, links_of: Mapping[str, list[tuple[Enti
     """Person keys the record is sealed from, and the seal entries that name no record.
 
     A seal naming an org, group or project seals every person currently linked to it
-    (a link's source and dates do not matter here: a seal only restricts).
+    (a link's source and dates do not matter here: a seal only restricts), and every
+    person whose ``links.yaml`` cannot be read.
     """
     keys, unresolved = set(), []
     for ref in _ids(entity.meta.get("sealed_from")):
-        key = _person_key(store, ref)
+        key = _person_key(store, ref, handle_prefix=True)
         if key is None:
             unresolved.append(ref)
         elif store[key].kind == _PERSON_KIND:
             keys.add(key)
         else:
-            keys |= {person for person, links in links_of.items() if any(other.key == key for other, _ in links)}
+            keys |= {
+                person
+                for person, links in links_of.items()
+                if any(other.key == key for other, _ in links) or _broken(store[person], _LINKS_FILE)
+            }
     return keys, unresolved
 
 

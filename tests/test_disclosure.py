@@ -277,7 +277,7 @@ def test_an_unreadable_entry_file_withholds_the_record(store, put):
     store.files["projects/osprey/PROFILE.md"] = store.files["projects/osprey/PROFILE.md"].replace("name: Osprey", "name: [Osprey")
     result = disclose(store, ["cy"], today=TODAY)
     osprey = result["entities"]["project:osprey"]
-    assert (osprey["label"], osprey["cleared"]) == ("red", []) and "osprey" in _terms(result, "project:osprey")
+    assert (osprey["label"], osprey["cleared"]) == ("red", []) and "osprey" in [t.lower() for t in _terms(result, "project:osprey")]
     assert any(g.startswith("projects/osprey/PROFILE.md") for g in result["gaps"]["unreadable"])
 
 
@@ -404,6 +404,55 @@ def test_mcp_does_not_let_a_model_set_the_date():
 
     [tool] = [t for t in asyncio.run(mk_server().list_tools()) if t.name == "disclosure"]
     assert "people" in tool.parameters["properties"] and "today" not in tool.parameters["properties"]
+
+
+# ------------------------------------------------ what the second review round broke
+
+
+def test_an_unreadable_entry_file_keeps_its_names_and_codenames(store, put):
+    build(store, put)
+    store.files[f"{HERON}/PROFILE.md"] = store.files[f"{HERON}/PROFILE.md"].replace("name: Heron", "name: [Heron")
+    result = disclose(store, ["ada", "bram"], today=TODAY)
+    assert {"Heron", "the bird project", "H."} <= set(_terms(result, "project:heron")), "terms compare without case, so the id adds nothing new"
+
+
+def _heron_clear_sealed_from(store, sealed_from):
+    _edit_meta(store, HERON, label="clear", sealed_from=sealed_from)
+
+
+def test_a_stale_handle_still_counts_as_its_owner_for_seals(store, put):
+    build(store, put)
+    _heron_clear_sealed_from(store, ["bram"])
+    store.files[f"{BRAM}/identities.yaml"] = dump_yaml({"identities": [{"platform": "github", "value": "b-old", "status": "stale", "source": "operator"}]})
+    result = disclose(store, [], audience=_audience("named", complete=True, readers=["github:b-old"]), today=TODAY)
+    assert result["gaps"]["unrecorded"] == ["github:b-old"] and "Heron" in _terms(result, "project:heron")
+
+
+def test_a_person_whose_identities_cannot_be_read_could_be_any_unknown_reader(store, put):
+    build(store, put)
+    _heron_clear_sealed_from(store, ["bram"])
+    store.files[f"{BRAM}/identities.yaml"] = "identities: [\n"
+    result = disclose(store, [], audience=_audience("named", complete=True, readers=["github:b-ex"]), today=TODAY)
+    assert "Heron" in _terms(result, "project:heron")
+
+
+@pytest.mark.parametrize("links", ["links: [\n", "links: [org:example-client]\n"])
+def test_a_seal_on_an_org_covers_a_member_whose_links_cannot_be_read(store, put, links):
+    build(store, put)
+    _heron_clear_sealed_from(store, ["org:example-client"])
+    put(store, CY, meta={"name": "Cy Example"}, files={"trust.yaml": _trust(_tier("open")), "links.yaml": links})
+    result = disclose(store, ["cy"], today=TODAY)
+    assert result["entities"]["project:heron"]["cleared"] == [] and "Heron" in _terms(result, "project:heron")
+
+
+def test_a_handle_without_a_platform_is_not_the_person_with_that_id(store, put):
+    build(store, put)
+    for result in (
+        disclose(store, ["@ada"], today=TODAY),
+        disclose(store, [], audience=_audience("named", complete=True, readers=["@ada"]), today=TODAY),
+    ):
+        assert "ada" not in result["people"] and result["least_clearance"] == "clear"
+        assert "@ada" in result["gaps"]["ambiguous"] + result["gaps"]["unrecorded"]
 
 
 def test_the_tool_result_is_json_ready_and_readable(tmp_path, put):
