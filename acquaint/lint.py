@@ -301,7 +301,9 @@ def _lint_entity(
                         "bad-address",
                         f"{label}: {do.get('address')!r} is not an address",
                     )
-                elif not _is_text(channel):
+                elif channel is None:
+                    # A malformed channel is already reported above; saying "add
+                    # `channel:`" over it would send the writer after the wrong key.
                     add(
                         "error",
                         "rules.yaml",

@@ -24,7 +24,7 @@ The point is that **consulting it is cheaper than guessing**. Use the cheapest t
 
 Nothing acts on a guess. `who`, `brief`, `reach` and `remember` accept an id, name, alias, handle or email only when exactly one record fits (an id and another record's exact alias count equally, so `ada` is refused when both exist); a partial match comes back as a suggestion and several matches as candidates, with exit 1. Say which you meant; do not pick one. `rename` and `forget` need the exact id. `resolve` answers only for a handle with its platform (`github:octocat`, not `@octocat`) on an active identity.
 
-An address `reach` returns is either **stated** by a rule or **derived** from the person's identities — `address_kind` says which, and `brief` marks a derived one as "their handle". A derived address is a handle (`github:ada`); a channel whose reference names a conversation rather than a person (GitHub, a web inbox, a chat channel) does not take one, so its rule states the address:
+An address `reach` returns is either **stated** by a rule or **derived** from the person's identities — `address_kind` says which, and `brief` marks a derived one "(from their identities)". A derived address is a handle (`github:ada`); a channel whose reference names a conversation rather than a person (GitHub, a web inbox, a chat channel) does not take one, so its rule states the address:
 
 ```yaml
 - when: {project: heron}
@@ -35,7 +35,9 @@ An address `reach` returns is either **stated** by a rule or **derived** from th
 
 `do.channel` is a channel *name*; the address goes in `address` beside it. A `fallback` entry is a name or a mapping stating its own (`fallback: [{channel: webinbox, address: "webinbox:heron"}, email]`). Never hand a derived handle to a send call as if it were a conversation.
 
-A channel's **place in the list** comes from the best-placed rule that names it; its **address** from the best-placed rule that states one, which may be a different rule — a rule that names a channel and states no address says nothing about where that channel goes. When the two differ the note says which file the address came from.
+A channel's **place in the list** comes from the best-placed rule that names it; its **address** from the best-placed rule that states one, which may be a different rule — a rule that names a channel and states no address says nothing about where that channel goes. The note names the other rule when the two differ, and says so when a second rule states a different address.
+
+An address stated on a **project's** rules belongs to that project: asking about one project never answers with another's, even when the person is linked to both. Read the `note` before acting on an address you did not expect.
 
 `reach` exits 3 when a rule matched but neither states an address nor finds a usable one recorded for its channel: it still lists the rule, names the channel that has no address, and gives both remedies — the `acquaint remember` line that records an identity, and the `do: {channel: …, address: …}` form for a channel addressed by conversation. Do not record a conversation reference as a person's identity to get past this; that is the conflation the two remedies exist to keep apart. Exit 1 means no matching rule names a channel and no active identity is recorded, or the name did not resolve. Tell the operator which address is missing; do not guess one.
 

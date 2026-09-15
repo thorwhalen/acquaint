@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from dataclasses import dataclass, replace
 from typing import Any
 
 from acquaint.records import load_yaml
@@ -19,6 +20,7 @@ from acquaint.store import AcquaintError, Entity, Store
 
 __all__ = [
     "INACTIVE_RULES",
+    "NO_CHANNEL_NAMED",
     "TIERS",
     "USABLE_STATUSES",
     "check_text",
@@ -382,6 +384,24 @@ def _address(entity: Entity, channel: str) -> tuple[str | None, str | None]:
     return None, f"no {channel} address recorded"
 
 
+@dataclass(frozen=True)
+class _Stated:
+    """An address a rule stated: what it is, which rule said so, and whether another disagrees."""
+
+    address: str
+    origin: str
+    label: str
+    rank: int
+    contested: bool = False
+
+
+def _rule_label(rule: dict) -> str:
+    """How a rule is named in a note: its ``id`` when it has one, else the context it matches."""
+    if rule.get("id"):
+        return f"rule {rule['id']}"
+    return f"the rule for {rule.get('when') or 'any context'}"
+
+
 #: What a channel entry is called when its rule named none, so no repr stands in for one.
 NO_CHANNEL_NAMED = "(no channel named)"
 
@@ -494,11 +514,29 @@ def reach_channels(
     # best-placed rule that *states* one, which is not always the same rule: a broad rule
     # naming a channel says nothing about where that channel goes, so it must not bury the
     # address a narrower one gives. Collected in one pass, best first.
-    stated_addresses: dict[str, tuple[str, str, int]] = {}
+    asked_about = f"projects/{context['project']}/" if context.get("project") else None
+    stated_addresses: dict[str, _Stated] = {}
     for rank, (_, _, _, _, rule, origin) in enumerate(scored):
+        if (
+            asked_about
+            and origin.startswith("projects/")
+            and not origin.startswith(asked_about)
+        ):
+            # Another project's rule matched because the entity is linked to it. Its
+            # channel choice is still an opinion worth having; its *address* is that
+            # project's, and handing it back for the project that was asked about would
+            # answer with the wrong destination.
+            continue
         for channel, stated in _channels_of(rule.get("do", {}))[0]:
-            if stated is not None:
-                stated_addresses.setdefault(channel, (stated, origin, rank))
+            if stated is None:
+                continue
+            held = stated_addresses.get(channel)
+            if held is None:
+                stated_addresses[channel] = _Stated(
+                    stated, origin, _rule_label(rule), rank
+                )
+            elif held.address != stated:
+                stated_addresses[channel] = replace(held, contested=True)
 
     channels, seen = [], set()
     for rank, (_, _, _, tier, rule, origin) in enumerate(scored):
@@ -520,16 +558,22 @@ def reach_channels(
             elif instruction:
                 label = ("instruction", instruction)
             else:
-                label = ("notes", "; ".join(notes))
+                # By origin too: two rules broken the same way are two things to fix.
+                label = ("notes", f"{origin}: " + "; ".join(notes))
             if label in seen:
                 continue
             seen.add(label)
             stated = stated_addresses.get(channel) if channel else None
             if stated is not None:
-                address, note, kind = stated[0], None, "stated"
-                # The address may come from a different rule than the channel choice.
-                if stated[2] != rank:
-                    note = f"address stated by another rule in {stated[1]}"
+                address, note, kind = stated.address, None, "stated"
+                # The address may come from a different rule than the channel choice, and
+                # more than one rule may state one. Neither is silent.
+                if stated.rank != rank:
+                    note = f"address stated by {stated.label} in {stated.origin}"
+                if stated.contested:
+                    note = "; ".join(
+                        filter(None, [note, "another rule states a different address"])
+                    )
             elif channel:
                 address, note = _address(entity, channel)
                 kind = "identity" if address else None
@@ -547,8 +591,11 @@ def reach_channels(
                     "source": rule.get("source"),
                 }
             )
-    if not channels:
-        channels = [
+    # The identities are the fallback when no rule *named a channel* — not merely when
+    # nothing was listed. A rule too malformed to name one is reported through its notes,
+    # and must not take the person's usable addresses down with it.
+    if not any(entry["channel"] for entry in channels):
+        channels += [
             {
                 "channel": identity.get("platform"),
                 "address": f"{identity.get('platform')}:{identity.get('value')}",
