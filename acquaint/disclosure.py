@@ -35,7 +35,13 @@ Everything fails closed, and every doubt is listed under ``gaps``, never guessed
 - an unknown tier reads ``reviewed``, an unknown label ``red``, an unknown clearance ``clear``;
 - a reader whose ``trust.yaml``, ``links.yaml`` or tier dates cannot be read is ``reviewed``;
 - a record whose entry file cannot be read, or whose seal names nobody, is withheld from
-  every reader; an ambiguous reader is a stranger who also counts as each candidate for seals.
+  every reader (its names are then read from the raw text, as far as they can be); an
+  ambiguous reader is a stranger who also counts as each candidate for seals; a seal on an
+  org, group or project covers every person whose links cannot all be followed.
+
+A caller deciding whether content may flow should not act on an answer whose
+``gaps.unreadable`` or ``gaps.unresolved_seals`` is not empty without the operator: the
+vocabulary of a record that cannot be read is a best effort.
 
 >>> may_see("amber", "green"), may_see("green", "amber"), most_restrictive_reader(["amber", "clear", "green"])
 (True, False, 'clear')
@@ -72,9 +78,11 @@ __all__ = [
     "TIER_CLEARANCE",
     "already_told",
     "disclose",
+    "id_list",
     "may_see",
     "most_restrictive_reader",
     "parse_audience",
+    "person_key",
 ]
 
 #: What each tier may see outside the reader's own projects.
@@ -97,6 +105,7 @@ _LINKS_FILE = "links.yaml"
 _IDENTITIES_FILE = "identities.yaml"
 _RAW_FIELD_RE = re.compile(r"^\s*(name|aka|vocabulary)\s*:\s*(.*)$")
 _RAW_ITEM_RE = re.compile(r"^\s*-\s+(.*)$")
+_BLOCK_INDICATORS = {"", "|", ">", "|-", ">-", "|+", ">+"}
 _TIER_DATES = ("valid_from", "valid_to", "review_by")
 _LINK_DATES = ("since", "until")
 _GAPS = ("unrecorded", "ambiguous", "not_a_person", "no_tier", "organisation", "unreadable", "unresolved_seals")
@@ -148,8 +157,12 @@ def _listed(value: Any) -> list:
     return list(value) if isinstance(value, list) else [value]
 
 
-def _ids(value: Any) -> list[str]:
-    """Ids in a list, or in one comma-separated string."""
+def id_list(value: Any) -> list[str]:
+    """Ids in a list, or in one comma-separated string (how ``sealed_from`` may be written).
+
+    >>> id_list("ada, person:bram"), id_list(["ada"]), id_list(None)
+    (['ada', 'person:bram'], ['ada'], [])
+    """
     return [
         part.strip()
         for item in _listed(value)
@@ -170,7 +183,7 @@ def _find_key(store: Store, ref: Any) -> str | None:
         return None
 
 
-def _person_key(store: Store, ref: str, *, handle_prefix: bool = False) -> str | None:
+def person_key(store: Store, ref: str, *, handle_prefix: bool = False) -> str | None:
     """A reference as a record key, a bare id preferring the person with that id (seals and readers name people).
 
     ``handle_prefix`` reads ``@bram`` as the id ``bram``: right for a seal, which only
@@ -283,7 +296,7 @@ def already_told(entity: Entity, *, store: Store | None = None) -> list[dict[str
 def _resolve_reader(store: Store, text: str) -> tuple[str | None, str | None, list[str]]:
     """``(key, None, [])`` for an exact id, reference or channel identity with a named platform; else ``(None, problem, candidate keys)``."""
     text = str(text).strip()
-    key = _person_key(store, text) if ":" not in text or text.split(":", 1)[0] in {"person", "people"} else None
+    key = person_key(store, text) if ":" not in text or text.split(":", 1)[0] in {"person", "people"} else None
     if key is None and ":" not in text and "/" not in text and not text.startswith("@"):
         candidates = store.find_id(text)
         if len(candidates) > 1:
@@ -408,6 +421,8 @@ def _raw_terms(text: str) -> list[str]:
 
     >>> _raw_terms('---\\nname: [Osprey\\naka: [Grey, "the fish hawk"]\\nvocabulary:\\n  - O.\\nlabel: red\\n---\\n')
     ['Osprey', 'Grey', 'the fish hawk', 'O.']
+    >>> _raw_terms('---\\nname: >-\\n  Heron Initiative\\nvocabulary: ["the bird project",\\n  "H."]\\nlabel: [red\\n---\\n')
+    ['Heron Initiative', 'the bird project', 'H.']
     """
     lines = normalize_newlines(text).split("\n")
     if lines and lines[0].strip() == "---":
@@ -417,15 +432,18 @@ def _raw_terms(text: str) -> list[str]:
         if line.strip() == "---":
             break
         found = _RAW_FIELD_RE.match(line)
-        item = _RAW_ITEM_RE.match(line)
         if found:
-            field, value = found.group(1), found.group(2).strip()
-            parts = [value] if field == "name" else value.strip("[]").split(",")
-            terms += [part.strip().strip("[]'\"") for part in parts]
-        elif item and field in ("aka", "vocabulary"):
-            terms.append(item.group(1).strip().strip("'\""))
-        elif line[:1].strip():
-            field = None
+            field, value = found.group(1), found.group(2)
+        elif field and line[:1] in (" ", "\t"):  # a continuation, a list item or a folded scalar's text
+            value = line
+        else:
+            field = field if not line[:1].strip() else None
+            continue
+        value = _RAW_ITEM_RE.sub(r"\1", value).strip()
+        if value in _BLOCK_INDICATORS:
+            continue
+        parts = [value] if field == "name" else value.split(",")
+        terms += [part.strip().strip("[]'\" ") for part in parts]
     return [term for term in terms if term]
 
 
@@ -442,16 +460,33 @@ def _terms(entity: Entity) -> list[str]:
     return list(seen.values())
 
 
-def _sealed(store: Store, entity: Entity, links_of: Mapping[str, list[tuple[Entity, bool]]]) -> tuple[set[str], list[str]]:
+def _uncertain_links(store: Store, entity: Entity, today: str) -> bool:
+    """Whether some of the person's links cannot be followed: ``links.yaml`` does not parse, or a link that may be current names no record, or several."""
+    if _broken(entity, _LINKS_FILE):
+        return True
+    for link in entity.links:
+        until = link.get("until")
+        ended = not _blank(until) and _is_iso_date(until) and str(until) <= today
+        if not ended and _find_key(store, link.get("to", "")) is None:
+            return True
+    return False
+
+
+def _sealed(
+    store: Store,
+    entity: Entity,
+    links_of: Mapping[str, list[tuple[Entity, bool]]],
+    uncertain: set[str],
+) -> tuple[set[str], list[str]]:
     """Person keys the record is sealed from, and the seal entries that name no record.
 
     A seal naming an org, group or project seals every person currently linked to it
     (a link's source and dates do not matter here: a seal only restricts), and every
-    person whose ``links.yaml`` cannot be read.
+    person in ``uncertain``, whose links cannot all be followed.
     """
     keys, unresolved = set(), []
-    for ref in _ids(entity.meta.get("sealed_from")):
-        key = _person_key(store, ref, handle_prefix=True)
+    for ref in id_list(entity.meta.get("sealed_from")):
+        key = person_key(store, ref, handle_prefix=True)
         if key is None:
             unresolved.append(ref)
         elif store[key].kind == _PERSON_KIND:
@@ -460,7 +495,7 @@ def _sealed(store: Store, entity: Entity, links_of: Mapping[str, list[tuple[Enti
             keys |= {
                 person
                 for person, links in links_of.items()
-                if any(other.key == key for other, _ in links) or _broken(store[person], _LINKS_FILE)
+                if any(other.key == key for other, _ in links) or person in uncertain
             }
     return keys, unresolved
 
@@ -497,6 +532,7 @@ def disclose(
     all_keys = list(store)
     person_keys = [k for k in all_keys if store[k].kind == _PERSON_KIND]
     links_of = {k: _links(store, store[k], today) for k in person_keys}
+    uncertain = {k for k in person_keys if _uncertain_links(store, store[k], today)}
     readers: dict[str, dict[str, Any]] = {}  # store key -> the person's answer
     strangers: list[list[str]] = []  # readers with no single person record: their candidate keys
 
@@ -542,7 +578,7 @@ def disclose(
         entity = store[key]
         unreadable = _broken(entity, ENTRY_FILE)
         gaps["unreadable"] += unreadable
-        sealed_keys, unresolved = _sealed(store, entity, links_of)
+        sealed_keys, unresolved = _sealed(store, entity, links_of, uncertain)
         gaps["unresolved_seals"] += [f"{entity.ref}: {ref}" for ref in unresolved]
         withheld = bool(unreadable or unresolved)  # nobody can be shown to be cleared
         label = _MOST_RESTRICTIVE_LABEL if unreadable else _label(entity)

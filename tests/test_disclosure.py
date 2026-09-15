@@ -455,6 +455,39 @@ def test_a_handle_without_a_platform_is_not_the_person_with_that_id(store, put):
         assert "@ada" in result["gaps"]["ambiguous"] + result["gaps"]["unrecorded"]
 
 
+# ------------------------------------------------- what the third review round broke
+
+
+@pytest.mark.parametrize("to", ["Example Client", "example-client-ltd", "example-client"])
+def test_a_seal_on_an_org_covers_a_member_whose_link_names_nobody_or_several(store, put, to):
+    build(store, put)
+    put(store, "projects/example-client", meta={"name": "Example Client Project"})  # makes the bare id ambiguous
+    _heron_clear_sealed_from(store, ["org:example-client"])
+    put(store, CY, meta={"name": "Cy Example"}, files={
+        "trust.yaml": _trust(_tier("open")),
+        "links.yaml": dump_yaml({"links": [{"to": to, "source": "operator"}]}),
+    })
+    result = disclose(store, ["cy"], today=TODAY)
+    assert result["entities"]["project:heron"]["cleared"] == [] and "Heron" in _terms(result, "project:heron")
+
+
+def test_an_ended_link_that_names_nobody_does_not_seal(store, put):
+    build(store, put)
+    _heron_clear_sealed_from(store, ["org:example-client"])
+    put(store, CY, meta={"name": "Cy Example"}, files={
+        "trust.yaml": _trust(_tier("open")),
+        "links.yaml": dump_yaml({"links": [{"to": "a-closed-firm", "until": _days(TODAY, -30), "source": "operator"}]}),
+    })
+    assert disclose(store, ["cy"], today=TODAY)["entities"]["project:heron"]["cleared"] == ["cy"]
+
+
+def test_an_unreadable_entry_file_keeps_codenames_written_over_several_lines(store, put):
+    build(store, put)
+    store.files[f"{HERON}/PROFILE.md"] = '---\nname: >-\n  Heron Initiative\nvocabulary: ["the bird project",\n  "H."]\nlabel: [amber\n---\n'
+    result = disclose(store, ["ada", "bram"], today=TODAY)
+    assert {"Heron Initiative", "the bird project", "H."} <= set(_terms(result, "project:heron"))
+
+
 def test_the_tool_result_is_json_ready_and_readable(tmp_path, put):
     data = tmp_path / "data"
     build(Store(data), put, today=date.today().isoformat())
