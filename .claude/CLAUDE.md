@@ -15,7 +15,7 @@ Rationale and the provisional defaults: the "v0.1 architecture: seams and surfac
 
 ```
 Surfaces for v0.1: CLI + shipped skills/agents + MCP stdio (py2mcp string refs); remote MCP / HTTP asked, not built
-NOT seams: layout and file names, slug rule, the [source: …] tag grammar, PROFILE section names, reach precedence order, catalogue file schema, CLI rendering, the pre-push hook body, commit-message format, config file format
+NOT seams: layout and file names, slug rule, the [source: …], [label: …] and [sealed-from: …] tag grammar, the trust.yaml shape, the tier and label vocabularies, PROFILE section names, reach precedence order, catalogue file schema, CLI rendering, the pre-push hook body, commit-message format, config file format
 ```
 
 ## Rules for working in this repo

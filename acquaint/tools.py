@@ -17,6 +17,7 @@ with a :class:`~acquaint.store.Store`.
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from acquaint import sync as _sync
@@ -26,6 +27,7 @@ from acquaint.edit import append_observation, forget_entity, new_entity, rename_
 from acquaint.lint import lint_store
 from acquaint.lookup import check_text, find_entity, match, reach_channels, resolve_handle
 from acquaint.store import ENTRY_FILE, AcquaintError, Entity, Store, data_dir as _data_dir
+from acquaint.trust import effective_tier, entity_label
 
 __all__ = [
     "AcquaintError",
@@ -66,11 +68,15 @@ def _field(store: Store, entity: Entity, field: str) -> Any:
 
     if field == "aka":
         return entity.aka
+    if field == "label":
+        return entity_label(entity.meta, entity.kind)
+    if field == "tier":
+        return effective_tier(entity.trust, today=date.today().isoformat())[0]
     if field in entity.meta:
         return entity.meta[field]
     if field in {"email", "emails"}:
         return by_platform("email")
-    if field in {"identities", "rules", "links"}:
+    if field in {"identities", "rules", "links", "trust"}:
         return getattr(entity, field)
     if field == "path":
         return store.path_of(entity.key)
@@ -99,7 +105,7 @@ def who(
     """Look up one person, project, org or group by exact id, name, alias, handle or email.
 
     Costs scale with what you ask: ``field`` returns one value (``aka``, ``email``,
-    ``github``, any frontmatter key), ``brief`` the identity block, and the default the
+    ``github``, ``label``, ``tier``, any frontmatter key), ``brief`` the identity block, and the default the
     whole entry file. It never guesses: no exact match, or several, returns the
     candidates and ``ok: false``.
     """
@@ -131,6 +137,15 @@ def who(
         base["warnings"] = [f"{entity.key}: {e}" for e in entity.errors]
     if field:
         value = _field(store, entity, field)
+        if (
+            field.strip().lower() == "tier"
+            and effective_tier(entity.trust, today=date.today().isoformat())[1]
+        ):
+            base["warnings"] = [
+                *base.get("warnings", []),
+                f"{entity.slug}'s recorded tier has lapsed (its review_by has passed or is missing); "
+                "it counts as need-to-know until the operator reviews it",
+            ]
         if value in (None, [], ""):
             return {
                 **base,
@@ -328,7 +343,7 @@ def brief(
 
 
 def lint(entity: str | None = None, *, data_dir: str | None = None) -> dict:
-    """Check records: every preference, view and rule sourced; nothing POLICY.md forbids; files parse; entry files within budget."""
+    """Check records: every preference, view and rule sourced; tiers, labels and seals set by the operator; nothing POLICY.md forbids; files parse; entry files within budget."""
     store = _store(data_dir)
     if store.root is not None and not store.root.is_dir():
         summary = f"no store at {store.root}"

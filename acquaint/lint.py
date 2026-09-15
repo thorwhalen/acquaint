@@ -13,6 +13,15 @@ Errors fail ``acquaint lint``; warnings ask a person to look. The rules:
 - ``rules.yaml`` rules have ``do``, channel names that are text, and a ``source``;
   identities have a platform and a value; a writing card's ``ai_tolerance`` is tolerant,
   neutral or averse (**error**);
+- the disclosure schema (:mod:`acquaint.trust`): a tier whose source is neither
+  ``operator`` nor ``self``; a ``label``, ``sealed_from``, ``clearance`` or ``default_tier``
+  without ``label_source: operator``; an unknown tier, label or clearance; an ``open`` or
+  ``involved`` tier without ``review_by``; a tier date not written ``YYYY-MM-DD``; a seal
+  naming no record; a malformed ``[label: …]`` or ``[sealed-from: …]`` tag (**error**). A
+  permissive tier past its ``review_by``, a project whose ``Where things live`` names a
+  public repository while its label is not ``clear``, a seal on someone with a current
+  link to the sealed record, a field on a kind that does not read it, and non-text
+  vocabulary are **warnings**;
 - a file that does not parse, or is not valid UTF-8, an entry file the store cannot
   address (a capitalised or linked folder, ``profile.md``), and a broken
   ``_tombstones.yaml`` are **errors**, reported and skipped, never a crash;
@@ -33,14 +42,31 @@ from typing import Any
 
 from acquaint.records import (
     blank_frontmatter,
+    fact_tags,
+    item_blocks,
     load_yaml,
     parse_log,
     sectioned_items,
+    source_kind,
     source_problem,
     split_frontmatter,
 )
 from acquaint.resources import data_yaml
 from acquaint.store import ENTRY_FILE, UNREADABLE, AcquaintError, Entity, Store, kind_dir
+from acquaint.trust import (
+    CLEARANCE_KINDS,
+    DEFAULT_TIER,
+    DEFAULT_TIER_KINDS,
+    LABELS,
+    OPERATOR_SET_FIELDS,
+    PERMISSIVE_TIERS,
+    TIERS,
+    TRUST_FILE,
+    TRUST_SOURCES,
+    entity_label,
+    is_lapsed,
+    tier_in_force,
+)
 
 __all__ = [
     "AI_TOLERANCES",
@@ -64,6 +90,14 @@ AI_TOLERANCES = ("tolerant", "neutral", "averse")
 _NEEDS_SOURCE = {"preference", "view", "rule"}
 _UNTIL_RE = re.compile(r"\(until:\s*(\d{4}-\d{2}-\d{2})\)")
 _TOMBSTONES = "_tombstones.yaml"
+_ISO_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_TIER_DATES = ("valid_from", "valid_to", "review_by", "recorded")
+_WHERE_THINGS_LIVE = "where things live"
+_PUBLIC_RE = re.compile(r"\bpublic\b", re.I)
+_REPOSITORY_RE = re.compile(
+    r"\b(?:github\.com|gitlab\.com|codeberg\.org|bitbucket\.org|repos?|repositor(?:y|ies))\b",
+    re.I,
+)
 
 
 def policy_hits(text: str) -> list[tuple[str, str]]:
@@ -101,6 +135,229 @@ def _link_exists(ref: Any, keys: set[str], ids: set[str]) -> bool:
         except AcquaintError:
             return False
     return ref in ids
+
+
+def _keys_named(ref: str, keys: set[str]) -> list[str]:
+    ref = ref.strip().lower()
+    if "/" in ref:
+        return [ref] if ref in keys else []
+    if ":" in ref:
+        kind, _, slug = ref.partition(":")
+        try:
+            key = f"{kind_dir(kind)}/{slug}"
+        except AcquaintError:
+            return []
+        return [key] if key in keys else []
+    return sorted(k for k in keys if k.split("/", 1)[1] == ref)
+
+
+def _links_to(person: Entity, target: Entity, today: str) -> bool:
+    """Whether ``person`` holds a current link (``until`` unset or in the future) to ``target``."""
+    names = {target.ref, target.key, target.slug}
+    return any(
+        str(link.get("to", "")).strip().lower() in names
+        and (link.get("until") in (None, "") or str(link.get("until")) > today)
+        for link in person.links
+    )
+
+
+def _is_iso_date(value: Any) -> bool:
+    if not _ISO_DATE_RE.fullmatch(str(value)):
+        return False
+    try:
+        date.fromisoformat(str(value))
+    except ValueError:
+        return False
+    return True
+
+
+def _listed(value: Any) -> list:
+    if value in (None, ""):
+        return []
+    return list(value) if isinstance(value, list) else [value]
+
+
+def _lint_disclosure(
+    store: Store, entity: Entity, today: str, keys: set[str], ids: set[str], add
+) -> None:
+    """The disclosure schema: who set each tier, label and seal; whether its values exist; what has lapsed."""
+    meta, kind = entity.meta, entity.kind
+
+    operator_set = [f for f in OPERATOR_SET_FIELDS if meta.get(f) not in (None, "", [])]
+    if operator_set and source_kind(str(meta.get("label_source") or "")) != "operator":
+        add(
+            "error",
+            ENTRY_FILE,
+            None,
+            "label-unsourced",
+            f"{', '.join(operator_set)} set without label_source: operator; only the operator labels, seals and grants trust",
+        )
+    for field, allowed, rule in (
+        ("label", LABELS, "unknown-label"),
+        ("clearance", LABELS, "unknown-clearance"),
+        ("default_tier", TIERS, "unknown-tier"),
+    ):
+        value = meta.get(field)
+        if value not in (None, "") and value not in allowed:
+            add(
+                "error",
+                ENTRY_FILE,
+                None,
+                rule,
+                f"{field} is {value!r}; use one of {', '.join(allowed)}",
+            )
+    for field, kinds in (("clearance", CLEARANCE_KINDS), ("default_tier", DEFAULT_TIER_KINDS)):
+        if meta.get(field) not in (None, "") and kind not in kinds:
+            add(
+                "warning",
+                ENTRY_FILE,
+                None,
+                "misplaced-field",
+                f"{field} is read on {' and '.join(kinds)} records only; on a {kind} it has no effect",
+            )
+    for ref in _listed(meta.get("sealed_from")):
+        if not isinstance(ref, str) or not _link_exists(ref, keys, ids):
+            add(
+                "error",
+                ENTRY_FILE,
+                None,
+                "unknown-sealed-from",
+                f"sealed_from names {ref!r}, which is no record in the store",
+            )
+            continue
+        for key in _keys_named(ref, keys):
+            if key != entity.key and _links_to(Entity(store, key), entity, today):
+                add(
+                    "warning",
+                    ENTRY_FILE,
+                    None,
+                    "sealed-but-linked",
+                    f"sealed from {ref}, who holds a current link to {entity.ref} in links.yaml",
+                )
+    if any(
+        not isinstance(term, str) or not term.strip()
+        for term in _listed(meta.get("vocabulary"))
+    ):
+        add(
+            "warning",
+            ENTRY_FILE,
+            None,
+            "vocabulary-not-text",
+            "vocabulary terms should be text; quote numbers and dates",
+        )
+
+    label = entity_label(meta, kind)
+    if kind == "project" and label != "clear":
+        profile = blank_frontmatter(entity.text(ENTRY_FILE))
+        lines = profile.split("\n")
+        public = next(
+            (
+                number
+                for section, first, last, _ in item_blocks(profile)
+                if (section or "").lower() == _WHERE_THINGS_LIVE
+                for number in range(first, last + 1)
+                if _PUBLIC_RE.search(lines[number - 1])
+                and _REPOSITORY_RE.search(lines[number - 1])
+            ),
+            None,
+        )
+        if public:
+            add(
+                "warning",
+                ENTRY_FILE,
+                public,
+                "public-repository-not-clear",
+                f"'Where things live' names a public repository while the label is {label}: what is written there is world-readable",
+            )
+
+    if TRUST_FILE in entity and kind != "person":
+        add(
+            "warning",
+            TRUST_FILE,
+            None,
+            "misplaced-field",
+            f"trust.yaml is read on people only; on a {kind} it has no effect",
+        )
+    tiers = entity.trust
+    for number, entry in enumerate(tiers, start=1):
+        tier, where = entry.get("tier"), f"tier entry {number}"
+        if tier not in TIERS:
+            add(
+                "error",
+                TRUST_FILE,
+                None,
+                "unknown-tier",
+                f"{where}: tier is {tier!r}; use one of {', '.join(TIERS)}",
+            )
+        if source_kind(str(entry.get("source") or "")) not in TRUST_SOURCES:
+            add(
+                "error",
+                TRUST_FILE,
+                None,
+                "tier-unsourced",
+                f"{where}: source is {entry.get('source')!r}; a tier comes from the operator (operator) "
+                'or from the person\'s own quoted words (self: "…"), nothing else',
+            )
+        if tier in PERMISSIVE_TIERS and entry.get("review_by") in (None, ""):
+            add(
+                "error",
+                TRUST_FILE,
+                None,
+                "tier-without-review",
+                f"{where}: an {tier} tier needs review_by",
+            )
+        for field in _TIER_DATES:
+            if entry.get(field) not in (None, "") and not _is_iso_date(entry[field]):
+                add(
+                    "error",
+                    TRUST_FILE,
+                    None,
+                    "bad-date",
+                    f"{where}: {field} is {entry[field]!r}; write YYYY-MM-DD",
+                )
+    in_force = tier_in_force(tiers, today=today)
+    if (
+        in_force
+        and is_lapsed(in_force, today=today)
+        and _is_iso_date(in_force.get("review_by"))
+    ):
+        add(
+            "warning",
+            TRUST_FILE,
+            None,
+            "tier-lapsed",
+            f"the {in_force['tier']} tier was due for review on {in_force['review_by']}; "
+            f"until the operator reviews it, it counts as {DEFAULT_TIER}",
+        )
+
+    def check_fact(file: str, line: int | None, text: str) -> None:
+        found = fact_tags(text)
+        for problem in found["problems"]:
+            add("error", file, line, "bad-fact-tag", problem)
+        if found["label"] is not None and found["label"] not in LABELS:
+            add(
+                "error",
+                file,
+                line,
+                "unknown-label",
+                f"[label: {found['label']}] is not a label; use one of {', '.join(LABELS)}",
+            )
+        for ref in found["sealed_from"]:
+            if not _link_exists(ref, keys, ids):
+                add(
+                    "error",
+                    file,
+                    line,
+                    "unknown-sealed-from",
+                    f"[sealed-from: {ref}] names no record in the store",
+                )
+
+    for file in (ENTRY_FILE, *SOURCED_FILES):
+        for _, number, item in sectioned_items(blank_frontmatter(entity.text(file))):
+            check_fact(file, number, item)
+    for log_name in (name for name in entity if name.startswith("log/")):
+        for entry in parse_log(entity[log_name]):
+            check_fact(f"{log_name}#{entry['id']}", None, entry["text"])
 
 
 def _lint_entity(
@@ -299,6 +556,8 @@ def _lint_entity(
                 "unknown-link",
                 f"link to {link.get('to')!r} names no entity in the store",
             )
+
+    _lint_disclosure(store, entity, today, keys, ids, add)
 
     for file in (name for name in text_files if not name.startswith("research/")):
         for number, line in enumerate(entity[file].splitlines(), start=1):
