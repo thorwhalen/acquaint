@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "built_at": "2026-09-15T12:23:43Z",
+  "package": {
+    "name": "acquaint",
+    "version": "0.0.4",
+    "display_name": "acquaint",
+    "source": "pyproject.toml"
+  },
+  "git": {
+    "available": true,
+    "commit": "9c2cc6df35ef3bba159c2cbe779304e10ba8788e",
+    "short_commit": "9c2cc6d",
+    "branch": "main",
+    "tags": [],
+    "dirty": false,
+    "remote_url": "https://github.com/thorwhalen/acquaint",
+    "commit_url": "https://github.com/thorwhalen/acquaint/commit/9c2cc6df35ef3bba159c2cbe779304e10ba8788e",
+    "error": null
+  },
+  "ci": {
+    "provider": "github",
+    "repository": "thorwhalen/acquaint",
+    "sha": "9c2cc6df35ef3bba159c2cbe779304e10ba8788e",
+    "sha_in_history": true,
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "run_id": "34968443722",
+    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/34968443722",
+    "server_url": "https://github.com"
+  },
+  "tools": {
+    "epythet": "0.2.11",
+    "sphinx": "9.1.0",
+    "docutils": "0.22.4",
+    "python": "3.12.14"
+  },
+  "config": {
+    "theme": "auto",
+    "html_theme": "shibuya",
+    "accent": "#803878",
+    "mode": "auto",
+    "api_generator": "autosummary",
+    "ignore": [
+      "tests/",
+      "scrap/",
+      "examples/"
+    ],
+    "agent_outputs": true,
+    "aggregates": [
+      "md"
+    ],
+    "ai_artifacts": true,
+    "provenance": true,
+    "docs_dir": "docsrc"
+  },
+  "site": {
+    "modules_documented": 12,
+    "objects_documented": 163
+  },
+  "pypi": {
+    "checked": true,
+    "latest": "0.0.4",
+    "relation": "same",
+    "error": null
+  },
+  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 9c2cc6df35ef3bba159c2cbe779304e10ba8788e\npip install \"epythet==0.2.11\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "warnings": [],
+  "alignment": {
+    "aligned": true,
+    "notes": []
+  }
+}

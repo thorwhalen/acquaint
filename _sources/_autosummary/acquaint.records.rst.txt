@@ -1,0 +1,37 @@
+acquaint.records
+================
+
+.. automodule:: acquaint.records
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      NONE_LOCATED
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      blank_frontmatter
+      dump_yaml
+      fact_tags
+      format_log_entry
+      item_blocks
+      items
+      join_frontmatter
+      load_yaml
+      next_log_id
+      normalize_newlines
+      normalize_title
+      parse_log
+      sectioned_items
+      sections
+      slugify
+      source_kind
+      source_problem
+      source_refs
+      split_frontmatter
+      tags
+   

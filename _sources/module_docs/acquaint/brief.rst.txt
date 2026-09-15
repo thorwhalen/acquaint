@@ -1,4 +1,0 @@
-acquaint.brief
-==============
-.. automodule:: acquaint.brief
-   :members:

@@ -1,4 +1,0 @@
-acquaint.records
-================
-.. automodule:: acquaint.records
-   :members:

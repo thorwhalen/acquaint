@@ -1,4 +1,0 @@
-acquaint.lint
-=============
-.. automodule:: acquaint.lint
-   :members:

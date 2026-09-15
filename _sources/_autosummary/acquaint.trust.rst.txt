@@ -1,0 +1,27 @@
+acquaint.trust
+==============
+
+.. automodule:: acquaint.trust
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TIERS
+      PERMISSIVE_TIERS
+      DEFAULT_TIER
+      LABELS
+      TRUST_SOURCES
+      OPERATOR_SET_FIELDS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      effective_tier
+      entity_label
+      fact_label
+      is_lapsed
+      tier_in_force
+   

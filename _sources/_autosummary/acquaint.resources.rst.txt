@@ -1,0 +1,14 @@
+acquaint.resources
+==================
+
+.. automodule:: acquaint.resources
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      data_path
+      data_text
+      data_yaml
+   

@@ -1,4 +1,0 @@
-acquaint.store
-==============
-.. automodule:: acquaint.store
-   :members:

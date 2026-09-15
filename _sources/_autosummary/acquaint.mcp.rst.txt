@@ -1,0 +1,14 @@
+acquaint.mcp
+============
+
+.. automodule:: acquaint.mcp
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      main
+      mk_server
+      refs
+   

@@ -1,0 +1,36 @@
+acquaint.store
+==============
+
+.. automodule:: acquaint.store
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      KIND_DIRS
+      UNREADABLE
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      config_path
+      data_dir
+      kind_dir
+      text_files
+      validate_key
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Entity
+      Store
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      AcquaintError
+   

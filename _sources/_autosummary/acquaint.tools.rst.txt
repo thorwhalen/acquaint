@@ -1,0 +1,39 @@
+acquaint.tools
+==============
+
+.. automodule:: acquaint.tools
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TOOLS
+      SIDE_EFFECTS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      brief
+      check
+      forget
+      lint
+      new
+      reach
+      remember
+      rename
+      resolve
+      style_lint
+      sync_init
+      sync_pull
+      sync_push
+      sync_status
+      who
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      AcquaintError
+   

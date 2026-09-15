@@ -1,0 +1,15 @@
+acquaint.deslop
+===============
+
+.. automodule:: acquaint.deslop
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      lint_text
+      normalize_tolerance
+      recipient_card
+      text_metrics
+   

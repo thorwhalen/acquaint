@@ -1,0 +1,13 @@
+acquaint.render
+===============
+
+.. automodule:: acquaint.render
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      exit_code
+      render
+   

@@ -1,0 +1,23 @@
+acquaint.edit
+=============
+
+.. automodule:: acquaint.edit
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      OBSERVATION_KINDS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      append_observation
+      forget_entity
+      new_entity
+      rename_entity
+      tombstone_problem
+      tombstoned
+   

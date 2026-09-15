@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="plum" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>acquaint.records - acquaint</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="acquaint.render" href="acquaint.render.html" /><link rel="prev" title="acquaint.mcp" href="acquaint.mcp.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/><meta property="og:title" content="acquaint.records"/>
+    <meta name="twitter:card" content="summary"/>
+  
+<link rel="alternate" type="text/markdown" href="acquaint.records.html.md">
+<link rel="describedby" href="../llms.txt" type="text/markdown">
+</head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      
+      
+      <strong>acquaint</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials">
+  <a href="https://github.com/thorwhalen/acquaint" aria-label="GitHub">
+    <iconify-icon icon="simple-icons:github"></iconify-icon>
+  </a></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="acquaint.html">acquaint</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">acquaint.records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.render.html">acquaint.render</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.resources.html">acquaint.resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.store.html">acquaint.store</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.sync.html">acquaint.sync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.tools.html">acquaint.tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.trust.html">acquaint.trust</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ai-agents.html">For AI agents</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#acquaint.records.NONE_LOCATED"><code class="docutils literal notranslate"><span class="pre">NONE_LOCATED</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.blank_frontmatter"><code class="docutils literal notranslate"><span class="pre">blank_frontmatter()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.dump_yaml"><code class="docutils literal notranslate"><span class="pre">dump_yaml()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.fact_tags"><code class="docutils literal notranslate"><span class="pre">fact_tags()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.format_log_entry"><code class="docutils literal notranslate"><span class="pre">format_log_entry()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.item_blocks"><code class="docutils literal notranslate"><span class="pre">item_blocks()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.items"><code class="docutils literal notranslate"><span class="pre">items()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.join_frontmatter"><code class="docutils literal notranslate"><span class="pre">join_frontmatter()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.next_log_id"><code class="docutils literal notranslate"><span class="pre">next_log_id()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.normalize_newlines"><code class="docutils literal notranslate"><span class="pre">normalize_newlines()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.normalize_title"><code class="docutils literal notranslate"><span class="pre">normalize_title()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.parse_log"><code class="docutils literal notranslate"><span class="pre">parse_log()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.sectioned_items"><code class="docutils literal notranslate"><span class="pre">sectioned_items()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.sections"><code class="docutils literal notranslate"><span class="pre">sections()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.slugify"><code class="docutils literal notranslate"><span class="pre">slugify()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.source_kind"><code class="docutils literal notranslate"><span class="pre">source_kind()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.source_problem"><code class="docutils literal notranslate"><span class="pre">source_problem()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.source_refs"><code class="docutils literal notranslate"><span class="pre">source_refs()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.split_frontmatter"><code class="docutils literal notranslate"><span class="pre">split_frontmatter()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.tags"><code class="docutils literal notranslate"><span class="pre">tags()</span></code></a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">acquaint</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../api.html"><span itemprop="name">API reference</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="acquaint.html"><span itemprop="name">acquaint</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="3" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">acquaint.records</strong>
+        <meta itemprop="position" content="4" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <article class="yue dark-code" role="main">
+          <section id="module-acquaint.records">
+<span id="acquaint-records"></span><h1>acquaint.records<a class="headerlink" href="#module-acquaint.records" title="Link to this heading">#</a></h1>
+<p>The text formats acquaint stores, as pure functions: frontmatter, sections, items, source tags, slugs, log entries.</p>
+<p>Nothing here touches a filesystem. A record is text in and data out, so the same
+rules hold whether the text came from disk, a <code class="docutils literal notranslate"><span class="pre">dict</span></code> or a remote store. Every parser
+accepts <code class="docutils literal notranslate"><span class="pre">\r\n</span></code> line endings and a leading byte-order mark, because a store edited on
+Windows will have them.</p>
+<p>The formats are deliberately hand-editable Markdown: YAML frontmatter for what a
+machine looks up, <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Sections</span></code> of items for what a person writes, and an inline
+<code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code> tag on every item that states a preference, a view or a rule (beside it, a
+fact may carry <code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">…]</span></code> and <code class="docutils literal notranslate"><span class="pre">[sealed-from:</span> <span class="pre">…]</span></code>, read by the same tag reader). Sections,
+items and code blocks follow CommonMark’s rules closely enough that what a reader sees
+as one line under a heading is what the lint checks.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">slugify</span><span class="p">(</span><span class="s2">"Ada Lovelace"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'ada-lovelace'</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">meta</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">split_frontmatter</span><span class="p">(</span><span class="s2">"</span><span class="se">\ufeff</span><span class="s2">---</span><span class="se">\r\n</span><span class="s2">name: Ada</span><span class="se">\r\n</span><span class="s2">---</span><span class="se">\r\n</span><span class="s2">## Who</span><span class="se">\r\n</span><span class="s2">- a mathematician</span><span class="se">\r\n</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="4"><span class="gp">&gt;&gt;&gt; </span><span class="n">meta</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">sections</span><span class="p">(</span><span class="n">body</span><span class="p">)),</span> <span class="n">errors</span>
+</span><span data-line="5"><span class="go">({'name': 'Ada'}, ['Who'], [])</span>
+</span><span data-line="6"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_problem</span><span class="p">(</span><span class="s2">"- Prefers email. [source: https://example.org/thread/1]"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span data-line="7"><span class="go">True</span>
+</span><span data-line="8"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_problem</span><span class="p">(</span><span class="s2">"- Prefers email. [source: 11th September 2026]"</span><span class="p">)</span>
+</span><span data-line="9"><span class="go">'a date alone is not a source'</span>
+</span></pre></div>
+</div>
+<p class="rubric">Module Attributes</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.NONE_LOCATED" title="acquaint.records.NONE_LOCATED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NONE_LOCATED</span></code></a></p></td>
+<td><p>The words that say &quot;no primary source was found&quot;, out loud.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Functions</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.blank_frontmatter" title="acquaint.records.blank_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blank_frontmatter</span></code></a>(text)</p></td>
+<td><p>The text with its frontmatter lines emptied, so line numbers still match the file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.dump_yaml" title="acquaint.records.dump_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_yaml</span></code></a>(data)</p></td>
+<td><p>Write YAML the way a person would: keys in order, short lists inline, unicode kept.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.fact_tags" title="acquaint.records.fact_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fact_tags</span></code></a>(text)</p></td>
+<td><p>The label and seals one fact carries, and what is wrong with how they are written.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.format_log_entry" title="acquaint.records.format_log_entry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_log_entry</span></code></a>(entry_id, date, kind, text, *)</p></td>
+<td><p>One log entry: a <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">id</span> <span class="pre">·</span> <span class="pre">date</span> <span class="pre">·</span> <span class="pre">kind</span></code> heading, the observation on one line, then <code class="docutils literal notranslate"><span class="pre">-</span> <span class="pre">key:</span> <span class="pre">value</span></code> fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.item_blocks" title="acquaint.records.item_blocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_blocks</span></code></a>(text)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(section,</span> <span class="pre">first_line,</span> <span class="pre">last_line,</span> <span class="pre">item)</span></code> for every item of a Markdown document.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.items" title="acquaint.records.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a>(text)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(line,</span> <span class="pre">item)</span></code> for every item: each bullet with its wrapped lines, or a paragraph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.join_frontmatter" title="acquaint.records.join_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join_frontmatter</span></code></a>(meta, body)</p></td>
+<td><p>The inverse of <a class="reference internal" href="#acquaint.records.split_frontmatter" title="acquaint.records.split_frontmatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_frontmatter()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.load_yaml" title="acquaint.records.load_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_yaml</span></code></a>(text)</p></td>
+<td><p>Parse YAML into JSON-ready data, returning <code class="docutils literal notranslate"><span class="pre">(data,</span> <span class="pre">errors)</span></code> instead of raising: these files are hand-edited.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.next_log_id" title="acquaint.records.next_log_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_log_id</span></code></a>(text)</p></td>
+<td><p>The next free entry id in a log, counting every <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">eNN</span></code> heading however it is written.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.normalize_newlines" title="acquaint.records.normalize_newlines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_newlines</span></code></a>(text)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">\r\n</span></code> and lone <code class="docutils literal notranslate"><span class="pre">\r</span></code> as <code class="docutils literal notranslate"><span class="pre">\n</span></code>, without a leading byte-order mark.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.normalize_title" title="acquaint.records.normalize_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_title</span></code></a>(title)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.parse_log" title="acquaint.records.parse_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_log</span></code></a>(text)</p></td>
+<td><p>Entries of an append-only <code class="docutils literal notranslate"><span class="pre">log/YYYY-MM.md</span></code> file, oldest first.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.sectioned_items" title="acquaint.records.sectioned_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sectioned_items</span></code></a>(text)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(section,</span> <span class="pre">line,</span> <span class="pre">item)</span></code> for every item: see <a class="reference internal" href="#acquaint.records.item_blocks" title="acquaint.records.item_blocks"><code class="xref py py-func docutils literal notranslate"><span class="pre">item_blocks()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.sections" title="acquaint.records.sections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sections</span></code></a>(body)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Title</span></code> blocks of a Markdown body, in order, as <code class="docutils literal notranslate"><span class="pre">{normalized</span> <span class="pre">title:</span> <span class="pre">text}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.slugify" title="acquaint.records.slugify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slugify</span></code></a>(name, *[, qualifier])</p></td>
+<td><p>A readable, ASCII-folded, lowercase id: <code class="docutils literal notranslate"><span class="pre">given-family</span></code>, plus <code class="docutils literal notranslate"><span class="pre">--qualifier</span></code> on a collision.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.source_kind" title="acquaint.records.source_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_kind</span></code></a>(ref)</p></td>
+<td><p>Classify one source reference.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.source_problem" title="acquaint.records.source_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_problem</span></code></a>(text)</p></td>
+<td><p>Why a preference-bearing item is not sourced, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.source_refs" title="acquaint.records.source_refs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_refs</span></code></a>(line)</p></td>
+<td><p>Every <code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code> reference in a piece of text, stripped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.split_frontmatter" title="acquaint.records.split_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_frontmatter</span></code></a>(text)</p></td>
+<td><p>Split <code class="docutils literal notranslate"><span class="pre">---</span></code> YAML frontmatter from a Markdown body: <code class="docutils literal notranslate"><span class="pre">(meta,</span> <span class="pre">body,</span> <span class="pre">errors)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.tags" title="acquaint.records.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span></code></a>(text)</p></td>
+<td><p>Every <code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code>, <code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">…]</span></code> and <code class="docutils literal notranslate"><span class="pre">[sealed-from:</span> <span class="pre">…]</span></code> tag in a piece of text: <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code>, in order.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="acquaint.records.NONE_LOCATED">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">NONE_LOCATED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('none</span> <span class="pre">located',</span> <span class="pre">'no</span> <span class="pre">primary</span> <span class="pre">source</span> <span class="pre">located',</span> <span class="pre">'no</span> <span class="pre">source</span> <span class="pre">located')</span></span><a class="headerlink" href="#acquaint.records.NONE_LOCATED" title="Link to this definition">#</a></dt>
+<dd><p>The words that say “no primary source was found”, out loud.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.blank_frontmatter">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">blank_frontmatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#blank_frontmatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.blank_frontmatter" title="Link to this definition">#</a></dt>
+<dd><p>The text with its frontmatter lines emptied, so line numbers still match the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">blank_frontmatter</span><span class="p">(</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">name: Ada</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">body</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'\n\n\nbody\n'</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.dump_yaml">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">dump_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#dump_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.dump_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Write YAML the way a person would: keys in order, short lists inline, unicode kept.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dump_yaml</span><span class="p">({</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Ada"</span><span class="p">,</span> <span class="s2">"aka"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Ada"</span><span class="p">,</span> <span class="s2">"Lovelace"</span><span class="p">],</span> <span class="s2">"links"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"to"</span><span class="p">:</span> <span class="s2">"org:x"</span><span class="p">}]}),</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">name: Ada</span>
+</span><span data-line="3"><span class="go">aka: [Ada, Lovelace]</span>
+</span><span data-line="4"><span class="go">links:</span>
+</span><span data-line="5"><span class="go">- to: org:x</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.fact_tags">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">fact_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#fact_tags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.fact_tags" title="Link to this definition">#</a></dt>
+<dd><p>The label and seals one fact carries, and what is wrong with how they are written.</p>
+<p><code class="docutils literal notranslate"><span class="pre">{&quot;label&quot;:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">&quot;sealed_from&quot;:</span> <span class="pre">[ids],</span> <span class="pre">&quot;problems&quot;:</span> <span class="pre">[messages]}</span></code>. The label is
+returned lowercased and unchecked: which labels exist is <a class="reference internal" href="acquaint.trust.html#module-acquaint.trust" title="acquaint.trust"><code class="xref py py-mod docutils literal notranslate"><span class="pre">acquaint.trust</span></code></a>’s
+business. A tag that starts like <code class="docutils literal notranslate"><span class="pre">[label</span></code> or <code class="docutils literal notranslate"><span class="pre">[sealed</span> <span class="pre">from</span></code> but is not written
+<code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">&lt;label&gt;]</span></code> or <code class="docutils literal notranslate"><span class="pre">[sealed-from:</span> <span class="pre">&lt;id&gt;,</span> <span class="pre">&lt;id&gt;]</span></code> is a problem, never ignored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">fact_tags</span><span class="p">(</span><span class="s2">"- Cy is changing jobs. [label: red] [sealed-from: bram, person:dee] [source: operator]"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">{'label': 'red', 'sealed_from': ['bram', 'person:dee'], 'problems': []}</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">fact_tags</span><span class="p">(</span><span class="s2">"- Heron slips. [label amber] [sealed_from: bram] [source: operator]"</span><span class="p">)[</span><span class="s2">"problems"</span><span class="p">]:</span>
+</span><span data-line="4"><span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+</span><span data-line="5"><span class="go">'[label amber]' is not a tag acquaint reads; write [label: &lt;label&gt;]</span>
+</span><span data-line="6"><span class="go">'[sealed_from: bram]' is not a tag acquaint reads; write [sealed-from: &lt;id&gt;, &lt;id&gt;]</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.format_log_entry">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">format_log_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#format_log_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.format_log_entry" title="Link to this definition">#</a></dt>
+<dd><p>One log entry: a <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">id</span> <span class="pre">·</span> <span class="pre">date</span> <span class="pre">·</span> <span class="pre">kind</span></code> heading, the observation on one line, then <code class="docutils literal notranslate"><span class="pre">-</span> <span class="pre">key:</span> <span class="pre">value</span></code> fields.</p>
+<p>An observation that would read as a field, a heading or a list item is escaped with a
+leading backslash, so captured text can never forge an entry or change its kind.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.item_blocks">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">item_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#item_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.item_blocks" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(section,</span> <span class="pre">first_line,</span> <span class="pre">last_line,</span> <span class="pre">item)</span></code> for every item of a Markdown document.</p>
+<p>An item is one bullet (<code class="docutils literal notranslate"><span class="pre">-</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">+</span></code>, <code class="docutils literal notranslate"><span class="pre">1.</span></code>) at any depth, together with the
+wrapped lines under it, or a paragraph. A nested bullet is an item of its own, so it
+needs its own source. Blank lines, headings, thematic breaks, HTML comments and fenced
+code are not items. <code class="docutils literal notranslate"><span class="pre">section</span></code> is the enclosing <code class="docutils literal notranslate"><span class="pre">##</span></code> title (normalized), <code class="docutils literal notranslate"><span class="pre">None</span></code>
+before the first one or after a <code class="docutils literal notranslate"><span class="pre">#</span></code> heading. Blank the frontmatter first
+(<a class="reference internal" href="#acquaint.records.blank_frontmatter" title="acquaint.records.blank_frontmatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">blank_frontmatter()</span></code></a>) if the text has one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.items">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.items" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(line,</span> <span class="pre">item)</span></code> for every item: each bullet with its wrapped lines, or a paragraph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="s2">"- one</span><span class="se">\n</span><span class="s2">  continued</span><span class="se">\n</span><span class="s2">  - nested</span><span class="se">\n\n</span><span class="s2">A paragraph</span><span class="se">\n</span><span class="s2">wrapped.</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">- code, not an item</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">+ two</span><span class="se">\n</span><span class="s2">3. three</span><span class="se">\n</span><span class="s2">"</span>
+</span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">items</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</span><span data-line="3"><span class="go">[(1, 'one continued'), (3, 'nested'), (5, 'A paragraph wrapped.'), (10, 'two'), (11, 'three')]</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.join_frontmatter">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">join_frontmatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#join_frontmatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.join_frontmatter" title="Link to this definition">#</a></dt>
+<dd><p>The inverse of <a class="reference internal" href="#acquaint.records.split_frontmatter" title="acquaint.records.split_frontmatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_frontmatter()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">join_frontmatter</span><span class="p">({</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Ada"</span><span class="p">},</span> <span class="s2">"## Who</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'---\nname: Ada\n---\n\n## Who\n'</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.load_yaml">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">load_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#load_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.load_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Parse YAML into JSON-ready data, returning <code class="docutils literal notranslate"><span class="pre">(data,</span> <span class="pre">errors)</span></code> instead of raising: these files are hand-edited.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">load_yaml</span><span class="p">(</span><span class="s2">"a: [1, 2]</span><span class="se">\n</span><span class="s2">b: !!set {x: null}"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">({'a': [1, 2], 'b': ['x']}, [])</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="s2">"a: [1, 2"</span><span class="p">)</span>
+</span><span data-line="4"><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+</span><span data-line="5"><span class="go">(None, True)</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.next_log_id">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">next_log_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#next_log_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.next_log_id" title="Link to this definition">#</a></dt>
+<dd><p>The next free entry id in a log, counting every <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">eNN</span></code> heading however it is written.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">next_log_id</span><span class="p">(</span><span class="s2">"## e01 · 2026-09-01 · observation</span><span class="se">\n</span><span class="s2">x</span><span class="se">\n</span><span class="s2">## e07 - 2026-09-02 - note</span><span class="se">\n</span><span class="s2">y</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'e08'</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">next_log_id</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+</span><span data-line="4"><span class="go">'e01'</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.normalize_newlines">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">normalize_newlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#normalize_newlines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.normalize_newlines" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">\r\n</span></code> and lone <code class="docutils literal notranslate"><span class="pre">\r</span></code> as <code class="docutils literal notranslate"><span class="pre">\n</span></code>, without a leading byte-order mark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_newlines</span><span class="p">(</span><span class="s2">"</span><span class="se">\ufeff</span><span class="s2">a</span><span class="se">\r\n</span><span class="s2">b</span><span class="se">\r</span><span class="s2">c"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'a\nb\nc'</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.normalize_title">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">normalize_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#normalize_title"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.normalize_title" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<p>A heading as written, minus decoration: closing <a href="#id1"><span class="problematic" id="id2">``</span></a>#``s, a trailing colon, typographic apostrophes, extra space.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_title</span><span class="p">(</span><span class="s2">"  Don’t:  ## "</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">"Don't"</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.parse_log">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">parse_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#parse_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.parse_log" title="Link to this definition">#</a></dt>
+<dd><p>Entries of an append-only <code class="docutils literal notranslate"><span class="pre">log/YYYY-MM.md</span></code> file, oldest first.</p>
+<p>Headings may use <code class="docutils literal notranslate"><span class="pre">·</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code> or <code class="docutils literal notranslate"><span class="pre">|</span></code> between their parts; an escaped prose line
+(a leading backslash, see <a class="reference internal" href="#acquaint.records.format_log_entry" title="acquaint.records.format_log_entry"><code class="xref py py-func docutils literal notranslate"><span class="pre">format_log_entry()</span></code></a>) is unescaped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">entry</span> <span class="o">=</span> <span class="n">format_log_entry</span><span class="p">(</span><span class="s2">"e01"</span><span class="p">,</span> <span class="s2">"2026-09-11"</span><span class="p">,</span> <span class="s2">"observation"</span><span class="p">,</span> <span class="s2">"- kind: rule, they said"</span><span class="p">,</span>
+</span><span data-line="2"><span class="gp">... </span>                         <span class="n">source</span><span class="o">=</span><span class="s2">"https://example.org/thread/1"</span><span class="p">)</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_log</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</span><span data-line="4"><span class="go">[{'id': 'e01', 'date': '2026-09-11', 'kind': 'observation', 'text': '- kind: rule, they said', 'source': 'https://example.org/thread/1'}]</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.sectioned_items">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">sectioned_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#sectioned_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.sectioned_items" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(section,</span> <span class="pre">line,</span> <span class="pre">item)</span></code> for every item: see <a class="reference internal" href="#acquaint.records.item_blocks" title="acquaint.records.item_blocks"><code class="xref py py-func docutils literal notranslate"><span class="pre">item_blocks()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">sectioned_items</span><span class="p">(</span><span class="n">blank_frontmatter</span><span class="p">(</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">name: Ada</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># Ada</span><span class="se">\n</span><span class="s2">## Write to them:</span><span class="se">\n</span><span class="s2">- Short. [source: operator]</span><span class="se">\n</span><span class="s2">### Detail</span><span class="se">\n</span><span class="s2">- More.</span><span class="se">\n</span><span class="s2">"</span><span class="p">))</span>
+</span><span data-line="2"><span class="go">[('Write to them', 6, 'Short. [source: operator]'), ('Write to them', 8, 'More.')]</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.sections">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.sections" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Title</span></code> blocks of a Markdown body, in order, as <code class="docutils literal notranslate"><span class="pre">{normalized</span> <span class="pre">title:</span> <span class="pre">text}</span></code>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">#</span></code> heading ends the current section; deeper headings stay inside it; headings
+inside fenced code and HTML comments are not headings (and comments are left out).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">sections</span><span class="p">(</span><span class="s2">"intro</span><span class="se">\n</span><span class="s2">## Who</span><span class="se">\n</span><span class="s2">Ada</span><span class="se">\n</span><span class="s2">### Detail</span><span class="se">\n</span><span class="s2">more</span><span class="se">\n</span><span class="s2"># Aside</span><span class="se">\n</span><span class="s2">not in Who</span><span class="se">\n</span><span class="s2">## Now:</span><span class="se">\n</span><span class="s2">- busy</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">{'Who': 'Ada\n### Detail\nmore\n', 'Now': '- busy\n'}</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.slugify">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">slugify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#slugify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.slugify" title="Link to this definition">#</a></dt>
+<dd><p>A readable, ASCII-folded, lowercase id: <code class="docutils literal notranslate"><span class="pre">given-family</span></code>, plus <code class="docutils literal notranslate"><span class="pre">--qualifier</span></code> on a collision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">slugify</span><span class="p">(</span><span class="s2">"Zoë Ångström"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'zoe-angstrom'</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">slugify</span><span class="p">(</span><span class="s2">"John Smith"</span><span class="p">,</span> <span class="n">qualifier</span><span class="o">=</span><span class="s2">"Example Org"</span><span class="p">)</span>
+</span><span data-line="4"><span class="go">'john-smith--example-org'</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.source_kind">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">source_kind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#source_kind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.source_kind" title="Link to this definition">#</a></dt>
+<dd><p>Classify one source reference.</p>
+<p>One of <code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">file</span></code>, <code class="docutils literal notranslate"><span class="pre">self</span></code>, <code class="docutils literal notranslate"><span class="pre">operator</span></code>, <code class="docutils literal notranslate"><span class="pre">none-located</span></code>, <code class="docutils literal notranslate"><span class="pre">other</span></code>
+(free text: accepted, not checkable), or a defect: <code class="docutils literal notranslate"><span class="pre">self-unquoted</span></code>,
+<code class="docutils literal notranslate"><span class="pre">placeholder</span></code>, <code class="docutils literal notranslate"><span class="pre">date-only</span></code>, <code class="docutils literal notranslate"><span class="pre">empty</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">source_kind</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"https://example.org/x"</span><span class="p">,</span> <span class="s2">"log/2026-09.md#e01"</span><span class="p">,</span> <span class="s2">"self: 'don't email me'"</span><span class="p">,</span>
+</span><span data-line="2"><span class="gp">... </span>    <span class="s2">"self, it's what they're like"</span><span class="p">,</span> <span class="s1">'self: " "'</span><span class="p">,</span> <span class="s2">"operator"</span><span class="p">,</span> <span class="s2">"none located"</span><span class="p">,</span> <span class="s2">"2026-09-01T10:00Z"</span><span class="p">,</span>
+</span><span data-line="3"><span class="gp">... </span>    <span class="s2">"last Tuesday"</span><span class="p">,</span> <span class="s2">"todo: find link"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"email to Ada on 2026-09-01"</span><span class="p">]]</span>
+</span><span data-line="4"><span class="go">['url', 'file', 'self', 'self-unquoted', 'self-unquoted', 'operator', 'none-located', 'date-only', 'date-only', 'placeholder', 'empty', 'other']</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.source_problem">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">source_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#source_problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.source_problem" title="Link to this definition">#</a></dt>
+<dd><p>Why a preference-bearing item is not sourced, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is.</p>
+<p>A source is a permalink, a file anchor (<code class="docutils literal notranslate"><span class="pre">log/2026-09.md#e03</span></code>), the person’s own
+words (<code class="docutils literal notranslate"><span class="pre">self:</span> <span class="pre">&quot;…&quot;</span></code>), the operator’s statement (<code class="docutils literal notranslate"><span class="pre">operator</span></code>), or an explicit
+<code class="docutils literal notranslate"><span class="pre">none</span> <span class="pre">located</span></code>. A date alone is not a source, and neither is a placeholder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_problem</span><span class="p">(</span><span class="s2">"- Prefers calls."</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'no [source: …] tag'</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_problem</span><span class="p">(</span><span class="s1">'- Prefers calls. [source: self: "call me, never email"]'</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span data-line="4"><span class="go">True</span>
+</span><span data-line="5"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_problem</span><span class="p">(</span><span class="s2">"- Prefers calls. [source: self, 2026-09-01]"</span><span class="p">)</span>
+</span><span data-line="6"><span class="go">'self-stated sources need the quoted words: [source: self: "…"]'</span>
+</span><span data-line="7"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_problem</span><span class="p">(</span><span class="s2">"- Prefers calls. [source: TODO]"</span><span class="p">)</span>
+</span><span data-line="8"><span class="go">"'TODO' is a placeholder, not a source: write none located if you looked and found nothing; an inference goes under Hypotheses with its evidence"</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.source_refs">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">source_refs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#source_refs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.source_refs" title="Link to this definition">#</a></dt>
+<dd><p>Every <code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code> reference in a piece of text, stripped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">source_refs</span><span class="p">(</span><span class="s2">"- Short replies. [source: log/2026-09.md#e03] [source: operator]"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">['log/2026-09.md#e03', 'operator']</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.split_frontmatter">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">split_frontmatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#split_frontmatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.split_frontmatter" title="Link to this definition">#</a></dt>
+<dd><p>Split <code class="docutils literal notranslate"><span class="pre">---</span></code> YAML frontmatter from a Markdown body: <code class="docutils literal notranslate"><span class="pre">(meta,</span> <span class="pre">body,</span> <span class="pre">errors)</span></code>.</p>
+<p>A malformed header degrades to empty metadata plus an error, never an exception,
+so one bad hand edit cannot take down lookups of every other record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">split_frontmatter</span><span class="p">(</span><span class="s2">"no frontmatter here"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">({}, 'no frontmatter here', ['no --- frontmatter block at the top of the file'])</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.tags">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#tags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.tags" title="Link to this definition">#</a></dt>
+<dd><p>Every <code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code>, <code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">…]</span></code> and <code class="docutils literal notranslate"><span class="pre">[sealed-from:</span> <span class="pre">…]</span></code> tag in a piece of text: <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code>, in order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">tags</span><span class="p">(</span><span class="s2">"- Heron ships in October [label: amber] [Sealed-From: bram] [source: operator 2026-09-15]"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">[('label', 'amber'), ('sealed-from', 'bram'), ('source', 'operator 2026-09-15')]</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="acquaint.mcp.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">acquaint.mcp</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="acquaint.render.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">acquaint.render</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright">
+  <p>
+    Made with
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials">
+  <a href="https://github.com/thorwhalen/acquaint" aria-label="GitHub">
+    <iconify-icon icon="simple-icons:github"></iconify-icon>
+  </a></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=fd10adb8"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

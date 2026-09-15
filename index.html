@@ -1,286 +1,356 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html lang="en" data-accent-color="plum" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to acquaint’s documentation! &mdash; acquaint 0.0.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>acquaint</title><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API reference" href="api.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d88b86f9" />
+    <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/><meta property="og:title" content="acquaint"/>
+    <meta name="twitter:card" content="summary"/>
   
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=47de8214"></script>
+<link rel="alternate" type="text/markdown" href="index.html.md">
+<link rel="describedby" href="llms.txt" type="text/markdown">
+</head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="#">
+      
+      
+      <strong>acquaint</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials">
+  <a href="https://github.com/thorwhalen/acquaint" aria-label="GitHub">
+    <iconify-icon icon="simple-icons:github"></iconify-icon>
+  </a></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_autosummary/acquaint.html">acquaint</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.edit.html">acquaint.edit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.records.html">acquaint.records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.render.html">acquaint.render</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.resources.html">acquaint.resources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.store.html">acquaint.store</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.sync.html">acquaint.sync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.tools.html">acquaint.tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.trust.html">acquaint.trust</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ai-agents.html">For AI agents</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#what-it-records-and-what-it-never-does">What it records, and what it never does</a></li>
+<li><a class="reference internal" href="#where-the-data-lives">Where the data lives</a></li>
+<li><a class="reference internal" href="#the-verbs">The verbs</a></li>
+<li><a class="reference internal" href="#sources">Sources</a></li>
+<li><a class="reference internal" href="#agent-skills">Agent skills</a></li>
+<li><a class="reference internal" href="#mcp">MCP</a></li>
+<li><a class="reference internal" href="#private-sync">Private sync</a></li>
+<li><a class="reference internal" href="#python">Python</a></li>
+<li><a class="reference internal" href="#design">Design</a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="#"><span itemprop="name">acquaint</span></a>
+        <meta itemprop="position" content="1" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <article class="yue dark-code" role="main">
+          <!-- generated by epythet -->
+<section id="acquaint">
+<h1>acquaint<a class="headerlink" href="#acquaint" title="Link to this heading">#</a></h1>
+<p>People, and what they are involved in, for AI agents: who someone is, how to reach them, how to read them, how to write to them.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">pip<span class="w"> </span>install<span class="w"> </span>acquaint
+</span><span data-line="2">
+</span><span data-line="3">acquaint<span class="w"> </span>new<span class="w"> </span>person<span class="w"> </span><span class="s2">"Ada Lovelace"</span>
+</span><span data-line="4">acquaint<span class="w"> </span>remember<span class="w"> </span>ada-lovelace<span class="w"> </span><span class="s2">"prefers email for anything with attachments"</span><span class="w"> </span>--source<span class="w"> </span><span class="s2">"https://example.org/thread/1"</span>
+</span><span data-line="5">acquaint<span class="w"> </span>who<span class="w"> </span>ada<span class="w"> </span>-f<span class="w"> </span>aka<span class="w">                      </span><span class="c1"># → Ada, Lovelace</span>
+</span><span data-line="6">acquaint<span class="w"> </span>brief<span class="w"> </span>ada-lovelace<span class="w"> </span>--purpose<span class="w"> </span>ask<span class="w">    </span><span class="c1"># everything to know before writing to her</span>
+</span></pre></div>
+</div>
+<p>Tell an agent “write to Ada about the export” and it can find out, without being told again, who that is, where to reach her for this, what register to use, what to avoid, and where to record what it learns. The “how” is written down once, per person, and every agent, skill and tool reads it through the same verbs.</p>
+<p>Records are hand-editable Markdown, one folder per person (or project, org, group), kept <strong>outside any code repository</strong>. Every preference carries its source, and <code class="docutils literal notranslate"><span class="pre">acquaint</span> <span class="pre">lint</span></code> fails when one does not.</p>
+<section id="what-it-records-and-what-it-never-does">
+<h2>What it records, and what it never does<a class="headerlink" href="#what-it-records-and-what-it-never-does" title="Link to this heading">#</a></h2>
+<p>A profile holds observable behaviour with evidence: “replies in one or two lines”, “wants the decision first”, quoted and linked. It never holds personality labels, moods, or special-category data (health, religion, politics, ethnicity, sexuality, union membership), stated or inferred, nor credentials, identifiers, or whole message bodies. Every store gets a <code class="docutils literal notranslate"><span class="pre">POLICY.md</span></code> stating this, and <code class="docutils literal notranslate"><span class="pre">lint</span></code> warns on tripwires.</p>
+<p>The test for every line: would it survive being handed to the person it is about?</p>
+</section>
+<section id="where-the-data-lives">
+<h2>Where the data lives<a class="headerlink" href="#where-the-data-lives" title="Link to this heading">#</a></h2>
+<p>The data root is the first of: the <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> argument, <code class="docutils literal notranslate"><span class="pre">$ACQUAINT_DATA_DIR</span></code>, <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> in <code class="docutils literal notranslate"><span class="pre">~/.config/acquaint/config.toml</span></code>, <code class="docutils literal notranslate"><span class="pre">~/.local/share/acquaint</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1">POLICY.md                       what may be recorded
+</span><span data-line="2">people/ada-lovelace/
+</span><span data-line="3">  PROFILE.md                    entry file: identity frontmatter + Who · Reach · Write to them · Read them · Don't · Now · More
+</span><span data-line="4">  identities.yaml               handles and addresses, with evidence
+</span><span data-line="5">  rules.yaml                    channel rules: when → do, who set it, source
+</span><span data-line="6">  links.yaml                    affiliations: project, org, group; role; period
+</span><span data-line="7">  style.md                      the writing card: AI tolerance, register, do, don't, blocklist, exemplars
+</span><span data-line="8">  views.md                      positions and standing objections, sourced
+</span><span data-line="9">  sources.md                    where their writing lives, how authorship was verified
+</span><span data-line="10">  log/2026-09.md                append-only observations
+</span><span data-line="11">projects/&lt;id&gt;/PROFILE.md        What &amp; status · Where things live · Who · Agents &amp; skills · Norms · Now
+</span><span data-line="12">orgs/&lt;id&gt;/  groups/&lt;id&gt;/  …     any other kind
+</span></pre></div>
+</div>
+<p>Only <code class="docutils literal notranslate"><span class="pre">PROFILE.md</span></code> is required. A malformed file is reported and skipped; it never breaks lookups of anyone else.</p>
+</section>
+<section id="the-verbs">
+<h2>The verbs<a class="headerlink" href="#the-verbs" title="Link to this heading">#</a></h2>
+<p>The same fifteen functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Verb</p></th>
+<th class="head"><p>Does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">who</span> <span class="pre">NAME</span> <span class="pre">[-f</span> <span class="pre">FIELD]</span> <span class="pre">[-b]</span></code></p></td>
+<td><p>one field (<code class="docutils literal notranslate"><span class="pre">email</span></code>, <code class="docutils literal notranslate"><span class="pre">aka</span></code>, <code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">tier</span></code>, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resolve</span> <span class="pre">HANDLE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">github:octocat</span></code>, <code class="docutils literal notranslate"><span class="pre">email:…</span></code> → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">check</span> <span class="pre">TEXT</span></code></p></td>
+<td><p>before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reach</span> <span class="pre">PERSON</span> <span class="pre">[--purpose</span> <span class="pre">--urgency</span> <span class="pre">--project</span> <span class="pre">--message-type</span> <span class="pre">--topic]</span></code></p></td>
+<td><p>ordered channels: the person’s own rules &gt; the operator’s rules &gt; project norms &gt; observed habits &gt; defaults</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">brief</span> <span class="pre">PERSON</span> <span class="pre">[--purpose</span> <span class="pre">--project]</span></code></p></td>
+<td><p>card, writing style, views, reach, project norms, recent observations, reminders, and what is <strong>not</strong> known</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remember</span> <span class="pre">ENTITY</span> <span class="pre">TEXT</span> <span class="pre">[--source</span> <span class="pre">--kind</span> <span class="pre">--reactivate]</span></code></p></td>
+<td><p>append a dated, sourced observation (or identity, preference, view, rule); an identity equal to an inactive one is refused, naming that entry, unless <code class="docutils literal notranslate"><span class="pre">--reactivate</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
+<td><p>sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
+<td><p>machine-writing tells, enforced by the reader’s tolerance of AI-sounding text</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
+<td><p>scaffold from a template; readable slug ids (<code class="docutils literal notranslate"><span class="pre">ada-lovelace</span></code>, <code class="docutils literal notranslate"><span class="pre">john-smith--example-org</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
+<td><p>new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
+<td><p>remove the whole folder, leaving a salted tombstone so the person is not silently re-created</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
+<td><p>private-repository sync, below</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--json</span></code> prints the result dict; <code class="docutils literal notranslate"><span class="pre">-</span></code> as the text of <code class="docutils literal notranslate"><span class="pre">check</span></code> or <code class="docutils literal notranslate"><span class="pre">style-lint</span></code> reads stdin.</p>
+<p>Exit status: 0 on success; 1 when the result is not ok (the reason is on stderr); 2 for a usage error; 3 when <code class="docutils literal notranslate"><span class="pre">reach</span></code> matched a rule but no usable address is recorded for its channel (the rule is still listed, and the reason says what to add).</p>
+<p>Nothing acts on a guess: a name, alias, handle or email counts only when exactly one record has it exactly, and a partial match comes back as a suggestion. <code class="docutils literal notranslate"><span class="pre">rename</span></code> and <code class="docutils literal notranslate"><span class="pre">forget</span></code> need the exact id.</p>
+</section>
+<section id="sources">
+<h2>Sources<a class="headerlink" href="#sources" title="Link to this heading">#</a></h2>
+<p>End every preference, view or rule with a source tag:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gu">## Write to them</span>
+</span><span data-line="2"><span class="k">-</span><span class="w"> </span>Lead with the decision, then the options. [source: self: "give me the recommendation first"]
+</span><span data-line="3"><span class="k">-</span><span class="w"> </span>Short replies on chat, fuller ones by email. [source: log/2026-09.md#e03]
+</span><span data-line="4"><span class="k">-</span><span class="w"> </span>No attachments over chat. [source: https://example.org/thread/1]
+</span></pre></div>
+</div>
+<p>A source is a permalink, a log or research anchor, the person’s own words, <code class="docutils literal notranslate"><span class="pre">operator</span></code>, or <code class="docutils literal notranslate"><span class="pre">none</span> <span class="pre">located</span></code>. <strong>A date alone is not a source</strong>, and neither is a placeholder such as <code class="docutils literal notranslate"><span class="pre">unknown</span></code> or <code class="docutils literal notranslate"><span class="pre">TODO</span></code>: an unsourced claim with a date attached reads as observed when it was not. A nested bullet is its own line and needs its own source.</p>
+</section>
+<section id="agent-skills">
+<h2>Agent skills<a class="headerlink" href="#agent-skills" title="Link to this heading">#</a></h2>
+<p>Six skills ship inside the package (<code class="docutils literal notranslate"><span class="pre">acquaint/data/skills/</span></code>) and install with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">skill</span></code>:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Skill</p></th>
+<th class="head"><p>For</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint</span></code></p></td>
+<td><p>the router: lookups at the right cost, <code class="docutils literal notranslate"><span class="pre">check</span></code> before publishing, <code class="docutils literal notranslate"><span class="pre">remember</span></code> with sources</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-profile</span></code></p></td>
+<td><p>building a profile from someone’s own writing, with parallel <code class="docutils literal notranslate"><span class="pre">profile-reader</span></code> agents</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-write</span></code></p></td>
+<td><p>writing for a known reader, and sparring with a simulated one (<code class="docutils literal notranslate"><span class="pre">recipient-reader</span></code> agent)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-read</span></code></p></td>
+<td><p>interpreting a message from a known person; AI-processing as a likelihood with evidence</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deslop</span></code></p></td>
+<td><p>prose without machine-writing tells, calibrated to the reader</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-sync</span></code></p></td>
+<td><p>private sync, and what it does not protect</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">gh<span class="w"> </span>skill<span class="w"> </span>install<span class="w"> </span>thorwhalen/acquaint<span class="w"> </span>acquaint<span class="w"> </span>--agent<span class="w"> </span>claude-code
+</span></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">skill</span></code> needs a recent <code class="docutils literal notranslate"><span class="pre">gh</span></code>; otherwise symlink the folders from the installed package’s <code class="docutils literal notranslate"><span class="pre">acquaint/data/skills/</span></code> into <code class="docutils literal notranslate"><span class="pre">~/.claude/skills/</span></code>. If you already have a user-level skill named <code class="docutils literal notranslate"><span class="pre">deslop</span></code>, skip acquaint’s or install it under another name: two skills with the same name at the same scope replace each other.</p>
+</section>
+<section id="mcp">
+<h2>MCP<a class="headerlink" href="#mcp" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"acquaint[mcp]"</span>
+</span></pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="p">{</span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"acquaint"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"acquaint-mcp"</span><span class="p">}}}</span>
+</span></pre></div>
+</div>
+<p>The server exposes the tools that read locally, append or create (<code class="docutils literal notranslate"><span class="pre">who</span></code>, <code class="docutils literal notranslate"><span class="pre">resolve</span></code>, <code class="docutils literal notranslate"><span class="pre">check</span></code>, <code class="docutils literal notranslate"><span class="pre">reach</span></code>, <code class="docutils literal notranslate"><span class="pre">brief</span></code>, <code class="docutils literal notranslate"><span class="pre">remember</span></code>, <code class="docutils literal notranslate"><span class="pre">lint</span></code>, <code class="docutils literal notranslate"><span class="pre">new</span></code>, <code class="docutils literal notranslate"><span class="pre">style_lint</span></code>). Renaming, forgetting and syncing stay at the terminal. <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> is not exposed: the data root is the server’s (set <code class="docutils literal notranslate"><span class="pre">ACQUAINT_DATA_DIR</span></code> in the client configuration), never the model’s. Neither is <code class="docutils literal notranslate"><span class="pre">remember</span></code>’s <code class="docutils literal notranslate"><span class="pre">reactivate</span></code>: making an inactive identity active again is the operator’s call.</p>
+</section>
+<section id="private-sync">
+<h2>Private sync<a class="headerlink" href="#private-sync" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">acquaint<span class="w"> </span>sync<span class="w"> </span>init<span class="w"> </span>--repo<span class="w"> </span>&lt;owner&gt;/&lt;name&gt;<span class="w"> </span>--dry-run
+</span><span data-line="2">acquaint<span class="w"> </span>sync<span class="w"> </span>init<span class="w"> </span>--repo<span class="w"> </span>&lt;owner&gt;/&lt;name&gt;
+</span></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span></code> creates the repository through <code class="docutils literal notranslate"><span class="pre">gh</span></code> as private, refuses to continue unless <code class="docutils literal notranslate"><span class="pre">gh</span></code> reports it <code class="docutils literal notranslate"><span class="pre">PRIVATE</span></code>, and installs a pre-push hook, active in every worktree, that allows a push only through <code class="docutils literal notranslate"><span class="pre">origin</span></code>, only when <code class="docutils literal notranslate"><span class="pre">origin</span></code> has exactly the one URL recorded at init (no <code class="docutils literal notranslate"><span class="pre">pushurl</span></code> or <code class="docutils literal notranslate"><span class="pre">pushInsteadOf</span></code> redirect), only when that URL names the checked repository on github.com, and only while <code class="docutils literal notranslate"><span class="pre">gh</span></code> still reports it private. <code class="docutils literal notranslate"><span class="pre">push</span></code>, <code class="docutils literal notranslate"><span class="pre">pull</span></code> and <code class="docutils literal notranslate"><span class="pre">status</span></code> check again. <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span></code> takes over only an empty folder or a clone of that same repository.</p>
+<p>What this does <strong>not</strong> protect: a private repository is access control, not encryption (the host can read everything); <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">--no-verify</span></code> skips the hook; whoever controls the repository’s git config or the <code class="docutils literal notranslate"><span class="pre">gh</span></code> on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> controls what the guard sees; moving the data root disables the hook until <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--existing-only</span></code> runs again; file names and commit messages contain people’s names; deleting a folder does not remove it from history or other clones. <code class="docutils literal notranslate"><span class="pre">git-remote-gcrypt</span></code> would encrypt contents, names and history; it is the planned upgrade, but the guard does not support it yet, so <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span></code> refuses <code class="docutils literal notranslate"><span class="pre">gcrypt::</span></code> URLs (<a class="reference external" href="https://github.com/thorwhalen/acquaint/issues/13">#13</a>).</p>
+</section>
+<section id="python">
+<h2>Python<a class="headerlink" href="#python" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">acquaint</span><span class="w"> </span><span class="kn">import</span> <span class="n">Store</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">brief</span>
+</span><span data-line="2">
+</span><span data-line="3"><span class="n">who</span><span class="p">(</span><span class="s2">"ada"</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">"aka"</span><span class="p">)[</span><span class="s2">"value"</span><span class="p">]</span>  <span class="c1"># ['Ada', 'Lovelace']</span>
+</span><span data-line="4"><span class="nb">print</span><span class="p">(</span><span class="n">brief</span><span class="p">(</span><span class="s2">"ada-lovelace"</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="s2">"ask"</span><span class="p">)[</span><span class="s2">"text"</span><span class="p">])</span>
+</span><span data-line="5">
+</span><span data-line="6"><span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>  <span class="c1"># MutableMapping[str, Entity] over a dol files store</span>
+</span><span data-line="7"><span class="n">entity</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span>
+</span><span data-line="8">    <span class="s2">"people/ada-lovelace"</span>
+</span><span data-line="9"><span class="p">]</span>  <span class="c1"># a mapping of that person's files, plus parsed views</span>
+</span><span data-line="10"><span class="n">entity</span><span class="o">.</span><span class="n">identities</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">rules</span><span class="p">,</span> <span class="n">entity</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="s2">"Write to them"</span><span class="p">]</span>
+</span><span data-line="11"><span class="n">Store</span><span class="p">(</span><span class="n">files</span><span class="o">=</span><span class="p">{})</span>  <span class="c1"># any MutableMapping[str, str] of files: a dict, a remote store</span>
+</span></pre></div>
+</div>
+</section>
+<section id="design">
+<h2>Design<a class="headerlink" href="#design" title="Link to this heading">#</a></h2>
+<p>The seams, surfaces and deliberate non-seams are in <a class="reference external" href="https://github.com/thorwhalen/acquaint/discussions/1">Discussion #1</a>.</p>
+<p class="epythet-aggregates">This documentation as a single file: <a href="acquaint.md">acquaint.md</a> (Markdown, for agents).</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 12:23 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/9c2cc6df35ef3bba159c2cbe779304e10ba8788e">9c2cc6d</a> (main) · acquaint 0.0.4 · <a href="about-this-build.html">about this build</a></p>
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-next">
+    <a href="api.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">API reference</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright">
+  <p>
+    Made with
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials">
+  <a href="https://github.com/thorwhalen/acquaint" aria-label="GitHub">
+    <iconify-icon icon="simple-icons:github"></iconify-icon>
+  </a></div>
+    </div>
+  </div>
+</footer>
+      <script src="_static/documentation_options.js?v=8c5712d9"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="acquaint" href="module_docs/acquaint.html" /> 
-</head>
-
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="#" class="icon icon-home">
-            acquaint
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint.html">acquaint</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/__main__.html">acquaint.__main__</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/brief.html">acquaint.brief</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/deslop.html">acquaint.deslop</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/edit.html">acquaint.edit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/lint.html">acquaint.lint</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/lookup.html">acquaint.lookup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/mcp.html">acquaint.mcp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/records.html">acquaint.records</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/render.html">acquaint.render</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/resources.html">acquaint.resources</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/store.html">acquaint.store</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/sync.html">acquaint.sync</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/tools.html">acquaint.tools</a></li>
-</ul>
-
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">acquaint</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Welcome to acquaint’s documentation!</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="welcome-to-acquaint-s-documentation">
-<h1>Welcome to acquaint’s documentation!<a class="headerlink" href="#welcome-to-acquaint-s-documentation" title="Link to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint.html">acquaint</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.AcquaintError"><code class="docutils literal notranslate"><span class="pre">AcquaintError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.brief"><code class="docutils literal notranslate"><span class="pre">brief()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.check"><code class="docutils literal notranslate"><span class="pre">check()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.data_dir"><code class="docutils literal notranslate"><span class="pre">data_dir()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.forget"><code class="docutils literal notranslate"><span class="pre">forget()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.lint"><code class="docutils literal notranslate"><span class="pre">lint()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.new"><code class="docutils literal notranslate"><span class="pre">new()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.reach"><code class="docutils literal notranslate"><span class="pre">reach()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.remember"><code class="docutils literal notranslate"><span class="pre">remember()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.rename"><code class="docutils literal notranslate"><span class="pre">rename()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.resolve"><code class="docutils literal notranslate"><span class="pre">resolve()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.style_lint"><code class="docutils literal notranslate"><span class="pre">style_lint()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.sync_init"><code class="docutils literal notranslate"><span class="pre">sync_init()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.sync_pull"><code class="docutils literal notranslate"><span class="pre">sync_pull()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.sync_push"><code class="docutils literal notranslate"><span class="pre">sync_push()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.sync_status"><code class="docutils literal notranslate"><span class="pre">sync_status()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint.html#acquaint.who"><code class="docutils literal notranslate"><span class="pre">who()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/__main__.html">acquaint.__main__</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/brief.html">acquaint.brief</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/brief.html#acquaint.brief.CARD_SECTIONS"><code class="docutils literal notranslate"><span class="pre">CARD_SECTIONS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/brief.html#acquaint.brief.compose_brief"><code class="docutils literal notranslate"><span class="pre">compose_brief()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/deslop.html">acquaint.deslop</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/deslop.html#acquaint.deslop.lint_text"><code class="docutils literal notranslate"><span class="pre">lint_text()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/deslop.html#acquaint.deslop.normalize_tolerance"><code class="docutils literal notranslate"><span class="pre">normalize_tolerance()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/deslop.html#acquaint.deslop.recipient_card"><code class="docutils literal notranslate"><span class="pre">recipient_card()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/deslop.html#acquaint.deslop.text_metrics"><code class="docutils literal notranslate"><span class="pre">text_metrics()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/edit.html">acquaint.edit</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.OBSERVATION_KINDS"><code class="docutils literal notranslate"><span class="pre">OBSERVATION_KINDS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.append_observation"><code class="docutils literal notranslate"><span class="pre">append_observation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.forget_entity"><code class="docutils literal notranslate"><span class="pre">forget_entity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.new_entity"><code class="docutils literal notranslate"><span class="pre">new_entity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.rename_entity"><code class="docutils literal notranslate"><span class="pre">rename_entity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.tombstone_problem"><code class="docutils literal notranslate"><span class="pre">tombstone_problem()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/edit.html#acquaint.edit.tombstoned"><code class="docutils literal notranslate"><span class="pre">tombstoned()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/lint.html">acquaint.lint</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lint.html#acquaint.lint.lint_store"><code class="docutils literal notranslate"><span class="pre">lint_store()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lint.html#acquaint.lint.policy_hits"><code class="docutils literal notranslate"><span class="pre">policy_hits()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/lookup.html">acquaint.lookup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.INACTIVE_RULES"><code class="docutils literal notranslate"><span class="pre">INACTIVE_RULES</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.TIERS"><code class="docutils literal notranslate"><span class="pre">TIERS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.USABLE_STATUSES"><code class="docutils literal notranslate"><span class="pre">USABLE_STATUSES</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.check_text"><code class="docutils literal notranslate"><span class="pre">check_text()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.find_entity"><code class="docutils literal notranslate"><span class="pre">find_entity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.match"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.normalise_handle"><code class="docutils literal notranslate"><span class="pre">normalise_handle()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.reach_channels"><code class="docutils literal notranslate"><span class="pre">reach_channels()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/lookup.html#acquaint.lookup.resolve_handle"><code class="docutils literal notranslate"><span class="pre">resolve_handle()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/mcp.html">acquaint.mcp</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/mcp.html#acquaint.mcp.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/mcp.html#acquaint.mcp.mk_server"><code class="docutils literal notranslate"><span class="pre">mk_server()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/mcp.html#acquaint.mcp.refs"><code class="docutils literal notranslate"><span class="pre">refs()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/records.html">acquaint.records</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.NONE_LOCATED"><code class="docutils literal notranslate"><span class="pre">NONE_LOCATED</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.blank_frontmatter"><code class="docutils literal notranslate"><span class="pre">blank_frontmatter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.dump_yaml"><code class="docutils literal notranslate"><span class="pre">dump_yaml()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.format_log_entry"><code class="docutils literal notranslate"><span class="pre">format_log_entry()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.item_blocks"><code class="docutils literal notranslate"><span class="pre">item_blocks()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.items"><code class="docutils literal notranslate"><span class="pre">items()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.join_frontmatter"><code class="docutils literal notranslate"><span class="pre">join_frontmatter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.next_log_id"><code class="docutils literal notranslate"><span class="pre">next_log_id()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.normalize_newlines"><code class="docutils literal notranslate"><span class="pre">normalize_newlines()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.normalize_title"><code class="docutils literal notranslate"><span class="pre">normalize_title()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.parse_log"><code class="docutils literal notranslate"><span class="pre">parse_log()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.sectioned_items"><code class="docutils literal notranslate"><span class="pre">sectioned_items()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.sections"><code class="docutils literal notranslate"><span class="pre">sections()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.slugify"><code class="docutils literal notranslate"><span class="pre">slugify()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.source_kind"><code class="docutils literal notranslate"><span class="pre">source_kind()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.source_problem"><code class="docutils literal notranslate"><span class="pre">source_problem()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.source_refs"><code class="docutils literal notranslate"><span class="pre">source_refs()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/records.html#acquaint.records.split_frontmatter"><code class="docutils literal notranslate"><span class="pre">split_frontmatter()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/render.html">acquaint.render</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/render.html#acquaint.render.exit_code"><code class="docutils literal notranslate"><span class="pre">exit_code()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/render.html#acquaint.render.render"><code class="docutils literal notranslate"><span class="pre">render()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/resources.html">acquaint.resources</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/resources.html#acquaint.resources.data_path"><code class="docutils literal notranslate"><span class="pre">data_path()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/resources.html#acquaint.resources.data_text"><code class="docutils literal notranslate"><span class="pre">data_text()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/resources.html#acquaint.resources.data_yaml"><code class="docutils literal notranslate"><span class="pre">data_yaml()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/store.html">acquaint.store</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.AcquaintError"><code class="docutils literal notranslate"><span class="pre">AcquaintError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.KIND_DIRS"><code class="docutils literal notranslate"><span class="pre">KIND_DIRS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.UNREADABLE"><code class="docutils literal notranslate"><span class="pre">UNREADABLE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.config_path"><code class="docutils literal notranslate"><span class="pre">config_path()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.data_dir"><code class="docutils literal notranslate"><span class="pre">data_dir()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.kind_dir"><code class="docutils literal notranslate"><span class="pre">kind_dir()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.text_files"><code class="docutils literal notranslate"><span class="pre">text_files()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/store.html#acquaint.store.validate_key"><code class="docutils literal notranslate"><span class="pre">validate_key()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/sync.html">acquaint.sync</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.github_urls"><code class="docutils literal notranslate"><span class="pre">github_urls()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.init"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.pull"><code class="docutils literal notranslate"><span class="pre">pull()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.push"><code class="docutils literal notranslate"><span class="pre">push()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.run_command"><code class="docutils literal notranslate"><span class="pre">run_command()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.status"><code class="docutils literal notranslate"><span class="pre">status()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/sync.html#acquaint.sync.visibility"><code class="docutils literal notranslate"><span class="pre">visibility()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/acquaint/tools.html">acquaint.tools</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.AcquaintError"><code class="docutils literal notranslate"><span class="pre">AcquaintError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.SIDE_EFFECTS"><code class="docutils literal notranslate"><span class="pre">SIDE_EFFECTS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.TOOLS"><code class="docutils literal notranslate"><span class="pre">TOOLS</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.brief"><code class="docutils literal notranslate"><span class="pre">brief()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.check"><code class="docutils literal notranslate"><span class="pre">check()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.forget"><code class="docutils literal notranslate"><span class="pre">forget()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.lint"><code class="docutils literal notranslate"><span class="pre">lint()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.new"><code class="docutils literal notranslate"><span class="pre">new()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.reach"><code class="docutils literal notranslate"><span class="pre">reach()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.remember"><code class="docutils literal notranslate"><span class="pre">remember()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.rename"><code class="docutils literal notranslate"><span class="pre">rename()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.resolve"><code class="docutils literal notranslate"><span class="pre">resolve()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.style_lint"><code class="docutils literal notranslate"><span class="pre">style_lint()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.sync_init"><code class="docutils literal notranslate"><span class="pre">sync_init()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.sync_pull"><code class="docutils literal notranslate"><span class="pre">sync_pull()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.sync_push"><code class="docutils literal notranslate"><span class="pre">sync_push()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.sync_status"><code class="docutils literal notranslate"><span class="pre">sync_status()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/acquaint/tools.html#acquaint.tools.who"><code class="docutils literal notranslate"><span class="pre">who()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
-<p>Release: 0.0.3</p>
-<p>Last change: Sep 11, 2026</p>
-</section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="module_docs/acquaint.html" class="btn btn-neutral float-right" title="acquaint" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p></p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
-
-</body>
+      <script src="_static/copybutton.js?v=fd10adb8"></script>
+      <script src="_static/shibuya.js?v=50760d75"></script></body>
 </html>

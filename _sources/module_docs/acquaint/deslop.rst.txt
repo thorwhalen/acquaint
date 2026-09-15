@@ -1,4 +1,0 @@
-acquaint.deslop
-===============
-.. automodule:: acquaint.deslop
-   :members:

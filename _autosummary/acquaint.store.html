@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" data-accent-color="plum" data-content_root="../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>acquaint.store - acquaint</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="acquaint.sync" href="acquaint.sync.html" /><link rel="prev" title="acquaint.resources" href="acquaint.resources.html" /><script>
+    function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
+    setColorMode(localStorage._theme||"auto");
+  </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-text: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+  --sy-f-heading: "Inter", var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    
+  <meta property="og:type" content="website"/><meta property="og:title" content="acquaint.store"/>
+    <meta name="twitter:card" content="summary"/>
+  
+<link rel="alternate" type="text/markdown" href="acquaint.store.html.md">
+<link rel="describedby" href="../llms.txt" type="text/markdown">
+</head>
+<body><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand" href="../index.html">
+      
+      
+      <strong>acquaint</strong>
+    </a>
+    <div class="sy-head-nav" id="head-nav">
+      <nav class="sy-head-links"></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form><div class="sy-head-socials">
+  <a href="https://github.com/thorwhalen/acquaint" aria-label="GitHub">
+    <iconify-icon icon="simple-icons:github"></iconify-icon>
+  </a></div></div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden"><button class="js-theme theme-switch flex items-center"
+data-aria-auto="Switch to light color mode"
+data-aria-light="Switch to dark color mode"
+data-aria-dark="Switch to auto color mode">
+<i class="i-lucide theme-icon"></i>
+</button><button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="head-nav" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2"></span>
+          <span class="hamburger_3"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="acquaint.html">acquaint</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.records.html">acquaint.records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.render.html">acquaint.render</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.resources.html">acquaint.resources</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">acquaint.store</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.sync.html">acquaint.sync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.tools.html">acquaint.tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.trust.html">acquaint.trust</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ai-agents.html">For AI agents</a></li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-lucide close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
+<li><a class="reference internal" href="#acquaint.store.AcquaintError"><code class="docutils literal notranslate"><span class="pre">AcquaintError</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity"><code class="docutils literal notranslate"><span class="pre">Entity</span></code></a><ul>
+<li><a class="reference internal" href="#acquaint.store.Entity.aka"><code class="docutils literal notranslate"><span class="pre">Entity.aka</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.body"><code class="docutils literal notranslate"><span class="pre">Entity.body</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.errors"><code class="docutils literal notranslate"><span class="pre">Entity.errors</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.identities"><code class="docutils literal notranslate"><span class="pre">Entity.identities</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.kind"><code class="docutils literal notranslate"><span class="pre">Entity.kind</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.links"><code class="docutils literal notranslate"><span class="pre">Entity.links</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.meta"><code class="docutils literal notranslate"><span class="pre">Entity.meta</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.name"><code class="docutils literal notranslate"><span class="pre">Entity.name</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.ref"><code class="docutils literal notranslate"><span class="pre">Entity.ref</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.rules"><code class="docutils literal notranslate"><span class="pre">Entity.rules</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.sections"><code class="docutils literal notranslate"><span class="pre">Entity.sections</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.summary"><code class="docutils literal notranslate"><span class="pre">Entity.summary()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.surface_forms"><code class="docutils literal notranslate"><span class="pre">Entity.surface_forms</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.text"><code class="docutils literal notranslate"><span class="pre">Entity.text()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Entity.trust"><code class="docutils literal notranslate"><span class="pre">Entity.trust</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acquaint.store.KIND_DIRS"><code class="docutils literal notranslate"><span class="pre">KIND_DIRS</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a><ul>
+<li><a class="reference internal" href="#acquaint.store.Store.all_files"><code class="docutils literal notranslate"><span class="pre">Store.all_files()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.append_text"><code class="docutils literal notranslate"><span class="pre">Store.append_text()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.exists"><code class="docutils literal notranslate"><span class="pre">Store.exists()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.find"><code class="docutils literal notranslate"><span class="pre">Store.find()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.find_id"><code class="docutils literal notranslate"><span class="pre">Store.find_id()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.location_warning"><code class="docutils literal notranslate"><span class="pre">Store.location_warning()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.misnamed"><code class="docutils literal notranslate"><span class="pre">Store.misnamed()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.move"><code class="docutils literal notranslate"><span class="pre">Store.move()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.Store.path_of"><code class="docutils literal notranslate"><span class="pre">Store.path_of()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acquaint.store.UNREADABLE"><code class="docutils literal notranslate"><span class="pre">UNREADABLE</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.config_path"><code class="docutils literal notranslate"><span class="pre">config_path()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.data_dir"><code class="docutils literal notranslate"><span class="pre">data_dir()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.kind_dir"><code class="docutils literal notranslate"><span class="pre">kind_dir()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.text_files"><code class="docutils literal notranslate"><span class="pre">text_files()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.store.validate_key"><code class="docutils literal notranslate"><span class="pre">validate_key()</span></code></a></li>
+</ul>
+</div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+<div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-lucide menu"></i>
+      </button>
+    </div>
+    <ol class="flex-1" itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../index.html"><span itemprop="name">acquaint</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="1" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="../api.html"><span itemprop="name">API reference</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="2" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item" href="acquaint.html"><span itemprop="name">acquaint</span></a>
+        <span>/</span>
+        <meta itemprop="position" content="3" />
+      </li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <strong itemprop="name">acquaint.store</strong>
+        <meta itemprop="position" content="4" />
+      </li></ol>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-lucide outdent"></i>
+      </button>
+    </div>
+  </div>
+</div><div class="flex flex-col break-words justify-between">
+      <div class="relative min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+  <article class="yue dark-code" role="main">
+          <section id="module-acquaint.store">
+<span id="acquaint-store"></span><h1>acquaint.store<a class="headerlink" href="#module-acquaint.store" title="Link to this heading">#</a></h1>
+<p>Where records live and how code reaches them: the data root, <a class="reference internal" href="#acquaint.store.Store" title="acquaint.store.Store"><code class="xref py py-class docutils literal notranslate"><span class="pre">Store</span></code></a> and <a class="reference internal" href="#acquaint.store.Entity" title="acquaint.store.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>.</p>
+<p>Layout under the data root (one folder per entity, one entry file each):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1">POLICY.md                    what may be recorded
+</span><span data-line="2">_tombstones.yaml             salted hashes of forgotten entities' identifiers
+</span><span data-line="3">people/&lt;slug&gt;/PROFILE.md     the entry file (required)
+</span><span data-line="4">people/&lt;slug&gt;/identities.yaml, rules.yaml, links.yaml, trust.yaml, style.md, views.md,
+</span><span data-line="5">              sources.md, log/YYYY-MM.md, research/…   (each optional)
+</span><span data-line="6">projects/&lt;slug&gt;/PROFILE.md   (and orgs/, groups/, or any other kind)
+</span></pre></div>
+</div>
+<p><a class="reference internal" href="#acquaint.store.Store" title="acquaint.store.Store"><code class="xref py py-class docutils literal notranslate"><span class="pre">Store</span></code></a> is a <code class="docutils literal notranslate"><span class="pre">MutableMapping[str,</span> <span class="pre">Entity]</span></code> keyed <code class="docutils literal notranslate"><span class="pre">&quot;&lt;kind</span> <span class="pre">dir&gt;/&lt;slug&gt;&quot;</span></code>, where
+both parts are lowercase letters, digits and hyphens; nothing else is a key, so no
+reference can reach outside the data root. Underneath it is any
+<code class="docutils literal notranslate"><span class="pre">MutableMapping[str,</span> <span class="pre">str]</span></code> of relative paths to text: a <code class="docutils literal notranslate"><span class="pre">dol</span></code> files store by
+default, a <code class="docutils literal notranslate"><span class="pre">dict</span></code> in tests. That mapping is the storage seam.</p>
+<p>When the store is on disk, an entity is a real directory whose name matches its key
+exactly (case included, even on case-insensitive filesystems) and is not a link.
+Listing, moving and removing work on those directories, so hidden files move and go
+with their entity. A file that is not valid UTF-8 reads with replacement characters and
+is reported, instead of failing every lookup. Entry files the store cannot address (a
+capitalised folder, a linked folder, <code class="docutils literal notranslate"><span class="pre">profile.md</span></code>) are listed by <a class="reference internal" href="#acquaint.store.Store.misnamed" title="acquaint.store.Store.misnamed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Store.misnamed()</span></code></a>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="n">files</span><span class="o">=</span><span class="p">{})</span>
+</span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s2">"people/ada-lovelace"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"PROFILE.md"</span><span class="p">:</span> <span class="s2">"---</span><span class="se">\n</span><span class="s2">name: Ada Lovelace</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span><span class="p">}</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">store</span><span class="p">),</span> <span class="n">store</span><span class="p">[</span><span class="s2">"people/ada-lovelace"</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+</span><span data-line="4"><span class="go">(['people/ada-lovelace'], 'Ada Lovelace')</span>
+</span></pre></div>
+</div>
+<p class="rubric">Module Attributes</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.store.KIND_DIRS" title="acquaint.store.KIND_DIRS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KIND_DIRS</span></code></a></p></td>
+<td><p>see <a class="reference internal" href="#acquaint.store.kind_dir" title="acquaint.store.kind_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">kind_dir()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.store.UNREADABLE" title="acquaint.store.UNREADABLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UNREADABLE</span></code></a></p></td>
+<td><p>What undecodable bytes read as.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Functions</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.store.config_path" title="acquaint.store.config_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_path</span></code></a>()</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">~/.config/acquaint/config.toml</span></code> (honouring <code class="docutils literal notranslate"><span class="pre">XDG_CONFIG_HOME</span></code>; <code class="docutils literal notranslate"><span class="pre">%APPDATA%</span></code> on Windows).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.store.data_dir" title="acquaint.store.data_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data_dir</span></code></a>([data_dir])</p></td>
+<td><p>The data root: the argument, else <code class="docutils literal notranslate"><span class="pre">$ACQUAINT_DATA_DIR</span></code>, else <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> in config.toml, else <code class="docutils literal notranslate"><span class="pre">~/.local/share/acquaint</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.store.kind_dir" title="acquaint.store.kind_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kind_dir</span></code></a>(kind)</p></td>
+<td><p>The folder for a kind: <code class="docutils literal notranslate"><span class="pre">person</span></code>/<code class="docutils literal notranslate"><span class="pre">people</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">people</span></code>; an unknown kind is used as given, pluralised.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.store.text_files" title="acquaint.store.text_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_files</span></code></a>(root)</p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">dol</span></code> files store under <code class="docutils literal notranslate"><span class="pre">root</span></code>, for text.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.store.validate_key" title="acquaint.store.validate_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_key</span></code></a>(key)</p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">key</span></code> if it is <code class="docutils literal notranslate"><span class="pre">&lt;kind</span> <span class="pre">dir&gt;/&lt;slug&gt;</span></code> of lowercase letters, digits and hyphens; refuse anything else.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Classes</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.store.Entity" title="acquaint.store.Entity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Entity</span></code></a>(store, key)</p></td>
+<td><p>One person, project, org or group: a mapping of its files (relative names to text), plus parsed views of them.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.store.Store" title="acquaint.store.Store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Store</span></code></a>([data_dir, files])</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MutableMapping[str,</span> <span class="pre">Entity]</span></code> over one folder per entity, keyed <code class="docutils literal notranslate"><span class="pre">&quot;&lt;kind</span> <span class="pre">dir&gt;/&lt;slug&gt;&quot;</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Exceptions</p>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.store.AcquaintError" title="acquaint.store.AcquaintError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AcquaintError</span></code></a></p></td>
+<td><p>An expected failure with a message meant for the person or agent that asked.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py exception">
+<dt class="sig sig-object py" id="acquaint.store.AcquaintError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">AcquaintError</span></span><a class="reference internal" href="../_modules/acquaint/store.html#AcquaintError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.AcquaintError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>An expected failure with a message meant for the person or agent that asked.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acquaint.store.Entity">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">Entity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Entity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Entity" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MutableMapping</span></code></a></p>
+<p>One person, project, org or group: a mapping of its files (relative names to text), plus parsed views of them.</p>
+<p>Parsed views are recomputed on access (these are small text files), so an edit made
+through the mapping is never hidden behind a stale cache. Parse problems are collected
+in <a class="reference internal" href="#acquaint.store.Entity.errors" title="acquaint.store.Entity.errors"><code class="xref py py-attr docutils literal notranslate"><span class="pre">errors</span></code></a>; they never raise.</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.aka">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">aka</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.aka" title="Link to this definition">#</a></dt>
+<dd><p>Other names this entity goes by, as strings (a scalar <code class="docutils literal notranslate"><span class="pre">aka</span></code> is one alias, not its letters).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.body">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">body</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#acquaint.store.Entity.body" title="Link to this definition">#</a></dt>
+<dd><p>The entry file’s Markdown body.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.errors">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">errors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.errors" title="Link to this definition">#</a></dt>
+<dd><p>Everything about the entry file and the YAML files that did not parse.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.identities">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">identities</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.identities" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">{platform,</span> <span class="pre">value,</span> <span class="pre">source,</span> <span class="pre">status,</span> <span class="pre">…}</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Handles and addresses from <code class="docutils literal notranslate"><span class="pre">identities.yaml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.kind">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">kind</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#acquaint.store.Entity.kind" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">person</span></code>, <code class="docutils literal notranslate"><span class="pre">project</span></code>, <code class="docutils literal notranslate"><span class="pre">org</span></code>, <code class="docutils literal notranslate"><span class="pre">group</span></code>, or the singular of an open kind’s folder.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.links">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">links</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.links" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">{to,</span> <span class="pre">relation,</span> <span class="pre">role,</span> <span class="pre">since,</span> <span class="pre">until,</span> <span class="pre">source}</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Affiliations from <code class="docutils literal notranslate"><span class="pre">links.yaml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.meta">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">meta</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#acquaint.store.Entity.meta" title="Link to this definition">#</a></dt>
+<dd><p>The entry file’s frontmatter (empty when it did not parse).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#acquaint.store.Entity.name" title="Link to this definition">#</a></dt>
+<dd><p>The display name, falling back to the id.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.ref">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ref</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#acquaint.store.Entity.ref" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">person:ada-lovelace</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The link form other records use</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.rules">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rules</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.rules" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">{when,</span> <span class="pre">do,</span> <span class="pre">set_by,</span> <span class="pre">source}</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Channel and communication rules from <code class="docutils literal notranslate"><span class="pre">rules.yaml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.sections">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sections</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.sections" title="Link to this definition">#</a></dt>
+<dd><p>The entry file’s <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Sections</span></code>, keyed by normalized title.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Entity.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Entity.summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Entity.summary" title="Link to this definition">#</a></dt>
+<dd><p>The identity block: frontmatter plus identities, JSON-ready.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.surface_forms">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">surface_forms</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.surface_forms" title="Link to this definition">#</a></dt>
+<dd><p>id, name, aka, name parts, handles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Every string a document might use for this entity</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Entity.text">
+<span class="sig-name descname"><span class="pre">text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Entity.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Entity.text" title="Link to this definition">#</a></dt>
+<dd><p>A file’s text, or <code class="docutils literal notranslate"><span class="pre">default</span></code> when the file does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="acquaint.store.Entity.trust">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trust</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#acquaint.store.Entity.trust" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">{tier,</span> <span class="pre">valid_from,</span> <span class="pre">valid_to,</span> <span class="pre">review_by,</span> <span class="pre">recorded,</span> <span class="pre">source,</span> <span class="pre">note}</span></code> (see <a class="reference internal" href="acquaint.trust.html#module-acquaint.trust" title="acquaint.trust"><code class="xref py py-mod docutils literal notranslate"><span class="pre">acquaint.trust</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Disclosure tiers from <code class="docutils literal notranslate"><span class="pre">trust.yaml</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="acquaint.store.KIND_DIRS">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">KIND_DIRS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'group':</span> <span class="pre">'groups',</span> <span class="pre">'org':</span> <span class="pre">'orgs',</span> <span class="pre">'person':</span> <span class="pre">'people',</span> <span class="pre">'project':</span> <span class="pre">'projects'}</span></span><a class="headerlink" href="#acquaint.store.KIND_DIRS" title="Link to this definition">#</a></dt>
+<dd><p>see <a class="reference internal" href="#acquaint.store.kind_dir" title="acquaint.store.kind_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">kind_dir()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The kinds that ship, singular -&gt; folder. The vocabulary is open</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="acquaint.store.Store">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">Store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MutableMapping</span></code></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">MutableMapping[str,</span> <span class="pre">Entity]</span></code> over one folder per entity, keyed <code class="docutils literal notranslate"><span class="pre">&quot;&lt;kind</span> <span class="pre">dir&gt;/&lt;slug&gt;&quot;</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="n">files</span><span class="o">=</span><span class="p">{})</span>
+</span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="p">[</span><span class="s2">"projects/example"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"PROFILE.md"</span><span class="p">:</span> <span class="s2">"---</span><span class="se">\n</span><span class="s2">name: Example</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">"</span><span class="p">}</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">store</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"project:example"</span><span class="p">),</span> <span class="n">store</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"example"</span><span class="p">)</span>
+</span><span data-line="4"><span class="go">('projects/example', 'projects/example')</span>
+</span></pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.all_files">
+<span class="sig-name descname"><span class="pre">all_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.all_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.all_files" title="Link to this definition">#</a></dt>
+<dd><p>Every file under the entity’s folder, hidden ones included.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.append_text">
+<span class="sig-name descname"><span class="pre">append_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.append_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.append_text" title="Link to this definition">#</a></dt>
+<dd><p>Append to one of an entity’s files (created if missing); a true append on disk, so concurrent writers do not erase each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.exists" title="Link to this definition">#</a></dt>
+<dd><p>Whether anything is stored under the entity’s folder, with or without an entry file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.find"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.find" title="Link to this definition">#</a></dt>
+<dd><p>The store key for <code class="docutils literal notranslate"><span class="pre">people/ada-lovelace</span></code>, <code class="docutils literal notranslate"><span class="pre">person:ada-lovelace</span></code> or a bare <code class="docutils literal notranslate"><span class="pre">ada-lovelace</span></code>.</p>
+<p>A bare id that names entities of two kinds is an error: say which, e.g.
+<code class="docutils literal notranslate"><span class="pre">project:atlas</span></code>. Anything that is not a valid key raises <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>, so no
+reference reaches outside the data root.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.find_id">
+<span class="sig-name descname"><span class="pre">find_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slug</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.find_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.find_id" title="Link to this definition">#</a></dt>
+<dd><p>Every key whose id is <code class="docutils literal notranslate"><span class="pre">slug</span></code>, in any kind (ids are lowercase, so the lookup is too).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.location_warning">
+<span class="sig-name descname"><span class="pre">location_warning</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.location_warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.location_warning" title="Link to this definition">#</a></dt>
+<dd><p>A warning when the data root is, or sits inside, a git repository that is not an acquaint store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.misnamed">
+<span class="sig-name descname"><span class="pre">misnamed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.misnamed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.misnamed" title="Link to this definition">#</a></dt>
+<dd><p>Entry files on disk the store cannot address: a folder or file name not in lowercase <code class="docutils literal notranslate"><span class="pre">kind/id/PROFILE.md</span></code> form, or a linked folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.move" title="Link to this definition">#</a></dt>
+<dd><p>Move an entity’s whole folder to a new key (hidden files included).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="acquaint.store.Store.path_of">
+<span class="sig-name descname"><span class="pre">path_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#Store.path_of"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.Store.path_of" title="Link to this definition">#</a></dt>
+<dd><p>Where an entity lives, for a person to open: a real path when on disk, else the key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="acquaint.store.UNREADABLE">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">UNREADABLE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'�'</span></span><a class="headerlink" href="#acquaint.store.UNREADABLE" title="Link to this definition">#</a></dt>
+<dd><p>What undecodable bytes read as. A file containing it is reported as not valid UTF-8.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.store.config_path">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">config_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#config_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.config_path" title="Link to this definition">#</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">~/.config/acquaint/config.toml</span></code> (honouring <code class="docutils literal notranslate"><span class="pre">XDG_CONFIG_HOME</span></code>; <code class="docutils literal notranslate"><span class="pre">%APPDATA%</span></code> on Windows).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.store.data_dir">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">data_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.data_dir" title="Link to this definition">#</a></dt>
+<dd><p>The data root: the argument, else <code class="docutils literal notranslate"><span class="pre">$ACQUAINT_DATA_DIR</span></code>, else <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> in config.toml, else <code class="docutils literal notranslate"><span class="pre">~/.local/share/acquaint</span></code>.</p>
+<p>An explicit argument may be relative (it is resolved now). The environment variable
+and the config file must hold absolute paths: a relative one would put profiles
+wherever the current directory happens to be.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">data_dir</span><span class="p">(</span><span class="s2">"profiles"</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span>
+</span><span data-line="2"><span class="go">True</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.store.kind_dir">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">kind_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#kind_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.kind_dir" title="Link to this definition">#</a></dt>
+<dd><p>The folder for a kind: <code class="docutils literal notranslate"><span class="pre">person</span></code>/<code class="docutils literal notranslate"><span class="pre">people</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">people</span></code>; an unknown kind is used as given, pluralised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">kind_dir</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"person"</span><span class="p">,</span> <span class="s2">"people"</span><span class="p">,</span> <span class="s2">"org"</span><span class="p">,</span> <span class="s2">"community"</span><span class="p">,</span> <span class="s2">"teams"</span><span class="p">)]</span>
+</span><span data-line="2"><span class="go">['people', 'people', 'orgs', 'communities', 'teams']</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.store.text_files">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">text_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#text_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.text_files" title="Link to this definition">#</a></dt>
+<dd><p>A <code class="docutils literal notranslate"><span class="pre">dol</span></code> files store under <code class="docutils literal notranslate"><span class="pre">root</span></code>, for text.</p>
+<p>UTF-8 values (undecodable bytes read as U+FFFD instead of raising; a byte-order mark
+dropped), <code class="docutils literal notranslate"><span class="pre">\n</span></code> line endings, <code class="docutils literal notranslate"><span class="pre">/</span></code>-separated keys on every platform, folders made on
+write and never on read, and permanent deletes (never to a trash folder, where
+“forgotten” data would linger).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MutableMapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.store.validate_key">
+<span class="sig-prename descclassname"><span class="pre">acquaint.store.</span></span><span class="sig-name descname"><span class="pre">validate_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/store.html#validate_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.store.validate_key" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">key</span></code> if it is <code class="docutils literal notranslate"><span class="pre">&lt;kind</span> <span class="pre">dir&gt;/&lt;slug&gt;</span></code> of lowercase letters, digits and hyphens; refuse anything else.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">validate_key</span><span class="p">(</span><span class="s2">"people/ada-lovelace"</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">'people/ada-lovelace'</span>
+</span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+</span><span data-line="4"><span class="gp">... </span>    <span class="n">validate_key</span><span class="p">(</span><span class="s2">"../outside/people/someone"</span><span class="p">)</span>
+</span><span data-line="5"><span class="gp">... </span><span class="k">except</span> <span class="n">AcquaintError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span data-line="6"><span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+</span><span data-line="7"><span class="go">not a store key: '../outside/people/someone' (expected &lt;kind&gt;/&lt;id&gt;, e.g. people/ada-lovelace)</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+        </article><button class="back-to-top" type="button">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+  </svg>
+  <span>Back to top</span>
+</button><div class="navigation flex print:hidden"><div class="navigation-prev">
+    <a href="acquaint.resources.html">
+      <i class="i-lucide chevron-left"></i>
+      <div class="page-info">
+        <span>Previous</span><div class="title">acquaint.resources</div></div>
+    </a>
+  </div><div class="navigation-next">
+    <a href="acquaint.sync.html">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">acquaint.sync</div>
+      </div>
+      <i class="i-lucide chevron-right"></i>
+    </a>
+  </div></div></div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright">
+  <p>
+    Made with
+    
+    <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+  </p>
+</div>
+      <div class="sy-foot-socials">
+  <a href="https://github.com/thorwhalen/acquaint" aria-label="GitHub">
+    <iconify-icon icon="simple-icons:github"></iconify-icon>
+  </a></div>
+    </div>
+  </div>
+</footer>
+      <script src="../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=fd10adb8"></script>
+      <script src="../_static/shibuya.js?v=50760d75"></script></body>
+</html>

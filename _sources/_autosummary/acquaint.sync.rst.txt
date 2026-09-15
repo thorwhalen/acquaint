@@ -1,0 +1,18 @@
+acquaint.sync
+=============
+
+.. automodule:: acquaint.sync
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      github_urls
+      init
+      pull
+      push
+      run_command
+      status
+      visibility
+   

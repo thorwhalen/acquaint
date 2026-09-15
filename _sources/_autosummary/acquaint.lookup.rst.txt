@@ -1,0 +1,26 @@
+acquaint.lookup
+===============
+
+.. automodule:: acquaint.lookup
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TIERS
+      USABLE_STATUSES
+      INACTIVE_RULES
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      check_text
+      find_entity
+      match
+      normalise_handle
+      normalize
+      reach_channels
+      resolve_handle
+   

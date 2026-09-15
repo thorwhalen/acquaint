@@ -1,4 +1,0 @@
-acquaint.sync
-=============
-.. automodule:: acquaint.sync
-   :members:

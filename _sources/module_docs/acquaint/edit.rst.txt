@@ -1,4 +1,0 @@
-acquaint.edit
-=============
-.. automodule:: acquaint.edit
-   :members:

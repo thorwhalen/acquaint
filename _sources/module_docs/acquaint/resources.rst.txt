@@ -1,4 +1,0 @@
-acquaint.resources
-==================
-.. automodule:: acquaint.resources
-   :members:
