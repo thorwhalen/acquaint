@@ -11,6 +11,7 @@ acquaint.lookup
       TIERS
       USABLE_STATUSES
       INACTIVE_RULES
+      NO_CHANNEL_NAMED
    
    .. rubric:: Functions
 

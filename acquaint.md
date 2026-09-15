@@ -1,4 +1,4 @@
-> built 2026-09-15 12:23 UTC from 9c2cc6d (main) · acquaint 0.0.4. Details: build_info.json
+> built 2026-09-15 12:49 UTC from 0bde827 (main) · acquaint 0.0.5. Details: build_info.json
 
 # index.html.md
 
@@ -36,7 +36,8 @@ POLICY.md                       what may be recorded
 people/ada-lovelace/
   PROFILE.md                    entry file: identity frontmatter + Who · Reach · Write to them · Read them · Don't · Now · More
   identities.yaml               handles and addresses, with evidence
-  rules.yaml                    channel rules: when → do, who set it, source
+  rules.yaml                    channel rules: when → do (channel, and the address
+                                when the channel is addressed by conversation), who set it, source
   links.yaml                    affiliations: project, org, group; role; period
   style.md                      the writing card: AI tolerance, register, do, don't, blocklist, exemplars
   views.md                      positions and standing objections, sourced
@@ -609,7 +610,7 @@ Create a person, project, org or group from its template (a readable slug id; `q
 
 ### acquaint.reach(person, , purpose=None, urgency=None, project=None, message_type=None, topic=None, data_dir=None)
 
-Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. `outcome` is `reachable`, `no_address` (a rule matched, but no usable address is recorded for its channels) or `no_channel`.
+Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. `outcome` is `reachable`, `no_address` (a rule matched, but neither states an address nor finds a usable one recorded for its channels) or `no_channel`. Each channel’s `address_kind` is `stated`, `identity` (the person’s handle, which a conversation-addressed channel does not take) or `None`.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -717,10 +718,11 @@ it never takes a lookup down.
 
 ### Module Attributes
 
-| [`TIERS`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.TIERS)           | Who set a rule, most authoritative first.                                           |
-|------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`USABLE_STATUSES`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.USABLE_STATUSES) | An identity is usable only with one of these statuses (none recorded means active). |
-| [`INACTIVE_RULES`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.INACTIVE_RULES)  | A rule is out of use with one of these statuses.                                    |
+| [`TIERS`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.TIERS)            | Who set a rule, most authoritative first.                                              |
+|-------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| [`USABLE_STATUSES`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.USABLE_STATUSES)  | An identity is usable only with one of these statuses (none recorded means active).    |
+| [`INACTIVE_RULES`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.INACTIVE_RULES)   | A rule is out of use with one of these statuses.                                       |
+| [`NO_CHANNEL_NAMED`](_autosummary/acquaint.lookup.html.md#acquaint.lookup.NO_CHANNEL_NAMED) | What a channel entry is called when its rule named none, so no repr stands in for one. |
 
 ### Functions
 
@@ -736,6 +738,10 @@ it never takes a lookup down.
 ### acquaint.lookup.INACTIVE_RULES *= {'dead', 'draft', 'expired', 'retracted', 'superseded'}*
 
 A rule is out of use with one of these statuses.
+
+### acquaint.lookup.NO_CHANNEL_NAMED *= '(no channel named)'*
+
+What a channel entry is called when its rule named none, so no repr stands in for one.
 
 ### acquaint.lookup.TIERS *= ('self', 'operator', 'affiliation', 'observed', 'default')*
 
@@ -809,6 +815,19 @@ Precedence: the person’s own stated rules > the operator’s rules about them 
 a project or affiliation > observed habits > global defaults. Within a tier the most
 specific matching rule wins. Only usable addresses are offered; a rule value that is
 not a channel name is skipped with a note. It returns addresses; it sends nothing.
+
+Each channel carries `address_kind`: `stated` when a rule gave the address,
+`identity` when it was built from one of the entity’s identities, `None` when
+there is no address. The distinction matters because an identity-built address is a
+*handle* (`github:ada`), and a channel addressed by conversation rather than by
+person (GitHub, a web inbox, a chat channel) does not take one. Such a channel’s rule
+states its address.
+
+A channel’s **position** is decided by the best-placed rule that names it; its
+**address** by the best-placed rule that states one, which may be a different rule. A
+rule that names a channel without stating an address expresses no opinion about where
+that channel goes, so it does not bury an address a lower-placed rule states; the note
+says which rule file the address came from when the two differ.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
@@ -1846,7 +1865,7 @@ Create a person, project, org or group from its template (a readable slug id; `q
 
 ### acquaint.tools.reach(person, , purpose=None, urgency=None, project=None, message_type=None, topic=None, data_dir=None)
 
-Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. `outcome` is `reachable`, `no_address` (a rule matched, but no usable address is recorded for its channels) or `no_channel`.
+Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. `outcome` is `reachable`, `no_address` (a rule matched, but neither states an address nor finds a usable one recorded for its channels) or `no_channel`. Each channel’s `address_kind` is `stated`, `identity` (the person’s handle, which a conversation-addressed channel does not take) or `None`.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -2077,7 +2096,7 @@ True
 
 # About this build
 
-This documentation was built on **2026-09-15 12:23 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/9c2cc6df35ef3bba159c2cbe779304e10ba8788e"><code>9c2cc6d</code></a> on branch <code>main</code>, for **acquaint 0.0.4** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-15 12:49 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/0bde8275594f2f77ea1220b5e794986749534450"><code>0bde827</code></a> on branch <code>main</code>, for **acquaint 0.0.5** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -2086,7 +2105,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/9c2cc6df35ef3bba159c2cbe779304e10ba8788e"><code>9c2cc6df35ef3bba159c2cbe779304e10ba8788e</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/0bde8275594f2f77ea1220b5e794986749534450"><code>0bde8275594f2f77ea1220b5e794986749534450</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2097,15 +2116,15 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34968443722">34968443722</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34971000927">34971000927</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>9c2cc6df35ef3bba159c2cbe779304e10ba8788e</code> (in the history of the built commit) |
+| Event commit | <code>0bde8275594f2f77ea1220b5e794986749534450</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.11  |
+| epythet  | 0.2.12  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
 | Python   | 3.12.14 |
@@ -2124,14 +2143,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.4/">0.0.4</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.5/">0.0.5</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 9c2cc6df35ef3bba159c2cbe779304e10ba8788e
-pip install "epythet==0.2.11"
+git checkout 0bde8275594f2f77ea1220b5e794986749534450
+pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "built_at": "2026-09-15T12:23:43Z",
+  "built_at": "2026-09-15T12:49:39Z",
   "package": {
     "name": "acquaint",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "display_name": "acquaint",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "9c2cc6df35ef3bba159c2cbe779304e10ba8788e",
-    "short_commit": "9c2cc6d",
+    "commit": "0bde8275594f2f77ea1220b5e794986749534450",
+    "short_commit": "0bde827",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/thorwhalen/acquaint",
-    "commit_url": "https://github.com/thorwhalen/acquaint/commit/9c2cc6df35ef3bba159c2cbe779304e10ba8788e",
+    "commit_url": "https://github.com/thorwhalen/acquaint/commit/0bde8275594f2f77ea1220b5e794986749534450",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "thorwhalen/acquaint",
-    "sha": "9c2cc6df35ef3bba159c2cbe779304e10ba8788e",
+    "sha": "0bde8275594f2f77ea1220b5e794986749534450",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "34968443722",
-    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/34968443722",
+    "run_id": "34971000927",
+    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/34971000927",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.11",
+    "epythet": "0.2.12",
     "sphinx": "9.1.0",
     "docutils": "0.22.4",
     "python": "3.12.14"
@@ -56,15 +56,15 @@
   },
   "site": {
     "modules_documented": 12,
-    "objects_documented": 163
+    "objects_documented": 164
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.4",
+    "latest": "0.0.5",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 9c2cc6df35ef3bba159c2cbe779304e10ba8788e\npip install \"epythet==0.2.11\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 0bde8275594f2f77ea1220b5e794986749534450\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,

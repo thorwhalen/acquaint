@@ -284,7 +284,7 @@ Create a person, project, org or group from its template (a readable slug id; `q
 
 ### acquaint.reach(person, , purpose=None, urgency=None, project=None, message_type=None, topic=None, data_dir=None)
 
-Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. `outcome` is `reachable`, `no_address` (a rule matched, but no usable address is recorded for its channels) or `no_channel`.
+Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. `outcome` is `reachable`, `no_address` (a rule matched, but neither states an address nor finds a usable one recorded for its channels) or `no_channel`. Each channel’s `address_kind` is `stated`, `identity` (the person’s handle, which a conversation-addressed channel does not take) or `None`.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)

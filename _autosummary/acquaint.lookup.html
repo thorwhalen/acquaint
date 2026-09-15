@@ -94,6 +94,7 @@ data-aria-dark="Switch to auto color mode">
     </button>
     <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
 <li><a class="reference internal" href="#acquaint.lookup.INACTIVE_RULES"><code class="docutils literal notranslate"><span class="pre">INACTIVE_RULES</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.lookup.NO_CHANNEL_NAMED"><code class="docutils literal notranslate"><span class="pre">NO_CHANNEL_NAMED</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.lookup.TIERS"><code class="docutils literal notranslate"><span class="pre">TIERS</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.lookup.USABLE_STATUSES"><code class="docutils literal notranslate"><span class="pre">USABLE_STATUSES</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.lookup.check_text"><code class="docutils literal notranslate"><span class="pre">check_text()</span></code></a></li>
@@ -163,6 +164,9 @@ it never takes a lookup down.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.lookup.INACTIVE_RULES" title="acquaint.lookup.INACTIVE_RULES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INACTIVE_RULES</span></code></a></p></td>
 <td><p>A rule is out of use with one of these statuses.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.lookup.NO_CHANNEL_NAMED" title="acquaint.lookup.NO_CHANNEL_NAMED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NO_CHANNEL_NAMED</span></code></a></p></td>
+<td><p>What a channel entry is called when its rule named none, so no repr stands in for one.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -198,6 +202,12 @@ it never takes a lookup down.</p>
 <dt class="sig sig-object py" id="acquaint.lookup.INACTIVE_RULES">
 <span class="sig-prename descclassname"><span class="pre">acquaint.lookup.</span></span><span class="sig-name descname"><span class="pre">INACTIVE_RULES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dead',</span> <span class="pre">'draft',</span> <span class="pre">'expired',</span> <span class="pre">'retracted',</span> <span class="pre">'superseded'}</span></span><a class="headerlink" href="#acquaint.lookup.INACTIVE_RULES" title="Link to this definition">#</a></dt>
 <dd><p>A rule is out of use with one of these statuses.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="acquaint.lookup.NO_CHANNEL_NAMED">
+<span class="sig-prename descclassname"><span class="pre">acquaint.lookup.</span></span><span class="sig-name descname"><span class="pre">NO_CHANNEL_NAMED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'(no</span> <span class="pre">channel</span> <span class="pre">named)'</span></span><a class="headerlink" href="#acquaint.lookup.NO_CHANNEL_NAMED" title="Link to this definition">#</a></dt>
+<dd><p>What a channel entry is called when its rule named none, so no repr stands in for one.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -292,6 +302,17 @@ or more): suggestions for a person, never something to act on.</p>
 a project or affiliation &gt; observed habits &gt; global defaults. Within a tier the most
 specific matching rule wins. Only usable addresses are offered; a rule value that is
 not a channel name is skipped with a note. It returns addresses; it sends nothing.</p>
+<p>Each channel carries <code class="docutils literal notranslate"><span class="pre">address_kind</span></code>: <code class="docutils literal notranslate"><span class="pre">stated</span></code> when a rule gave the address,
+<code class="docutils literal notranslate"><span class="pre">identity</span></code> when it was built from one of the entity’s identities, <code class="docutils literal notranslate"><span class="pre">None</span></code> when
+there is no address. The distinction matters because an identity-built address is a
+<em>handle</em> (<code class="docutils literal notranslate"><span class="pre">github:ada</span></code>), and a channel addressed by conversation rather than by
+person (GitHub, a web inbox, a chat channel) does not take one. Such a channel’s rule
+states its address.</p>
+<p>A channel’s <strong>position</strong> is decided by the best-placed rule that names it; its
+<strong>address</strong> by the best-placed rule that states one, which may be a different rule. A
+rule that names a channel without stating an address expresses no opinion about where
+that channel goes, so it does not bury an address a lower-placed rule states; the note
+says which rule file the address came from when the two differ.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
@@ -357,7 +378,7 @@ names under <code class="docutils literal notranslate"><span class="pre">by_name
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../_static/documentation_options.js?v=282f96c0"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

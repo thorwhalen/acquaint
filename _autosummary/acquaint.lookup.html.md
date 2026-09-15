@@ -11,10 +11,11 @@ it never takes a lookup down.
 
 ### Module Attributes
 
-| [`TIERS`](#acquaint.lookup.TIERS)           | Who set a rule, most authoritative first.                                           |
-|------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`USABLE_STATUSES`](#acquaint.lookup.USABLE_STATUSES) | An identity is usable only with one of these statuses (none recorded means active). |
-| [`INACTIVE_RULES`](#acquaint.lookup.INACTIVE_RULES)  | A rule is out of use with one of these statuses.                                    |
+| [`TIERS`](#acquaint.lookup.TIERS)            | Who set a rule, most authoritative first.                                              |
+|-------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| [`USABLE_STATUSES`](#acquaint.lookup.USABLE_STATUSES)  | An identity is usable only with one of these statuses (none recorded means active).    |
+| [`INACTIVE_RULES`](#acquaint.lookup.INACTIVE_RULES)   | A rule is out of use with one of these statuses.                                       |
+| [`NO_CHANNEL_NAMED`](#acquaint.lookup.NO_CHANNEL_NAMED) | What a channel entry is called when its rule named none, so no repr stands in for one. |
 
 ### Functions
 
@@ -30,6 +31,10 @@ it never takes a lookup down.
 ### acquaint.lookup.INACTIVE_RULES *= {'dead', 'draft', 'expired', 'retracted', 'superseded'}*
 
 A rule is out of use with one of these statuses.
+
+### acquaint.lookup.NO_CHANNEL_NAMED *= '(no channel named)'*
+
+What a channel entry is called when its rule named none, so no repr stands in for one.
 
 ### acquaint.lookup.TIERS *= ('self', 'operator', 'affiliation', 'observed', 'default')*
 
@@ -103,6 +108,19 @@ Precedence: the person’s own stated rules > the operator’s rules about them 
 a project or affiliation > observed habits > global defaults. Within a tier the most
 specific matching rule wins. Only usable addresses are offered; a rule value that is
 not a channel name is skipped with a note. It returns addresses; it sends nothing.
+
+Each channel carries `address_kind`: `stated` when a rule gave the address,
+`identity` when it was built from one of the entity’s identities, `None` when
+there is no address. The distinction matters because an identity-built address is a
+*handle* (`github:ada`), and a channel addressed by conversation rather than by
+person (GitHub, a web inbox, a chat channel) does not take one. Such a channel’s rule
+states its address.
+
+A channel’s **position** is decided by the best-placed rule that names it; its
+**address** by the best-placed rule that states one, which may be a different rule. A
+rule that names a channel without stating an address expresses no opinion about where
+that channel goes, so it does not bury an address a lower-placed rule states; the note
+says which rule file the address came from when the two differ.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]

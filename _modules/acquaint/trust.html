@@ -293,7 +293,11 @@ data-aria-dark="Switch to auto color mode">
 </span><span data-line="154">    <span class="n">tags</span> <span class="o">=</span> <span class="n">fact_tags</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </span><span data-line="155">    <span class="k">if</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"problems"</span><span class="p">]:</span>
 </span><span data-line="156">        <span class="k">return</span> <span class="n">record_label</span>
-</span><span data-line="157">    <span class="k">return</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="k">if</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">LABELS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"problems"</span><span class="p">]</span> <span class="k">else</span> <span class="n">_UNKNOWN_LABEL</span></div>
+</span><span data-line="157">    <span class="k">return</span> <span class="p">(</span>
+</span><span data-line="158">        <span class="n">tags</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span>
+</span><span data-line="159">        <span class="k">if</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">LABELS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tags</span><span class="p">[</span><span class="s2">"problems"</span><span class="p">]</span>
+</span><span data-line="160">        <span class="k">else</span> <span class="n">_UNKNOWN_LABEL</span>
+</span><span data-line="161">    <span class="p">)</span></div>
 
 </span></pre></div>
         </article><button class="back-to-top" type="button">
@@ -322,7 +326,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../_static/documentation_options.js?v=282f96c0"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
