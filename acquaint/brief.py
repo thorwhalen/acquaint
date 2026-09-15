@@ -195,9 +195,7 @@ def _render(entity, brief: dict[str, Any]) -> str:
             # somewhere to send: a channel addressed by conversation does not take one.
             # Say which it is in the prose, since that is what a writing agent reads.
             derived = (
-                " (from their identities)"
-                if ch.get("address_kind") == "identity"
-                else ""
+                " (from their identities)" if ch.get("address_kind") == "identity" else ""
             )
             where = f" → {ch['address']}{derived}" if ch["address"] else ""
             why = f"{ch['tier']} rule" if ch["tier"] != "none" else ch["instruction"]

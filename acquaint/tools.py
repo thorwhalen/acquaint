@@ -25,7 +25,14 @@ from acquaint.brief import compose_brief
 from acquaint.deslop import lint_text, recipient_card
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
-from acquaint.lookup import NO_CHANNEL_NAMED, check_text, find_entity, match, reach_channels, resolve_handle
+from acquaint.lookup import (
+    NO_CHANNEL_NAMED,
+    check_text,
+    find_entity,
+    match,
+    reach_channels,
+    resolve_handle,
+)
 from acquaint.store import ENTRY_FILE, AcquaintError, Entity, Store, data_dir as _data_dir
 from acquaint.trust import effective_tier, entity_label
 
