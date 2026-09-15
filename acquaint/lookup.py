@@ -382,45 +382,51 @@ def _address(entity: Entity, channel: str) -> tuple[str | None, str | None]:
     return None, f"no {channel} address recorded"
 
 
-def _stated(value: Any) -> tuple[str | None, str | None]:
-    """One entry of a rule's ``do``, as ``(channel, stated address)``.
+#: What a channel entry is called when its rule named none, so no repr stands in for one.
+NO_CHANNEL_NAMED = "(no channel named)"
 
-    A plain string names a channel and states no address. A mapping may state one with
-    ``address``, which is what a channel addressed by conversation rather than by person
-    needs: ``{"channel": "github", "address": "github:example/heron"}``.
+
+def _fallback_entry(value: Any) -> tuple[str | None, str | None]:
+    """One ``fallback`` entry, as ``(channel, stated address)``.
+
+    A plain string names a channel and states no address. A mapping states one:
+    ``{"channel": "webinbox", "address": "webinbox:heron"}``. Anything else is neither.
     """
     if isinstance(value, str) and value.strip():
         return value.strip(), None
     if isinstance(value, dict):
         channel, address = value.get("channel"), value.get("address")
         if isinstance(channel, str) and channel.strip():
-            stated = address.strip() if isinstance(address, str) and address.strip() else None
-            return channel.strip(), stated
+            return channel.strip(), _text(address)
     return None, None
+
+
+def _text(value: Any) -> str | None:
+    """``value`` stripped when it is a non-empty string, else ``None``."""
+    return value.strip() if isinstance(value, str) and value.strip() else None
 
 
 def _channels_of(do: Any) -> tuple[list[tuple[str, str | None]], list[str]]:
     """The channels a rule's ``do`` asks for, in order, each with the address it states, and notes about values that are not channels.
 
-    ``do.address`` states the address of ``do.channel``; a ``fallback`` entry states its
-    own, as a mapping. A stated address is returned as it is written, so it may be any
-    reference the channel takes, not only one built from an identity.
+    ``do.channel`` is a channel *name* and ``do.address`` states where that channel goes;
+    a ``fallback`` entry is a name, or a mapping stating its own address. A stated address
+    is returned as written, so it may be any reference the channel takes, not only one
+    built from an identity. There is one way to write each of those, so a mapping given as
+    ``do.channel`` is not a channel and is reported as such.
     """
     if not isinstance(do, dict):
         return [], []
     entries, notes = [], []
-    primary, primary_address = _stated(do.get("channel"))
+    primary = _text(do.get("channel"))
     if primary is not None:
-        address = do.get("address")
-        if primary_address is None and isinstance(address, str) and address.strip():
-            primary_address = address.strip()
-        entries.append((primary, primary_address))
+        entries.append((primary, _text(do.get("address"))))
     elif do.get("channel") is not None:
         notes.append(f"ignored {do.get('channel')!r}: a channel is a name such as email")
     for value in _as_list(do.get("fallback")):
         if value is None:
             continue
-        channel, stated = _stated(value)
+        channel, stated = _fallback_entry(value)
         if channel is None:
             notes.append(f"ignored {value!r}: a channel is a name such as email")
             continue
@@ -438,21 +444,30 @@ def reach_channels(
     specific matching rule wins. Only usable addresses are offered; a rule value that is
     not a channel name is skipped with a note. It returns addresses; it sends nothing.
 
-    Each channel carries ``address_kind``: ``stated`` when the rule gave the address,
+    Each channel carries ``address_kind``: ``stated`` when a rule gave the address,
     ``identity`` when it was built from one of the entity's identities, ``None`` when
     there is no address. The distinction matters because an identity-built address is a
     *handle* (``github:ada``), and a channel addressed by conversation rather than by
     person (GitHub, a web inbox, a chat channel) does not take one. Such a channel's rule
     states its address.
+
+    A channel's **position** is decided by the best-placed rule that names it; its
+    **address** by the best-placed rule that states one, which may be a different rule. A
+    rule that names a channel without stating an address expresses no opinion about where
+    that channel goes, so it does not bury an address a lower-placed rule states; the note
+    says which rule file the address came from when the two differ.
     """
     context = {k: str(v) for k, v in context.items() if v}
     entity = store[key]
     candidates: list[tuple[str, dict, str]] = [
         (_tier_of(rule, "operator"), rule, f"{key}/rules.yaml") for rule in entity.rules
     ]
-    affiliations = [str(link.get("to", "")) for link in entity.links]
-    if context.get("project"):
-        affiliations.append(f"project:{context['project']}")
+    # The project the caller named comes before the entity's other affiliations: its rules
+    # are about the message at hand, and every affiliation shares one tier, so whichever is
+    # consulted first wins a tie. Without this, asking about one project can answer with
+    # another project's rule.
+    affiliations = [f"project:{context['project']}"] if context.get("project") else []
+    affiliations += [str(link.get("to", "")) for link in entity.links]
     for ref in dict.fromkeys(affiliations):
         try:
             other = store[store.find(ref)]
@@ -475,20 +490,46 @@ def reach_channels(
             scored.append((TIERS.index(tier), -specificity, order, tier, rule, origin))
     scored.sort(key=lambda item: item[:3])
 
+    # A channel's position is the best-placed rule that names it. Its address is the
+    # best-placed rule that *states* one, which is not always the same rule: a broad rule
+    # naming a channel says nothing about where that channel goes, so it must not bury the
+    # address a narrower one gives. Collected in one pass, best first.
+    stated_addresses: dict[str, tuple[str, str, int]] = {}
+    for rank, (_, _, _, _, rule, origin) in enumerate(scored):
+        for channel, stated in _channels_of(rule.get("do", {}))[0]:
+            if stated is not None:
+                stated_addresses.setdefault(channel, (stated, origin, rank))
+
     channels, seen = [], set()
-    for _, _, _, tier, rule, origin in scored:
+    for rank, (_, _, _, tier, rule, origin) in enumerate(scored):
         do = rule.get("do", {})
-        stated_entries, notes = _channels_of(do)
-        entries: list[tuple[str | None, str | None, str | None]] = [
-            (channel, stated, None) for channel, stated in stated_entries
-        ] or ([(None, None, str(do))] if do not in ({}, None, "") else [])
-        for channel, stated, instruction in entries:
-            label = channel or instruction
+        named, notes = _channels_of(do)
+        entries: list[tuple[str | None, str | None]] = [
+            (channel, None) for channel, _ in named
+        ]
+        if not entries and not isinstance(do, dict) and do not in (None, ""):
+            # Free text: a `do` that is prose, not a channel. A mapping is never prose —
+            # its repr is not an instruction anyone can act on, so a mapping that names no
+            # channel is reported through its notes instead, below.
+            entries = [(None, str(do))]
+        elif not entries and notes:
+            entries = [(None, None)]
+        for channel, instruction in entries:
+            if channel:
+                label: tuple[str, str] = ("channel", channel)
+            elif instruction:
+                label = ("instruction", instruction)
+            else:
+                label = ("notes", "; ".join(notes))
             if label in seen:
                 continue
             seen.add(label)
+            stated = stated_addresses.get(channel) if channel else None
             if stated is not None:
-                address, note, kind = stated, None, "stated"
+                address, note, kind = stated[0], None, "stated"
+                # The address may come from a different rule than the channel choice.
+                if stated[2] != rank:
+                    note = f"address stated by another rule in {stated[1]}"
             elif channel:
                 address, note = _address(entity, channel)
                 kind = "identity" if address else None

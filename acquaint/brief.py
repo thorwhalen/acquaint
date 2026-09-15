@@ -16,7 +16,7 @@ from typing import Any
 
 from acquaint.deslop import recipient_card
 from acquaint.lint import lint_store
-from acquaint.lookup import reach_channels
+from acquaint.lookup import NO_CHANNEL_NAMED, reach_channels
 from acquaint.records import item_blocks, parse_log, split_frontmatter
 from acquaint.resources import data_yaml
 from acquaint.store import AcquaintError, Store
@@ -190,8 +190,12 @@ def _render(entity, brief: dict[str, Any]) -> str:
     out.append("## How to reach them")
     if brief["reach"]:
         for n, ch in enumerate(brief["reach"], start=1):
-            what = ch["channel"] or ch["instruction"]
-            where = f" → {ch['address']}" if ch["address"] else ""
+            what = ch["channel"] or ch["instruction"] or NO_CHANNEL_NAMED
+            # An identity-built address is the person's handle, not somewhere to send:
+            # a channel addressed by conversation does not take one. Say so in the prose,
+            # since that is what a writing agent reads.
+            handle = " (their handle)" if ch.get("address_kind") == "identity" else ""
+            where = f" → {ch['address']}{handle}" if ch["address"] else ""
             why = f"{ch['tier']} rule" if ch["tier"] != "none" else ch["instruction"]
             source = f"; source: {ch['source']}" if ch.get("source") else ""
             note = f"; {ch['note']}" if ch.get("note") else ""

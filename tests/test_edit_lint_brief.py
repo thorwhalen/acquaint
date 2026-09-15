@@ -476,18 +476,36 @@ def test_brief_marks_relational_purposes(ada):
 
 
 def test_lint_on_a_rules_address_and_a_bare_do(ada):
-    """Issue #16: a stated address must be text, and a one-word ``do`` reaches nothing."""
+    """Issue #16: a stated address must be text and sit beside a channel; a one-word ``do`` reaches nothing."""
     ada.files[f"{ADA}/rules.yaml"] = dump_yaml(
         {
             "rules": [
-                {"when": {}, "do": "pager", "source": "operator"},
-                {"when": {"urgency": "high"}, "do": {"channel": "github", "address": ["a", "b"]}, "source": "operator"},
-                {"when": {"project": "heron"}, "do": {"channel": "github", "address": "github:example/heron"}, "source": "operator"},
+                {"id": "r1", "when": {}, "do": "pager", "source": "operator"},
+                {"id": "r2", "when": {"urgency": "high"}, "do": {"channel": "github", "address": ["a", "b"]}, "source": "operator"},
+                {"id": "r3", "when": {"project": "heron"}, "do": {"channel": "github", "address": "github:example/heron"}, "source": "operator"},
+                {"id": "r4", "when": {}, "do": {"address": "github:example/heron"}, "source": "operator"},
+                {"id": "r5", "when": {}, "do": {"channel": {"channel": "github", "address": "github:example/heron"}}, "source": "operator"},
+                {"id": "r6", "when": {}, "do": {"channel": "email", "fallback": [{"channel": "github", "address": 42}]}, "source": "operator"},
+                {"id": "r7", "when": {}, "do": {"channel": "email", "fallback": [{"address": "github:example/heron"}]}, "source": "operator"},
             ]
         }
     )
     result = lint_store(ada, ADA, today=TODAY)
-    assert _error_rules(result) == [("rules.yaml", "bad-address")], "the stated address of the third rule is fine"
+    assert [f["rule"] for f in result["errors"]] == [
+        "bad-address",             # r2: the stated address is not text
+        "address-without-channel",  # r4: an address with nothing to reach it on
+        "bad-channel",             # r5: `do.channel` is a name, not a mapping
+        "bad-address",             # r6: a fallback's stated address is not text
+        "bad-channel",             # r7: a fallback mapping with no channel
+    ], "r3 is the well-formed one"
     warnings = {(w["file"], w["rule"]) for w in result["warnings"]}
     assert ("rules.yaml", "do-is-a-bare-channel") in warnings
     assert any("do: {channel: pager}" in w["message"] for w in result["warnings"]), "it says how to write it"
+
+
+def test_lint_warns_about_a_bare_do_only_when_it_could_be_a_channel(ada):
+    """One word may be a mis-written channel; a sentence is prose, and warning about it would be noise."""
+    ada.files[f"{ADA}/rules.yaml"] = dump_yaml(
+        {"rules": [{"id": "r1", "when": {}, "do": "ask her on the weekly call", "source": "operator"}]}
+    )
+    assert not [w for w in lint_store(ada, ADA, today=TODAY)["warnings"] if w["rule"] == "do-is-a-bare-channel"]

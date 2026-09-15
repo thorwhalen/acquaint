@@ -309,3 +309,134 @@ def test_reach_ignores_a_fallback_entry_with_no_channel(tmp_path):
     result = tools.reach("ada-lovelace", data_dir=data)
     assert [c["channel"] for c in result["channels"]] == ["email"]
     assert "ignored" in result["channels"][0]["note"], "the entry is named, not dropped in silence"
+
+
+def _stated_rule(when, address=None, **extra):
+    rule = {"when": when, "do": {"channel": "github", **({"address": address} if address else {})}, "set_by": "operator", "source": "operator"}
+    rule["do"].update(extra)
+    return rule
+
+
+def test_reach_answers_with_the_project_that_was_asked_about(tmp_path):
+    """A project named in the call is consulted before the person's other affiliations, which share its tier."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    for slug in ("ibis", "heron"):
+        tools.new("project", slug.title(), data_dir=data)
+        (tmp_path / "projects" / slug / "rules.yaml").write_text(
+            _rules(_stated_rule({}, f"github:example/{slug}")), encoding="utf-8"
+        )
+    (tmp_path / "people" / "ada-lovelace" / "links.yaml").write_text(
+        dump_yaml({"links": [{"to": "project:ibis", "role": "author", "source": "operator"}]}), encoding="utf-8"
+    )
+    result = tools.reach("ada-lovelace", project="heron", data_dir=data)
+    assert result["channels"][0]["address"] == "github:example/heron", "not the ibis link's address"
+
+
+def test_reach_takes_the_address_from_the_best_rule_that_states_one(tmp_path):
+    """A broad rule naming a channel says nothing about where it goes, so it must not bury a stated address."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    tools.remember("ada-lovelace", "github:ada", kind="identity", source="operator", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(
+            {"when": {}, "do": {"channel": "github"}, "set_by": "self", "source": "operator"},
+            _stated_rule({"project": "heron"}, "github:example/heron"),
+        ),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", project="heron", data_dir=data)
+    assert (result["ok"], result["outcome"]) == (True, "reachable")
+    channel = result["channels"][0]
+    assert channel["address"] == "github:example/heron", "the self rule wins the channel, not the address"
+    assert channel["address_kind"] == "stated"
+    assert channel["tier"] == "self", "the channel's place still comes from the best-placed rule naming it"
+    assert "address stated by another rule" in channel["note"], "it says the address came from elsewhere"
+
+
+def test_reach_is_reachable_when_only_a_lower_rule_states_the_address(tmp_path):
+    """The same shape with no identity recorded: a stated address makes it reachable, not exit 3."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(
+            {"when": {}, "do": {"channel": "github"}, "set_by": "self", "source": "operator"},
+            _stated_rule({"project": "heron"}, "github:example/heron"),
+        ),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", project="heron", data_dir=data)
+    assert (result["ok"], result["outcome"]) == (True, "reachable")
+    assert result["channels"][0]["address"] == "github:example/heron"
+
+
+def test_reach_offers_both_remedies_when_nothing_gives_an_address(tmp_path):
+    """Exit 3 must not push a conversation reference into identities.yaml."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(_stated_rule({})), encoding="utf-8"
+    )
+    result = tools.reach("ada-lovelace", data_dir=data)
+    assert (result["ok"], result["outcome"]) == (False, "no_address")
+    assert "--kind identity" in result["summary"], "record an identity"
+    assert "do: {channel: github, address: <reference>}" in result["summary"], "or state it on the rule"
+
+
+def test_reach_keeps_an_instruction_and_a_channel_of_the_same_name_apart(tmp_path):
+    """A free-text `do` must not collide with a rule naming that channel."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(
+            {"when": {}, "do": "github", "set_by": "self", "source": "operator"},
+            _stated_rule({"project": "heron"}, "github:example/heron"),
+        ),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", project="heron", data_dir=data)
+    assert len(result["channels"]) == 2, "the instruction and the channel are two entries"
+    assert result["channels"][0]["instruction"] == "github" and result["channels"][0]["channel"] is None
+    assert result["channels"][1]["address"] == "github:example/heron"
+
+
+def test_reach_will_not_read_a_mapping_as_a_channel_name(tmp_path):
+    """`do.channel` is a name; an address goes in `address`. A mapping there is reported, not parsed."""
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules({"when": {}, "do": {"channel": {"channel": "github", "address": "github:example/heron"}}, "source": "operator"}),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", data_dir=data)
+    assert [c["channel"] for c in result["channels"]] == [None]
+    assert "ignored" in result["channels"][0]["note"]
+    assert result["channels"][0]["address"] is None and result["channels"][0]["address_kind"] is None
+    assert (result["ok"], result["outcome"]) == (False, "no_channel"), "not reachable through a malformed rule"
+    assert result["text"].startswith("1. (no channel named)"), "its repr does not stand in for a channel"
+
+
+def test_reach_does_not_offer_an_address_that_names_no_channel(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules({"when": {}, "do": {"address": "github:example/heron"}, "source": "operator"}),
+        encoding="utf-8",
+    )
+    result = tools.reach("ada-lovelace", data_dir=data)
+    assert (result["ok"], result["outcome"]) == (False, "no_channel")
+    assert "{'address'" not in result["text"], "no repr masquerading as a usable channel"
+
+
+def test_brief_marks_a_derived_address_as_a_handle(tmp_path):
+    data = str(tmp_path)
+    tools.new("person", "Ada Lovelace", data_dir=data)
+    tools.remember("ada-lovelace", "github:ada", kind="identity", source="operator", data_dir=data)
+    (tmp_path / "people" / "ada-lovelace" / "rules.yaml").write_text(
+        _rules(_stated_rule({"project": "heron"}, "github:example/heron"), _stated_rule({})),
+        encoding="utf-8",
+    )
+    stated = tools.brief("ada-lovelace", project="heron", data_dir=data)["text"]
+    assert "→ github:example/heron (" in stated and "their handle" not in stated
+    derived = tools.brief("ada-lovelace", data_dir=data)["text"]
+    assert "→ github:ada (their handle)" in derived
