@@ -19,6 +19,7 @@ import os
 import re
 import secrets
 import shlex
+from collections.abc import Sequence
 from datetime import date, timedelta
 from string import Template
 from typing import Any
@@ -247,12 +248,15 @@ def append_observation(
     source: str | None = None,
     kind: str = "observation",
     reactivate: bool = False,
+    disclosed: Sequence[str] = (),
     today: str | None = None,
 ) -> dict[str, Any]:
     """Append one dated, sourced entry to the entity's ``log/YYYY-MM.md`` (and, for ``identity``, to ``identities.yaml``).
 
     An identity equal to an inactive one is refused, naming that entry, unless
-    ``reactivate`` is set (see :func:`_append_identity`). A refusal writes nothing.
+    ``reactivate`` is set (see :func:`_append_identity`). ``disclosed`` (``interaction``
+    only) lists the records the message identified, by exact id or reference, written as
+    references (``project:heron``); never the text. A refusal writes nothing.
     """
     if kind not in OBSERVATION_KINDS:
         raise AcquaintError(
@@ -260,6 +264,9 @@ def append_observation(
         )
     if reactivate and kind != "identity":
         raise AcquaintError("--reactivate applies to --kind identity only")
+    if disclosed and kind != "interaction":
+        raise AcquaintError("--disclosed applies to --kind interaction only")
+    disclosed_refs = [store[_find(store, ref)].ref for ref in disclosed or ()]
     if reactivate and source is None:
         raise AcquaintError(
             "--reactivate needs --source: what shows the identity is current again"
@@ -313,7 +320,14 @@ def append_observation(
             )
 
     entry_id = next_log_id(existing)
-    entry = format_log_entry(entry_id, today, kind, text, source=source or _UNSOURCED)
+    entry = format_log_entry(
+        entry_id,
+        today,
+        kind,
+        text,
+        source=source or _UNSOURCED,
+        disclosed=", ".join(dict.fromkeys(disclosed_refs)),
+    )
     separator = (
         ""
         if not existing or existing.endswith("\n\n")
@@ -334,6 +348,7 @@ def append_observation(
         "source": source,
         "source_kind": source_kind(source) if source else None,
         "identity": identity,
+        "disclosed": list(dict.fromkeys(disclosed_refs)),
         "warnings": warnings,
     }
 

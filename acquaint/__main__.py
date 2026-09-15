@@ -9,6 +9,7 @@ way (:func:`acquaint.render.exit_code`).
 import functools
 import json
 import sys
+from pathlib import Path
 
 import cw
 
@@ -25,6 +26,20 @@ def _command(func):
             raise cw.CommandError(str(error)) from error
 
     return command
+
+
+def _audience_json(value):
+    """``--audience-json``: ``-`` reads stdin, text starting with ``{`` is the record itself, anything else is a file."""
+    if value in (None, ""):
+        return None
+    if value == "-":
+        return sys.stdin.read()
+    if value.lstrip().startswith("{"):
+        return value
+    try:
+        return Path(value).read_text(encoding="utf-8")
+    except OSError as error:
+        raise tools.AcquaintError(f"--audience-json {value}: {error.strerror or error}") from error
 
 
 def _egress(as_json):
@@ -56,10 +71,14 @@ def main(argv=None):
         if f.__name__.startswith("sync_")
     }
     stdin = {"text": {"codec": lambda text: sys.stdin.read() if text == "-" else text}}
-    config = {"check": stdin, "style-lint": stdin}
+    disclosure = {
+        "projects": {"flags": ["--project"], "action": "extend", "nargs": "+", "dest": "projects"},
+        "audience": {"flags": ["--audience-json"], "dest": "audience", "codec": _audience_json},
+    }
+    config = {"check": stdin, "style-lint": stdin, "disclosure": disclosure}
     args = [a for a in argv if a != "--json"]
-    raise SystemExit(
-        cw.dispatch(
+    try:
+        code = cw.dispatch(
             commands,
             args,
             prog="acquaint",
@@ -67,7 +86,10 @@ def main(argv=None):
             egress=_egress(as_json),
             config=config,
         )
-    )
+    except tools.AcquaintError as error:  # raised while decoding an argument, before any tool runs
+        print(f"acquaint: {error}", file=sys.stderr)
+        code = 1
+    raise SystemExit(code)
 
 
 if __name__ == "__main__":

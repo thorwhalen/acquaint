@@ -78,6 +78,8 @@ Records carry what the operator decided about disclosure. You read it; you never
 
 - `acquaint who ada -f tier` gives the tier in force: `open`, `involved`, `need-to-know`, or `reviewed` (every message to them goes to the operator first). A lapsed tier reads `need-to-know`, with a warning. No value means none is recorded.
 - `acquaint who heron -f label` gives `red`, `amber`, `green` or `clear`; `-f sealed_from` lists who must hear nothing about it, whatever their tier; `-f vocabulary` the codenames that identify it besides its name and aliases.
+- `acquaint disclosure ada bram --project heron` answers for a set of readers at once: each one's tier and clearance, the least clearance, the seals, the terms not to use (`vocabulary`), what each was already told, and the gaps (a reader with no record counts as a stranger). Add `--audience-json FILE` (a correspond audience record) when the channel has readers you cannot list, such as a public repository. Run it before writing anything that names a project, org or person to more than the operator.
+- After a message goes out, `acquaint remember ada "sent the export note" --kind interaction --disclosed project:heron` records which records it identified, never its text.
 - A line tagged `[label: …]` or `[sealed-from: …]` is above what some readers may see. Do not carry it into a message on a guess; ask the operator.
 - **Only the operator grants trust.** Never write a tier, label, seal or clearance from an observation, and never record one through `remember`. `acquaint lint` fails on any not sourced to the operator.
 
