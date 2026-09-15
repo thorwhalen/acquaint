@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-09-15T13:10:55Z",
+  "built_at": "2026-09-15T13:17:15Z",
   "package": {
     "name": "acquaint",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "display_name": "acquaint",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "7d24b09fc329edde70aa897358556a086dad2b4d",
-    "short_commit": "7d24b09",
+    "commit": "633e0a5fcfb7107a68e99d3ddb89af9256ff2000",
+    "short_commit": "633e0a5",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/thorwhalen/acquaint",
-    "commit_url": "https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d",
+    "commit_url": "https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "thorwhalen/acquaint",
-    "sha": "7d24b09fc329edde70aa897358556a086dad2b4d",
+    "sha": "633e0a5fcfb7107a68e99d3ddb89af9256ff2000",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "34973156042",
-    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/34973156042",
+    "run_id": "34973837173",
+    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/34973837173",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -56,20 +56,20 @@
   },
   "site": {
     "modules_documented": 12,
-    "objects_documented": 167
+    "objects_documented": 172
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.7",
+    "latest": "0.0.8",
     "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 7d24b09fc329edde70aa897358556a086dad2b4d\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 633e0a5fcfb7107a68e99d3ddb89af9256ff2000\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": false,
     "notes": [
-      "The documented version (0.0.6) is behind the latest release on PyPI (0.0.7): `pip install acquaint` gives newer code than these docs describe."
+      "The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install acquaint` gives newer code than these docs describe."
     ]
   }
 }

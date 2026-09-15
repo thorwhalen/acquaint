@@ -169,7 +169,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 <section id="the-verbs">
 <h2>The verbs<a class="headerlink" href="#the-verbs" title="Link to this heading">#</a></h2>
-<p>The same sixteen functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
+<p>The same seventeen functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -199,22 +199,25 @@ data-aria-dark="Switch to auto color mode">
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disclosure</span> <span class="pre">ID...</span> <span class="pre">[--project</span> <span class="pre">SLUG]</span> <span class="pre">[--audience-json</span> <span class="pre">-</span> <span class="pre">|</span> <span class="pre">FILE]</span></code></p></td>
 <td><p>who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">review</span> <span class="pre">PERSON</span></code></p></td>
+<td><p>everything that names someone’s disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
 <td><p>sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
 <td><p>machine-writing tells, enforced by the reader’s tolerance of AI-sounding text</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
 <td><p>scaffold from a template; readable slug ids (<code class="docutils literal notranslate"><span class="pre">ada-lovelace</span></code>, <code class="docutils literal notranslate"><span class="pre">john-smith--example-org</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
 <td><p>new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
 <td><p>remove the whole folder, leaving a salted tombstone so the person is not silently re-created</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
 <td><p>private-repository sync, below</p></td>
 </tr>
 </tbody>
@@ -316,7 +319,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 13:10 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d">7d24b09</a> (main) · acquaint 0.0.6 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 13:17 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000">633e0a5</a> (main) · acquaint 0.0.7 · <a href="about-this-build.html">about this build</a></p>
         </article><button class="back-to-top" type="button">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
@@ -351,7 +354,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="_static/documentation_options.js?v=bbaf98b3"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>

@@ -100,9 +100,12 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#acquaint.trust.TIERS"><code class="docutils literal notranslate"><span class="pre">TIERS</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.trust.TRUST_SOURCES"><code class="docutils literal notranslate"><span class="pre">TRUST_SOURCES</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.trust.effective_tier"><code class="docutils literal notranslate"><span class="pre">effective_tier()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.trust.ended_affiliations"><code class="docutils literal notranslate"><span class="pre">ended_affiliations()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.trust.entity_label"><code class="docutils literal notranslate"><span class="pre">entity_label()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.trust.fact_label"><code class="docutils literal notranslate"><span class="pre">fact_label()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.trust.is_iso_date"><code class="docutils literal notranslate"><span class="pre">is_iso_date()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.trust.is_lapsed"><code class="docutils literal notranslate"><span class="pre">is_lapsed()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.trust.link_state"><code class="docutils literal notranslate"><span class="pre">link_state()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.trust.tier_in_force"><code class="docutils literal notranslate"><span class="pre">tier_in_force()</span></code></a></li>
 </ul>
 </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
@@ -201,16 +204,25 @@ records, and <a class="reference internal" href="acquaint.html#acquaint.lint" ti
 <tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.trust.effective_tier" title="acquaint.trust.effective_tier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">effective_tier</span></code></a>(tiers, *, today)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(tier,</span> <span class="pre">lapsed)</span></code> for today: the tier in force, <a class="reference internal" href="#acquaint.trust.DEFAULT_TIER" title="acquaint.trust.DEFAULT_TIER"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_TIER</span></code></a> in place of a lapsed one.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.trust.entity_label" title="acquaint.trust.entity_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entity_label</span></code></a>(meta, kind)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.trust.ended_affiliations" title="acquaint.trust.ended_affiliations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ended_affiliations</span></code></a>(tiers, links, *, today)</p></td>
+<td><p>Links that ended while a permissive tier recorded before their end is still in force: <code class="docutils literal notranslate"><span class="pre">{to,</span> <span class="pre">until,</span> <span class="pre">tier,</span> <span class="pre">tier_recorded}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.trust.entity_label" title="acquaint.trust.entity_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entity_label</span></code></a>(meta, kind)</p></td>
 <td><p>A record's label: its frontmatter <code class="docutils literal notranslate"><span class="pre">label</span></code>, else <code class="docutils literal notranslate"><span class="pre">green</span></code> for a person and <code class="docutils literal notranslate"><span class="pre">amber</span></code> for anything else.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.trust.fact_label" title="acquaint.trust.fact_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fact_label</span></code></a>(text, record_label)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.trust.fact_label" title="acquaint.trust.fact_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fact_label</span></code></a>(text, record_label)</p></td>
 <td><p>One fact's label: its own <code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">…]</span></code> tag, else the label of the record it sits in.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.trust.is_iso_date" title="acquaint.trust.is_iso_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_iso_date</span></code></a>(value)</p></td>
+<td><p>Whether a value is a date written <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#acquaint.trust.is_lapsed" title="acquaint.trust.is_lapsed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_lapsed</span></code></a>(entry, *, today)</p></td>
 <td><p>Whether a permissive tier's review is overdue, or was never scheduled.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.trust.tier_in_force" title="acquaint.trust.tier_in_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tier_in_force</span></code></a>(tiers, *, today)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.trust.link_state" title="acquaint.trust.link_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">link_state</span></code></a>(link, *, today)</p></td>
+<td><p>Where a <code class="docutils literal notranslate"><span class="pre">links.yaml</span></code> link stands today: <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">ended</span></code> (<code class="docutils literal notranslate"><span class="pre">until</span></code> today or earlier), <code class="docutils literal notranslate"><span class="pre">future</span></code> (<code class="docutils literal notranslate"><span class="pre">since</span></code> after today), or <code class="docutils literal notranslate"><span class="pre">unreadable</span></code> (a date not written <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.trust.tier_in_force" title="acquaint.trust.tier_in_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tier_in_force</span></code></a>(tiers, *, today)</p></td>
 <td><p>The entry whose validity covers <code class="docutils literal notranslate"><span class="pre">today</span></code> (from <code class="docutils literal notranslate"><span class="pre">valid_from</span></code>, up to but not including <code class="docutils literal notranslate"><span class="pre">valid_to</span></code>).</p></td>
 </tr>
 </tbody>
@@ -276,6 +288,24 @@ unknown tier value reads as <code class="docutils literal notranslate"><span cla
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="acquaint.trust.ended_affiliations">
+<span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">ended_affiliations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tiers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#ended_affiliations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.ended_affiliations" title="Link to this definition">#</a></dt>
+<dd><p>Links that ended while a permissive tier recorded before their end is still in force: <code class="docutils literal notranslate"><span class="pre">{to,</span> <span class="pre">until,</span> <span class="pre">tier,</span> <span class="pre">tier_recorded}</span></code>.</p>
+<p>A tier recorded (or starting) after the link ended was set with the end in view, so it
+is not reported; a lapsed tier already counts as <a class="reference internal" href="#acquaint.trust.DEFAULT_TIER" title="acquaint.trust.DEFAULT_TIER"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_TIER</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">tiers</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"open"</span><span class="p">,</span> <span class="s2">"valid_from"</span><span class="p">:</span> <span class="s2">"2026-09-01"</span><span class="p">,</span> <span class="s2">"recorded"</span><span class="p">:</span> <span class="s2">"2026-09-01"</span><span class="p">,</span> <span class="s2">"review_by"</span><span class="p">:</span> <span class="s2">"2026-11-01"</span><span class="p">}]</span>
+</span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">ended_affiliations</span><span class="p">(</span><span class="n">tiers</span><span class="p">,</span> <span class="p">[{</span><span class="s2">"to"</span><span class="p">:</span> <span class="s2">"project:heron"</span><span class="p">,</span> <span class="s2">"until"</span><span class="p">:</span> <span class="s2">"2026-09-10"</span><span class="p">}],</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span>
+</span><span data-line="3"><span class="go">[{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="acquaint.trust.entity_label">
 <span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">entity_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#entity_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.entity_label" title="Link to this definition">#</a></dt>
 <dd><p>A record’s label: its frontmatter <code class="docutils literal notranslate"><span class="pre">label</span></code>, else <code class="docutils literal notranslate"><span class="pre">green</span></code> for a person and <code class="docutils literal notranslate"><span class="pre">amber</span></code> for anything else.</p>
@@ -306,6 +336,21 @@ unknown tier value reads as <code class="docutils literal notranslate"><span cla
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="acquaint.trust.is_iso_date">
+<span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">is_iso_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#is_iso_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.is_iso_date" title="Link to this definition">#</a></dt>
+<dd><p>Whether a value is a date written <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">is_iso_date</span><span class="p">(</span><span class="s2">"2026-09-15"</span><span class="p">),</span> <span class="n">is_iso_date</span><span class="p">(</span><span class="s2">"2026-9-1"</span><span class="p">),</span> <span class="n">is_iso_date</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+</span><span data-line="2"><span class="go">(True, False, False)</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="acquaint.trust.is_lapsed">
 <span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">is_lapsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#is_lapsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.is_lapsed" title="Link to this definition">#</a></dt>
 <dd><p>Whether a permissive tier’s review is overdue, or was never scheduled. Restrictive tiers never lapse.</p>
@@ -316,6 +361,21 @@ unknown tier value reads as <code class="docutils literal notranslate"><span cla
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">is_lapsed</span><span class="p">({</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"involved"</span><span class="p">},</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">),</span> <span class="n">is_lapsed</span><span class="p">({</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"reviewed"</span><span class="p">},</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">(True, False)</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.trust.link_state">
+<span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">link_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#link_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.link_state" title="Link to this definition">#</a></dt>
+<dd><p>Where a <code class="docutils literal notranslate"><span class="pre">links.yaml</span></code> link stands today: <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">ended</span></code> (<code class="docutils literal notranslate"><span class="pre">until</span></code> today or earlier), <code class="docutils literal notranslate"><span class="pre">future</span></code> (<code class="docutils literal notranslate"><span class="pre">since</span></code> after today), or <code class="docutils literal notranslate"><span class="pre">unreadable</span></code> (a date not written <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">link_state</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">({},</span> <span class="p">{</span><span class="s2">"until"</span><span class="p">:</span> <span class="s2">"2026-09-15"</span><span class="p">},</span> <span class="p">{</span><span class="s2">"since"</span><span class="p">:</span> <span class="s2">"2026-10-01"</span><span class="p">},</span> <span class="p">{</span><span class="s2">"until"</span><span class="p">:</span> <span class="s2">"soon"</span><span class="p">})]</span>
+</span><span data-line="2"><span class="go">['current', 'ended', 'future', 'unreadable']</span>
 </span></pre></div>
 </div>
 </dd></dl>
@@ -379,7 +439,7 @@ the later <code class="docutils literal notranslate"><span class="pre">valid_fro
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="../_static/documentation_options.js?v=bbaf98b3"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

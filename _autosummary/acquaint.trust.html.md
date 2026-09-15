@@ -40,12 +40,15 @@ records, and [`acquaint.lint`](acquaint.html.md#acquaint.lint) says what is wron
 
 ### Functions
 
-| [`effective_tier`](#acquaint.trust.effective_tier)(tiers, \*, today)   | `(tier, lapsed)` for today: the tier in force, [`DEFAULT_TIER`](#acquaint.trust.DEFAULT_TIER) in place of a lapsed one.   |
-|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| [`entity_label`](#acquaint.trust.entity_label)(meta, kind)           | A record's label: its frontmatter `label`, else `green` for a person and `amber` for anything else.                                      |
-| [`fact_label`](#acquaint.trust.fact_label)(text, record_label)     | One fact's label: its own `[label: …]` tag, else the label of the record it sits in.                                                     |
-| [`is_lapsed`](#acquaint.trust.is_lapsed)(entry, \*, today)        | Whether a permissive tier's review is overdue, or was never scheduled.                                                                   |
-| [`tier_in_force`](#acquaint.trust.tier_in_force)(tiers, \*, today)    | The entry whose validity covers `today` (from `valid_from`, up to but not including `valid_to`).                                         |
+| [`effective_tier`](#acquaint.trust.effective_tier)(tiers, \*, today)            | `(tier, lapsed)` for today: the tier in force, [`DEFAULT_TIER`](#acquaint.trust.DEFAULT_TIER) in place of a lapsed one.                                    |
+|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`ended_affiliations`](#acquaint.trust.ended_affiliations)(tiers, links, \*, today) | Links that ended while a permissive tier recorded before their end is still in force: `{to, until, tier, tier_recorded}`.                                                 |
+| [`entity_label`](#acquaint.trust.entity_label)(meta, kind)                    | A record's label: its frontmatter `label`, else `green` for a person and `amber` for anything else.                                                                       |
+| [`fact_label`](#acquaint.trust.fact_label)(text, record_label)              | One fact's label: its own `[label: …]` tag, else the label of the record it sits in.                                                                                      |
+| [`is_iso_date`](#acquaint.trust.is_iso_date)(value)                          | Whether a value is a date written `YYYY-MM-DD`.                                                                                                                           |
+| [`is_lapsed`](#acquaint.trust.is_lapsed)(entry, \*, today)                 | Whether a permissive tier's review is overdue, or was never scheduled.                                                                                                    |
+| [`link_state`](#acquaint.trust.link_state)(link, \*, today)                 | Where a `links.yaml` link stands today: `current`, `ended` (`until` today or earlier), `future` (`since` after today), or `unreadable` (a date not written `YYYY-MM-DD`). |
+| [`tier_in_force`](#acquaint.trust.tier_in_force)(tiers, \*, today)             | The entry whose validity covers `today` (from `valid_from`, up to but not including `valid_to`).                                                                          |
 
 ### acquaint.trust.DEFAULT_TIER *= 'need-to-know'*
 
@@ -90,6 +93,22 @@ unknown tier value reads as `reviewed`.
 (('reviewed', False), (None, False))
 ```
 
+### acquaint.trust.ended_affiliations(tiers, links, , today)
+
+Links that ended while a permissive tier recorded before their end is still in force: `{to, until, tier, tier_recorded}`.
+
+A tier recorded (or starting) after the link ended was set with the end in view, so it
+is not reported; a lapsed tier already counts as [`DEFAULT_TIER`](#acquaint.trust.DEFAULT_TIER).
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]
+
+```pycon
+>>> tiers = [{"tier": "open", "valid_from": "2026-09-01", "recorded": "2026-09-01", "review_by": "2026-11-01"}]
+>>> ended_affiliations(tiers, [{"to": "project:heron", "until": "2026-09-10"}], today="2026-09-15")
+[{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]
+```
+
 ### acquaint.trust.entity_label(meta, kind)
 
 A record’s label: its frontmatter `label`, else `green` for a person and `amber` for anything else.
@@ -115,6 +134,18 @@ A malformed or unknown tag reads as `red`.
 ('green', 'red')
 ```
 
+### acquaint.trust.is_iso_date(value)
+
+Whether a value is a date written `YYYY-MM-DD`.
+
+* **Return type:**
+  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
+
+```pycon
+>>> is_iso_date("2026-09-15"), is_iso_date("2026-9-1"), is_iso_date(None)
+(True, False, False)
+```
+
 ### acquaint.trust.is_lapsed(entry, , today)
 
 Whether a permissive tier’s review is overdue, or was never scheduled. Restrictive tiers never lapse.
@@ -125,6 +156,18 @@ Whether a permissive tier’s review is overdue, or was never scheduled. Restric
 ```pycon
 >>> is_lapsed({"tier": "involved"}, today="2026-09-15"), is_lapsed({"tier": "reviewed"}, today="2026-09-15")
 (True, False)
+```
+
+### acquaint.trust.link_state(link, , today)
+
+Where a `links.yaml` link stands today: `current`, `ended` (`until` today or earlier), `future` (`since` after today), or `unreadable` (a date not written `YYYY-MM-DD`).
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+```pycon
+>>> [link_state(l, today="2026-09-15") for l in ({}, {"until": "2026-09-15"}, {"since": "2026-10-01"}, {"until": "soon"})]
+['current', 'ended', 'future', 'unreadable']
 ```
 
 ### acquaint.trust.tier_in_force(tiers, , today)

@@ -19,6 +19,7 @@
       remember
       rename
       resolve
+      review
       style_lint
       sync_init
       sync_pull

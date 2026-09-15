@@ -20,8 +20,11 @@ acquaint.trust
    .. autosummary::
    
       effective_tier
+      ended_affiliations
       entity_label
       fact_label
+      is_iso_date
       is_lapsed
+      link_state
       tier_in_force
    

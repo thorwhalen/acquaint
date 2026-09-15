@@ -35,6 +35,7 @@ with a [`Store`](acquaint.store.html.md#acquaint.store.Store).
 | [`remember`](#acquaint.tools.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                                                                                                                                                                                 |
 | [`rename`](#acquaint.tools.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                                                                                                                                                                                           |
 | [`resolve`](#acquaint.tools.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                                                                                                                                                                                         |
+| [`review`](#acquaint.tools.review)(person, \*[, today, data_dir])              | Everything the store says about one person's disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them.      |
 | [`style_lint`](#acquaint.tools.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                                                                                                                                                                                            |
 | [`sync_init`](#acquaint.tools.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                                                                                                                                                                                               |
 | [`sync_pull`](#acquaint.tools.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
@@ -53,14 +54,14 @@ Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exceptio
 
 An expected failure with a message meant for the person or agent that asked.
 
-### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
+### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
 
 What each tool changes, for surfaces that must decide what to expose or confirm.
 `read` changes nothing and stays local; `append` adds to a log; `create` adds a
 record; `rewrite` changes existing records; `destructive` removes data;
 `external-read` queries a remote service; `external` acts on one.
 
-### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>]*
+### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>]*
 
 Every tool, in the order surfaces list them.
 
@@ -134,6 +135,13 @@ Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity i
 `ok` is true only when an active identity on the named platform belongs to exactly
 one entity. A handle without a platform (`@octocat`), a match by name only, an
 inactive identity, or several owners all return `ok: false` with what was found.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.review(person, , today=None, data_dir=None)
+
+Everything the store says about one person’s disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them. Not ok when an affiliation has ended while a permissive tier is still in force. Reads only.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)

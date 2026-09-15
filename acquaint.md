@@ -1,4 +1,4 @@
-> built 2026-09-15 13:10 UTC from 7d24b09 (main) · acquaint 0.0.6. Details: build_info.json
+> built 2026-09-15 13:17 UTC from 633e0a5 (main) · acquaint 0.0.7. Details: build_info.json
 
 # index.html.md
 
@@ -51,23 +51,24 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 ## The verbs
 
-The same sixteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
-| Verb                                                                      | Does                                                                                                                                                                                                                                                           |
-|---------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `who NAME [-f FIELD] [-b]`                                                | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing                                                                                                            |
-| `resolve HANDLE`                                                          | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on                                                                                          |
-| `check TEXT`                                                              | before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names                                                                                                                                                                  |
-| `reach PERSON [--purpose --urgency --project --message-type --topic]`     | ordered channels: the person’s own rules > the operator’s rules > project norms > observed habits > defaults                                                                                                                                                   |
-| `brief PERSON [--purpose --project]`                                      | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known                                                                                                                                                    |
-| `remember ENTITY TEXT [--source --kind --disclosed --reactivate]`         | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate` |
-| `disclosure ID... [--project SLUG] [--audience-json - | FILE]`            | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps                                                                                |
-| `lint [ENTITY]`                                                           | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires                                                                                             |
-| `style-lint TEXT [--recipient --tolerance]`                               | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                                                                                                                  |
-| `new KIND NAME [--qualifier --description]`                               | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                                                                                                                        |
-| `rename ID TO`                                                            | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases                                                                                                                                                               |
-| `forget ID [--confirm]`                                                   | remove the whole folder, leaving a salted tombstone so the person is not silently re-created                                                                                                                                                                   |
-| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below                                                                                                                                                                                                                                 |
+| Verb                                                                      | Does                                                                                                                                                                                                                                                                                                                                    |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `who NAME [-f FIELD] [-b]`                                                | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing                                                                                                                                                                                     |
+| `resolve HANDLE`                                                          | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on                                                                                                                                                                   |
+| `check TEXT`                                                              | before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names                                                                                                                                                                                                                                           |
+| `reach PERSON [--purpose --urgency --project --message-type --topic]`     | ordered channels: the person’s own rules > the operator’s rules > project norms > observed habits > defaults                                                                                                                                                                                                                            |
+| `brief PERSON [--purpose --project]`                                      | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known                                                                                                                                                                                                                             |
+| `remember ENTITY TEXT [--source --kind --disclosed --reactivate]`         | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate`                                                                          |
+| `disclosure ID... [--project SLUG] [--audience-json - | FILE]`            | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps                                                                                                                                                         |
+| `review PERSON`                                                           | everything that names someone’s disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier |
+| `lint [ENTITY]`                                                           | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires                                                                                                                                                                      |
+| `style-lint TEXT [--recipient --tolerance]`                               | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                                                                                                                                                                                           |
+| `new KIND NAME [--qualifier --description]`                               | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                                                                                                                                                                                                 |
+| `rename ID TO`                                                            | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases                                                                                                                                                                                                                                        |
+| `forget ID [--confirm]`                                                   | remove the whole folder, leaving a salted tombstone so the person is not silently re-created                                                                                                                                                                                                                                            |
+| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below                                                                                                                                                                                                                                                                                                          |
 
 `--json` prints the result dict; `-` as the text of `check` or `style-lint` reads stdin.
 
@@ -363,6 +364,7 @@ files (a `dol` files store by default).
 | [`remember`](_autosummary/acquaint.html.md#acquaint.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                                                                                                                                                                                 |
 | [`rename`](_autosummary/acquaint.html.md#acquaint.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                                                                                                                                                                                           |
 | [`resolve`](_autosummary/acquaint.html.md#acquaint.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                                                                                                                                                                                         |
+| [`review`](_autosummary/acquaint.html.md#acquaint.review)(person, \*[, today, data_dir])              | Everything the store says about one person's disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them.      |
 | [`style_lint`](_autosummary/acquaint.html.md#acquaint.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                                                                                                                                                                                            |
 | [`sync_init`](_autosummary/acquaint.html.md#acquaint.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                                                                                                                                                                                               |
 | [`sync_pull`](_autosummary/acquaint.html.md#acquaint.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
@@ -647,6 +649,13 @@ Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity i
 `ok` is true only when an active identity on the named platform belongs to exactly
 one entity. A handle without a platform (`@octocat`), a match by name only, an
 inactive identity, or several owners all return `ok: false` with what was found.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.review(person, , today=None, data_dir=None)
+
+Everything the store says about one person’s disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them. Not ok when an affiliation has ended while a permissive tier is still in force. Reads only.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -1825,6 +1834,7 @@ with a [`Store`](_autosummary/acquaint.store.html.md#acquaint.store.Store).
 | [`remember`](_autosummary/acquaint.tools.html.md#acquaint.tools.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                                                                                                                                                                                 |
 | [`rename`](_autosummary/acquaint.tools.html.md#acquaint.tools.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                                                                                                                                                                                           |
 | [`resolve`](_autosummary/acquaint.tools.html.md#acquaint.tools.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                                                                                                                                                                                         |
+| [`review`](_autosummary/acquaint.tools.html.md#acquaint.tools.review)(person, \*[, today, data_dir])              | Everything the store says about one person's disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them.      |
 | [`style_lint`](_autosummary/acquaint.tools.html.md#acquaint.tools.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                                                                                                                                                                                            |
 | [`sync_init`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                                                                                                                                                                                               |
 | [`sync_pull`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
@@ -1843,14 +1853,14 @@ Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exceptio
 
 An expected failure with a message meant for the person or agent that asked.
 
-### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
+### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
 
 What each tool changes, for surfaces that must decide what to expose or confirm.
 `read` changes nothing and stays local; `append` adds to a log; `create` adds a
 record; `rewrite` changes existing records; `destructive` removes data;
 `external-read` queries a remote service; `external` acts on one.
 
-### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>]*
+### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>]*
 
 Every tool, in the order surfaces list them.
 
@@ -1924,6 +1934,13 @@ Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity i
 `ok` is true only when an active identity on the named platform belongs to exactly
 one entity. A handle without a platform (`@octocat`), a match by name only, an
 inactive identity, or several owners all return `ok: false` with what was found.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.review(person, , today=None, data_dir=None)
+
+Everything the store says about one person’s disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them. Not ok when an affiliation has ended while a permissive tier is still in force. Reads only.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -2020,12 +2037,15 @@ records, and [`acquaint.lint`](_autosummary/acquaint.html.md#acquaint.lint) says
 
 ### Functions
 
-| [`effective_tier`](_autosummary/acquaint.trust.html.md#acquaint.trust.effective_tier)(tiers, \*, today)   | `(tier, lapsed)` for today: the tier in force, [`DEFAULT_TIER`](_autosummary/acquaint.trust.html.md#acquaint.trust.DEFAULT_TIER) in place of a lapsed one.   |
-|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| [`entity_label`](_autosummary/acquaint.trust.html.md#acquaint.trust.entity_label)(meta, kind)           | A record's label: its frontmatter `label`, else `green` for a person and `amber` for anything else.                                      |
-| [`fact_label`](_autosummary/acquaint.trust.html.md#acquaint.trust.fact_label)(text, record_label)     | One fact's label: its own `[label: …]` tag, else the label of the record it sits in.                                                     |
-| [`is_lapsed`](_autosummary/acquaint.trust.html.md#acquaint.trust.is_lapsed)(entry, \*, today)        | Whether a permissive tier's review is overdue, or was never scheduled.                                                                   |
-| [`tier_in_force`](_autosummary/acquaint.trust.html.md#acquaint.trust.tier_in_force)(tiers, \*, today)    | The entry whose validity covers `today` (from `valid_from`, up to but not including `valid_to`).                                         |
+| [`effective_tier`](_autosummary/acquaint.trust.html.md#acquaint.trust.effective_tier)(tiers, \*, today)            | `(tier, lapsed)` for today: the tier in force, [`DEFAULT_TIER`](_autosummary/acquaint.trust.html.md#acquaint.trust.DEFAULT_TIER) in place of a lapsed one.                                    |
+|----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`ended_affiliations`](_autosummary/acquaint.trust.html.md#acquaint.trust.ended_affiliations)(tiers, links, \*, today) | Links that ended while a permissive tier recorded before their end is still in force: `{to, until, tier, tier_recorded}`.                                                 |
+| [`entity_label`](_autosummary/acquaint.trust.html.md#acquaint.trust.entity_label)(meta, kind)                    | A record's label: its frontmatter `label`, else `green` for a person and `amber` for anything else.                                                                       |
+| [`fact_label`](_autosummary/acquaint.trust.html.md#acquaint.trust.fact_label)(text, record_label)              | One fact's label: its own `[label: …]` tag, else the label of the record it sits in.                                                                                      |
+| [`is_iso_date`](_autosummary/acquaint.trust.html.md#acquaint.trust.is_iso_date)(value)                          | Whether a value is a date written `YYYY-MM-DD`.                                                                                                                           |
+| [`is_lapsed`](_autosummary/acquaint.trust.html.md#acquaint.trust.is_lapsed)(entry, \*, today)                 | Whether a permissive tier's review is overdue, or was never scheduled.                                                                                                    |
+| [`link_state`](_autosummary/acquaint.trust.html.md#acquaint.trust.link_state)(link, \*, today)                 | Where a `links.yaml` link stands today: `current`, `ended` (`until` today or earlier), `future` (`since` after today), or `unreadable` (a date not written `YYYY-MM-DD`). |
+| [`tier_in_force`](_autosummary/acquaint.trust.html.md#acquaint.trust.tier_in_force)(tiers, \*, today)             | The entry whose validity covers `today` (from `valid_from`, up to but not including `valid_to`).                                                                          |
 
 ### acquaint.trust.DEFAULT_TIER *= 'need-to-know'*
 
@@ -2070,6 +2090,22 @@ unknown tier value reads as `reviewed`.
 (('reviewed', False), (None, False))
 ```
 
+### acquaint.trust.ended_affiliations(tiers, links, , today)
+
+Links that ended while a permissive tier recorded before their end is still in force: `{to, until, tier, tier_recorded}`.
+
+A tier recorded (or starting) after the link ended was set with the end in view, so it
+is not reported; a lapsed tier already counts as [`DEFAULT_TIER`](_autosummary/acquaint.trust.html.md#acquaint.trust.DEFAULT_TIER).
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]
+
+```pycon
+>>> tiers = [{"tier": "open", "valid_from": "2026-09-01", "recorded": "2026-09-01", "review_by": "2026-11-01"}]
+>>> ended_affiliations(tiers, [{"to": "project:heron", "until": "2026-09-10"}], today="2026-09-15")
+[{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]
+```
+
 ### acquaint.trust.entity_label(meta, kind)
 
 A record’s label: its frontmatter `label`, else `green` for a person and `amber` for anything else.
@@ -2095,6 +2131,18 @@ A malformed or unknown tag reads as `red`.
 ('green', 'red')
 ```
 
+### acquaint.trust.is_iso_date(value)
+
+Whether a value is a date written `YYYY-MM-DD`.
+
+* **Return type:**
+  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
+
+```pycon
+>>> is_iso_date("2026-09-15"), is_iso_date("2026-9-1"), is_iso_date(None)
+(True, False, False)
+```
+
 ### acquaint.trust.is_lapsed(entry, , today)
 
 Whether a permissive tier’s review is overdue, or was never scheduled. Restrictive tiers never lapse.
@@ -2105,6 +2153,18 @@ Whether a permissive tier’s review is overdue, or was never scheduled. Restric
 ```pycon
 >>> is_lapsed({"tier": "involved"}, today="2026-09-15"), is_lapsed({"tier": "reviewed"}, today="2026-09-15")
 (True, False)
+```
+
+### acquaint.trust.link_state(link, , today)
+
+Where a `links.yaml` link stands today: `current`, `ended` (`until` today or earlier), `future` (`since` after today), or `unreadable` (a date not written `YYYY-MM-DD`).
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+```pycon
+>>> [link_state(l, today="2026-09-15") for l in ({}, {"until": "2026-09-15"}, {"since": "2026-10-01"}, {"until": "soon"})]
+['current', 'ended', 'future', 'unreadable']
 ```
 
 ### acquaint.trust.tier_in_force(tiers, , today)
@@ -2129,18 +2189,18 @@ True
 
 # About this build
 
-This documentation was built on **2026-09-15 13:10 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d"><code>7d24b09</code></a> on branch <code>main</code>, for **acquaint 0.0.6** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-15 13:17 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000"><code>633e0a5</code></a> on branch <code>main</code>, for **acquaint 0.0.7** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.6) is behind the latest release on PyPI (0.0.7): `pip install acquaint` gives newer code than these docs describe.
+- The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install acquaint` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d"><code>7d24b09fc329edde70aa897358556a086dad2b4d</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000"><code>633e0a5fcfb7107a68e99d3ddb89af9256ff2000</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2151,9 +2211,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34973156042">34973156042</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34973837173">34973837173</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>7d24b09fc329edde70aa897358556a086dad2b4d</code> (in the history of the built commit) |
+| Event commit | <code>633e0a5fcfb7107a68e99d3ddb89af9256ff2000</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2178,13 +2238,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.7/">0.0.7</a>, newer than the documented version (0.0.6).
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.8/">0.0.8</a>, newer than the documented version (0.0.7).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 7d24b09fc329edde70aa897358556a086dad2b4d
+git checkout 633e0a5fcfb7107a68e99d3ddb89af9256ff2000
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

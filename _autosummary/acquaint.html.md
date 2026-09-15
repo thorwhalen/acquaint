@@ -34,6 +34,7 @@ files (a `dol` files store by default).
 | [`remember`](#acquaint.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                                                                                                                                                                                 |
 | [`rename`](#acquaint.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                                                                                                                                                                                           |
 | [`resolve`](#acquaint.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                                                                                                                                                                                         |
+| [`review`](#acquaint.review)(person, \*[, today, data_dir])              | Everything the store says about one person's disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them.      |
 | [`style_lint`](#acquaint.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                                                                                                                                                                                            |
 | [`sync_init`](#acquaint.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                                                                                                                                                                                               |
 | [`sync_pull`](#acquaint.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
@@ -318,6 +319,13 @@ Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity i
 `ok` is true only when an active identity on the named platform belongs to exactly
 one entity. A handle without a platform (`@octocat`), a match by name only, an
 inactive identity, or several owners all return `ok: false` with what was found.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.review(person, , today=None, data_dir=None)
+
+Everything the store says about one person’s disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them. Not ok when an affiliation has ended while a permissive tier is still in force. Reads only.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
