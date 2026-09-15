@@ -1,4 +1,4 @@
-> built 2026-09-15 13:17 UTC from 633e0a5 (main) · acquaint 0.0.7. Details: build_info.json
+> built 2026-09-15 13:29 UTC from 81e5790 (main) · acquaint 0.0.8. Details: build_info.json
 
 # index.html.md
 
@@ -53,22 +53,22 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
-| Verb                                                                      | Does                                                                                                                                                                                                                                                                                                                                    |
-|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `who NAME [-f FIELD] [-b]`                                                | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing                                                                                                                                                                                     |
-| `resolve HANDLE`                                                          | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on                                                                                                                                                                   |
-| `check TEXT`                                                              | before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names                                                                                                                                                                                                                                           |
-| `reach PERSON [--purpose --urgency --project --message-type --topic]`     | ordered channels: the person’s own rules > the operator’s rules > project norms > observed habits > defaults                                                                                                                                                                                                                            |
-| `brief PERSON [--purpose --project]`                                      | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known                                                                                                                                                                                                                             |
-| `remember ENTITY TEXT [--source --kind --disclosed --reactivate]`         | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate`                                                                          |
-| `disclosure ID... [--project SLUG] [--audience-json - | FILE]`            | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps                                                                                                                                                         |
-| `review PERSON`                                                           | everything that names someone’s disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier |
-| `lint [ENTITY]`                                                           | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires                                                                                                                                                                      |
-| `style-lint TEXT [--recipient --tolerance]`                               | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                                                                                                                                                                                           |
-| `new KIND NAME [--qualifier --description]`                               | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                                                                                                                                                                                                 |
-| `rename ID TO`                                                            | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases                                                                                                                                                                                                                                        |
-| `forget ID [--confirm]`                                                   | remove the whole folder, leaving a salted tombstone so the person is not silently re-created                                                                                                                                                                                                                                            |
-| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below                                                                                                                                                                                                                                                                                                          |
+| Verb                                                                               | Does                                                                                                                                                                                                                                                                                                                                                         |
+|------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `who NAME [-f FIELD] [-b]`                                                         | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing                                                                                                                                                                                                          |
+| `resolve HANDLE`                                                                   | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on                                                                                                                                                                                        |
+| `check TEXT`                                                                       | before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names                                                                                                                                                                                                                                                                |
+| `reach PERSON [--purpose --urgency --project --message-type --topic]`              | ordered channels: the person’s own rules > the operator’s rules > project norms > observed habits > defaults                                                                                                                                                                                                                                                 |
+| `brief PERSON [--purpose --project --ref CONVERSATION | --audience-json - | FILE]` | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known; with `--ref` (correspond is asked who can read it; unknown is public) or an audience record, it opens with the ceiling, the records and terms not to identify, how many lines were withheld (never their text), and what they were already told |
+| `remember ENTITY TEXT [--source --kind --disclosed --reactivate]`                  | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate`                                                                                               |
+| `disclosure ID... [--project SLUG] [--audience-json - | FILE]`                     | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps                                                                                                                                                                              |
+| `review PERSON`                                                                    | everything that names someone’s disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier                      |
+| `lint [ENTITY]`                                                                    | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires                                                                                                                                                                                           |
+| `style-lint TEXT [--recipient --tolerance]`                                        | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                                                                                                                                                                                                                |
+| `new KIND NAME [--qualifier --description]`                                        | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                                                                                                                                                                                                                      |
+| `rename ID TO`                                                                     | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases                                                                                                                                                                                                                                                             |
+| `forget ID [--confirm]`                                                            | remove the whole folder, leaving a salted tombstone so the person is not silently re-created                                                                                                                                                                                                                                                                 |
+| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status`          | private-repository sync, below                                                                                                                                                                                                                                                                                                                               |
 
 `--json` prints the result dict; `-` as the text of `check` or `style-lint` reads stdin.
 
@@ -352,7 +352,7 @@ files (a `dol` files store by default).
 
 ### Functions
 
-| [`brief`](_autosummary/acquaint.html.md#acquaint.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
+| [`brief`](_autosummary/acquaint.html.md#acquaint.brief)(person, \*[, purpose, project, ref, ...])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
 |-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`check`](_autosummary/acquaint.html.md#acquaint.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
 | [`data_dir`](_autosummary/acquaint.html.md#acquaint.data_dir)([data_dir])                               | The data root: the argument, else `$ACQUAINT_DATA_DIR`, else `data_dir` in config.toml, else `~/.local/share/acquaint`.                                                                                                                                                                                                                  |
@@ -563,9 +563,9 @@ Where an entity lives, for a person to open: a real path when on disk, else the 
 * **Return type:**
   [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-### acquaint.brief(person, , purpose=None, project=None, data_dir=None)
+### acquaint.brief(person, , purpose=None, project=None, ref=None, audience=None, data_dir=None)
 
-Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.
+Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps. With `ref` (the conversation the message goes to; correspond is asked who can read it, and an unknown audience is public) or `audience` (an audience record as JSON), it opens with the ceiling, the records not to identify, how many lines were withheld, and what they were already told.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -1823,7 +1823,7 @@ with a [`Store`](_autosummary/acquaint.store.html.md#acquaint.store.Store).
 
 ### Functions
 
-| [`brief`](_autosummary/acquaint.tools.html.md#acquaint.tools.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
+| [`brief`](_autosummary/acquaint.tools.html.md#acquaint.tools.brief)(person, \*[, purpose, project, ref, ...])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
 |-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`check`](_autosummary/acquaint.tools.html.md#acquaint.tools.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
 | [`disclosure`](_autosummary/acquaint.tools.html.md#acquaint.tools.disclosure)(people, \*[, projects, audience, ...])  | Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. |
@@ -1864,9 +1864,9 @@ record; `rewrite` changes existing records; `destructive` removes data;
 
 Every tool, in the order surfaces list them.
 
-### acquaint.tools.brief(person, , purpose=None, project=None, data_dir=None)
+### acquaint.tools.brief(person, , purpose=None, project=None, ref=None, audience=None, data_dir=None)
 
-Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.
+Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps. With `ref` (the conversation the message goes to; correspond is asked who can read it, and an unknown audience is public) or `audience` (an audience record as JSON), it opens with the ceiling, the records not to identify, how many lines were withheld, and what they were already told.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -2189,18 +2189,16 @@ True
 
 # About this build
 
-This documentation was built on **2026-09-15 13:17 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000"><code>633e0a5</code></a> on branch <code>main</code>, for **acquaint 0.0.7** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-15 13:29 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/81e57909216589bf381f6498de73ad8e9f1832ad"><code>81e5790</code></a> on branch <code>main</code>, for **acquaint 0.0.8** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.7) is behind the latest release on PyPI (0.0.8): `pip install acquaint` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000"><code>633e0a5fcfb7107a68e99d3ddb89af9256ff2000</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/81e57909216589bf381f6498de73ad8e9f1832ad"><code>81e57909216589bf381f6498de73ad8e9f1832ad</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2211,9 +2209,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34973837173">34973837173</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34975113382">34975113382</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>633e0a5fcfb7107a68e99d3ddb89af9256ff2000</code> (in the history of the built commit) |
+| Event commit | <code>81e57909216589bf381f6498de73ad8e9f1832ad</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2238,13 +2236,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.8/">0.0.8</a>, newer than the documented version (0.0.7).
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.8/">0.0.8</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 633e0a5fcfb7107a68e99d3ddb89af9256ff2000
+git checkout 81e57909216589bf381f6498de73ad8e9f1832ad
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

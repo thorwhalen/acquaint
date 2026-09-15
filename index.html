@@ -190,8 +190,8 @@ data-aria-dark="Switch to auto color mode">
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reach</span> <span class="pre">PERSON</span> <span class="pre">[--purpose</span> <span class="pre">--urgency</span> <span class="pre">--project</span> <span class="pre">--message-type</span> <span class="pre">--topic]</span></code></p></td>
 <td><p>ordered channels: the person’s own rules &gt; the operator’s rules &gt; project norms &gt; observed habits &gt; defaults</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">brief</span> <span class="pre">PERSON</span> <span class="pre">[--purpose</span> <span class="pre">--project]</span></code></p></td>
-<td><p>card, writing style, views, reach, project norms, recent observations, reminders, and what is <strong>not</strong> known</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">brief</span> <span class="pre">PERSON</span> <span class="pre">[--purpose</span> <span class="pre">--project</span> <span class="pre">--ref</span> <span class="pre">CONVERSATION</span> <span class="pre">|</span> <span class="pre">--audience-json</span> <span class="pre">-</span> <span class="pre">|</span> <span class="pre">FILE]</span></code></p></td>
+<td><p>card, writing style, views, reach, project norms, recent observations, reminders, and what is <strong>not</strong> known; with <code class="docutils literal notranslate"><span class="pre">--ref</span></code> (correspond is asked who can read it; unknown is public) or an audience record, it opens with the ceiling, the records and terms not to identify, how many lines were withheld (never their text), and what they were already told</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remember</span> <span class="pre">ENTITY</span> <span class="pre">TEXT</span> <span class="pre">[--source</span> <span class="pre">--kind</span> <span class="pre">--disclosed</span> <span class="pre">--reactivate]</span></code></p></td>
 <td><p>append a dated, sourced observation (or identity, preference, view, rule); an <code class="docutils literal notranslate"><span class="pre">interaction</span></code> may list the records a message identified (<code class="docutils literal notranslate"><span class="pre">--disclosed</span> <span class="pre">project:heron</span></code>); an identity equal to an inactive one is refused, naming that entry, unless <code class="docutils literal notranslate"><span class="pre">--reactivate</span></code></p></td>
@@ -319,7 +319,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 13:17 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/633e0a5fcfb7107a68e99d3ddb89af9256ff2000">633e0a5</a> (main) · acquaint 0.0.7 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 13:29 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/81e57909216589bf381f6498de73ad8e9f1832ad">81e5790</a> (main) · acquaint 0.0.8 · <a href="about-this-build.html">about this build</a></p>
         </article><button class="back-to-top" type="button">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
@@ -354,7 +354,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=bbaf98b3"></script>
+      <script src="_static/documentation_options.js?v=53b53b71"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>

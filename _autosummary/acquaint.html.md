@@ -22,7 +22,7 @@ files (a `dol` files store by default).
 
 ### Functions
 
-| [`brief`](#acquaint.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
+| [`brief`](#acquaint.brief)(person, \*[, purpose, project, ref, ...])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
 |-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`check`](#acquaint.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
 | [`data_dir`](#acquaint.data_dir)([data_dir])                               | The data root: the argument, else `$ACQUAINT_DATA_DIR`, else `data_dir` in config.toml, else `~/.local/share/acquaint`.                                                                                                                                                                                                                  |
@@ -233,9 +233,9 @@ Where an entity lives, for a person to open: a real path when on disk, else the 
 * **Return type:**
   [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
-### acquaint.brief(person, , purpose=None, project=None, data_dir=None)
+### acquaint.brief(person, , purpose=None, project=None, ref=None, audience=None, data_dir=None)
 
-Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.
+Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps. With `ref` (the conversation the message goes to; correspond is asked who can read it, and an unknown audience is public) or `audience` (an audience record as JSON), it opens with the ceiling, the records not to identify, how many lines were withheld, and what they were already told.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)

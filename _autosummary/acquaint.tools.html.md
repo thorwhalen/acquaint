@@ -24,7 +24,7 @@ with a [`Store`](acquaint.store.html.md#acquaint.store.Store).
 
 ### Functions
 
-| [`brief`](#acquaint.tools.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
+| [`brief`](#acquaint.tools.brief)(person, \*[, purpose, project, ref, ...])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
 |-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`check`](#acquaint.tools.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
 | [`disclosure`](#acquaint.tools.disclosure)(people, \*[, projects, audience, ...])  | Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. |
@@ -65,9 +65,9 @@ record; `rewrite` changes existing records; `destructive` removes data;
 
 Every tool, in the order surfaces list them.
 
-### acquaint.tools.brief(person, , purpose=None, project=None, data_dir=None)
+### acquaint.tools.brief(person, , purpose=None, project=None, ref=None, audience=None, data_dir=None)
 
-Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.
+Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps. With `ref` (the conversation the message goes to; correspond is asked who can read it, and an unknown audience is public) or `audience` (an audience record as JSON), it opens with the ceiling, the records not to identify, how many lines were withheld, and what they were already told.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
