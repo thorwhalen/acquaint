@@ -25,7 +25,7 @@ from acquaint.brief import compose_brief
 from acquaint.deslop import lint_text, recipient_card
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
-from acquaint.lookup import check_text, find_entity, match, reach_channels, resolve_handle
+from acquaint.lookup import NO_CHANNEL_NAMED, check_text, find_entity, match, reach_channels, resolve_handle
 from acquaint.store import ENTRY_FILE, AcquaintError, Entity, Store, data_dir as _data_dir
 from acquaint.trust import effective_tier, entity_label
 
@@ -271,7 +271,7 @@ def reach(
     topic: str | None = None,
     data_dir: str | None = None,
 ) -> dict:
-    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. ``outcome`` is ``reachable``, ``no_address`` (a rule matched, but no usable address is recorded for its channels) or ``no_channel``."""
+    """Ordered channels for reaching someone in a context. Only active addresses; returns them, sends nothing. ``outcome`` is ``reachable``, ``no_address`` (a rule matched, but neither states an address nor finds a usable one recorded for its channels) or ``no_channel``. Each channel's ``address_kind`` is ``stated``, ``identity`` (the person's handle, which a conversation-addressed channel does not take) or ``None``."""
     store = _store(data_dir)
     key = find_entity(store, person)
     defaults = (
@@ -292,7 +292,7 @@ def reach(
     entity = store[key]
     channels, slug = result["channels"], entity.slug
     lines = [
-        f"{n}. {c['channel'] or c['instruction']}"
+        f"{n}. {c['channel'] or c['instruction'] or NO_CHANNEL_NAMED}"
         + (f" → {c['address']}" if c["address"] else "")
         + f"  [{c['tier']}]"
         + (f"  ({c['note']})" if c.get("note") else "")
@@ -303,16 +303,23 @@ def reach(
     unaddressed = [c["channel"] for c in channels if c["channel"] and not c["address"]]
     if usable:
         outcome, summary = "reachable", f"{len(usable)} usable channel(s) for {slug}"
-    elif channels:
+    elif unaddressed:
         outcome = "no_address"
         summary = (
             f"{result['rules_matched']} rule(s) matched for {slug}, but no usable address is recorded"
             f" for {', '.join(unaddressed)}; record a current one with"
             f' `acquaint remember {entity.ref} "{unaddressed[0]}:<address>" --kind identity --source <source>`'
+            f" — or, when {unaddressed[0]} is addressed by conversation rather than by person,"
+            f" state it on the rule instead: `do: {{channel: {unaddressed[0]}, address: <reference>}}`"
         )
     else:
+        # No channel anywhere: either nothing matched, or what matched named no channel
+        # (a malformed rule, whose note says so). Never an index into an empty list.
         outcome = "no_channel"
         summary = f"no matching rule names a channel for {slug}, and no active identity is recorded"
+        problems = [c["note"] for c in channels if c.get("note")]
+        if problems:
+            summary += f"; {'; '.join(problems)}"
     return {
         "ok": bool(usable),
         "outcome": outcome,

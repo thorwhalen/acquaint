@@ -10,7 +10,10 @@ Errors fail ``acquaint lint``; warnings ask a person to look. The rules:
   (``Don’t:``, ``## Reach ##``, an indented ``## Now``);
 - a logged ``preference``, ``view`` or ``rule`` has a source (**error**); a logged
   observation without one is a **warning**, and so is a repeated entry id;
-- ``rules.yaml`` rules have ``do``, channel names that are text, and a ``source``;
+- ``rules.yaml`` rules have ``do``, channel names that are text (in ``do.channel`` and
+  in each ``fallback`` entry), an ``address`` that is text and sits beside a channel when
+  one is stated, and a ``source``; a ``do`` that is one bare word is a **warning**, since
+  it is read as a free-text instruction and no address is resolved for it;
   identities have a platform and a value; a writing card's ``ai_tolerance`` is tolerant,
   neutral or averse (**error**);
 - the disclosure schema (:mod:`acquaint.trust`): a tier whose source is neither
@@ -525,13 +528,74 @@ def _lint_entity(
                 "rule-without-do",
                 f"{label} says when but not what to do",
             )
+        elif isinstance(do, str) and do.strip() and not do.split()[1:]:
+            # `do: pager` is read as a free-text instruction, so no address is resolved
+            # for it. The writer almost always meant a channel.
+            word = do.strip()
+            add(
+                "warning",
+                "rules.yaml",
+                None,
+                "do-is-a-bare-channel",
+                f"{label}: do is the single word {word!r}; write "
+                f"`do: {{channel: {word}}}` if that is a channel, since a bare string is "
+                f"read as a free-text instruction and no address is resolved for it",
+            )
         elif isinstance(do, dict):
+            channel = do.get("channel")
+            if channel is not None and not _is_text(channel):
+                # A channel is a name. An address goes in `address`, beside it.
+                add(
+                    "error",
+                    "rules.yaml",
+                    None,
+                    "bad-channel",
+                    f"{label}: {channel!r} is not a channel name",
+                )
+            if do.get("address") is not None:
+                if not _is_text(do.get("address")):
+                    add(
+                        "error",
+                        "rules.yaml",
+                        None,
+                        "bad-address",
+                        f"{label}: {do.get('address')!r} is not an address",
+                    )
+                elif channel is None:
+                    # A malformed channel is already reported above; saying "add
+                    # `channel:`" over it would send the writer after the wrong key.
+                    add(
+                        "error",
+                        "rules.yaml",
+                        None,
+                        "address-without-channel",
+                        f"{label}: do states an address but names no channel, so nothing "
+                        f"reaches it; add `channel:`",
+                    )
             fallback = do.get("fallback")
-            for value in [
-                do.get("channel"),
-                *(fallback if isinstance(fallback, list) else [fallback]),
-            ]:
-                if value is not None and not (isinstance(value, str) and value.strip()):
+            for value in fallback if isinstance(fallback, list) else [fallback]:
+                if value is None:
+                    continue
+                if isinstance(value, dict):
+                    if not _is_text(value.get("channel")):
+                        add(
+                            "error",
+                            "rules.yaml",
+                            None,
+                            "bad-channel",
+                            f"{label}: {value!r} needs a channel name",
+                        )
+                    if value.get("address") is not None and not _is_text(
+                        value.get("address")
+                    ):
+                        add(
+                            "error",
+                            "rules.yaml",
+                            None,
+                            "bad-address",
+                            f"{label}: {value.get('address')!r} is not an address",
+                        )
+                elif not _is_text(value):
                     add(
                         "error",
                         "rules.yaml",
@@ -581,6 +645,11 @@ def _tombstone_problem(store: Store) -> str | None:
     ):
         return "has tombstones but no salt (or is not a mapping); none of them can be matched"
     return None
+
+
+def _is_text(value) -> bool:
+    """Whether ``value`` is a non-empty string: what a channel name and an address must be."""
+    return isinstance(value, str) and bool(value.strip())
 
 
 def lint_store(
