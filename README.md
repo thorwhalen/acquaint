@@ -110,7 +110,7 @@ pip install "acquaint[mcp]"
 {"mcpServers": {"acquaint": {"command": "acquaint-mcp"}}}
 ```
 
-The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`, `disclosure`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server's (set `ACQUAINT_DATA_DIR` in the client configuration), never the model's. Neither is `remember`'s `reactivate`: making an inactive identity active again is the operator's call.
+The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`, `disclosure`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server's (set `ACQUAINT_DATA_DIR` in the client configuration), never the model's. Neither is `remember`'s `reactivate`: making an inactive identity active again is the operator's call. Nor is `disclosure`'s `today`, which could revive a lapsed tier.
 
 ## Private sync
 

@@ -77,8 +77,8 @@ def main(argv=None):
     }
     config = {"check": stdin, "style-lint": stdin, "disclosure": disclosure}
     args = [a for a in argv if a != "--json"]
-    raise SystemExit(
-        cw.dispatch(
+    try:
+        code = cw.dispatch(
             commands,
             args,
             prog="acquaint",
@@ -86,7 +86,10 @@ def main(argv=None):
             egress=_egress(as_json),
             config=config,
         )
-    )
+    except tools.AcquaintError as error:  # raised while decoding an argument, before any tool runs
+        print(f"acquaint: {error}", file=sys.stderr)
+        code = 1
+    raise SystemExit(code)
 
 
 if __name__ == "__main__":

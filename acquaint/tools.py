@@ -405,13 +405,14 @@ def disclosure(
         )
     lines.append(f"least clearance: {result['least_clearance']}")
     lines += [f"sealed: {s['entity']} from {s['from']}" for s in result["seals"]]
-    records = sorted({v["entity"] for v in result["vocabulary"]})
+    records: dict[str, list[dict]] = {}
+    for term in result["vocabulary"]:
+        records.setdefault(term["entity"], []).append(term)
     if records:
         lines.append(f"do not identify ({len(result['vocabulary'])} term(s)):")
         lines += [
-            f"  {ref} [{result['entities'][ref]['label']}]: "
-            + ", ".join(v["term"] for v in result["vocabulary"] if v["entity"] == ref)
-            for ref in records
+            f"  {ref} [{terms[0]['label']}]: " + ", ".join(t["term"] for t in terms)
+            for ref, terms in sorted(records.items())
         ]
     lines += [f"gap: {name}: {', '.join(values)}" for name, values in result["gaps"].items() if values]
     summary = (

@@ -155,7 +155,7 @@ def test_the_most_restrictive_default_wins_and_an_ended_link_gives_none(store, p
     _edit_meta(store, HERON, default_tier="involved")
     links = [{"to": "project:heron", "source": "operator"}, {"to": "org:example-client", "until": _days(TODAY, -1), "source": "operator"}]
     put(store, DEE, meta={"name": "Dee Example"}, files={"links.yaml": dump_yaml({"links": links})})
-    assert disclose(store, ["dee"], today=TODAY)["people"]["dee"]["tier"] == "involved", "the org link has ended"
+    assert disclose(store, ["dee"], today=TODAY)["people"]["dee"]["tier"] == "need-to-know", "the org link has ended; a permissive default reads as lapsed"
     links[1].pop("until")
     _set(store, f"{DEE}/links.yaml", dump_yaml({"links": links}))
     assert disclose(store, ["dee"], today=TODAY)["people"]["dee"]["tier"] == "reviewed"
@@ -242,6 +242,168 @@ def test_remember_disclosed_checks_its_targets_and_lint_checks_hand_edits(store,
     log = f"{ADA}/log/{TODAY[:7]}.md"
     store.files[log] = store.files[log].replace("disclosed: project:heron", "disclosed: project:osprey")
     assert [f["rule"] for f in lint_store(store, today=TODAY)["errors"]] == ["unknown-disclosed"]
+
+
+# ------------------------------------------------ what the adversarial review broke
+
+
+def _osprey(store, put, **meta):
+    put(store, "projects/osprey", meta={"name": "Osprey", "label": "red", "label_source": "operator", **meta})
+
+
+def test_a_seal_that_names_nobody_withholds_the_record_from_everyone(store, put):
+    build(store, put)
+    for sealed_from in ("ada, bram", ["Ada Example"], ["@nobody"]):
+        _edit_meta(store, HERON, sealed_from=sealed_from)
+        result = disclose(store, ["ada"], projects=["heron"], today=TODAY)
+        assert "Heron" in _terms(result, "project:heron"), sealed_from
+        assert result["entities"]["project:heron"]["cleared"] == []
+    assert result["gaps"]["unresolved_seals"] == ["project:heron: @nobody"]
+    _edit_meta(store, HERON, sealed_from="ada, bram")
+    assert disclose(store, ["ada"], today=TODAY)["seals"] == [{"entity": "project:heron", "from": "ada"}]
+
+
+def test_a_bare_seal_id_means_the_person_when_a_project_shares_it(store, put):
+    build(store, put)
+    put(store, "projects/ada", meta={"name": "Ada Project"})
+    _edit_meta(store, HERON, sealed_from=["ada"])
+    assert disclose(store, ["ada"], projects=["heron"], today=TODAY)["seals"] == [{"entity": "project:heron", "from": "ada"}]
+
+
+def test_an_unreadable_entry_file_withholds_the_record(store, put):
+    build(store, put)
+    put(store, CY, meta={"name": "Cy Example"}, files={"trust.yaml": _trust(_tier("open"))})
+    _osprey(store, put)
+    store.files["projects/osprey/PROFILE.md"] = store.files["projects/osprey/PROFILE.md"].replace("name: Osprey", "name: [Osprey")
+    result = disclose(store, ["cy"], today=TODAY)
+    osprey = result["entities"]["project:osprey"]
+    assert (osprey["label"], osprey["cleared"]) == ("red", []) and "osprey" in _terms(result, "project:osprey")
+    assert any(g.startswith("projects/osprey/PROFILE.md") for g in result["gaps"]["unreadable"])
+
+
+@pytest.mark.parametrize("readers", [["email:bram@example.org"], "github:bram", [7]])
+def test_audience_readers_in_any_shape_count(store, put, readers):
+    build(store, put)
+    store.files[f"{BRAM}/identities.yaml"] = dump_yaml({"identities": [{"platform": "email", "value": "bram@example.org", "source": "operator"}]})
+    audience = json.dumps({"ref": "email:bram@example.org", "scope": "named", "complete": True, "readers": readers})
+    result = disclose(store, [], audience=audience, today=TODAY)
+    assert result["least_clearance"] == "clear"
+    assert "Heron" in _terms(result, "project:heron")
+
+
+def test_a_person_given_as_a_project_is_refused(store, put):
+    build(store, put)
+    with pytest.raises(AcquaintError, match="is a person"):
+        disclose(store, ["ada"], projects=["heron", "bram"], today=TODAY)
+
+
+def test_an_ambiguous_reader_counts_as_every_candidate_for_seals(store, put):
+    build(store, put)
+    _edit_meta(store, HERON, label="clear")
+    put(store, "people/bram-2", meta={"name": "Bram Other"})
+    for key in (BRAM, "people/bram-2"):
+        store.files[f"{key}/identities.yaml"] = dump_yaml({"identities": [{"platform": "github", "value": "b-ex", "source": "operator"}]})
+    result = disclose(store, ["github:b-ex"], today=TODAY)
+    assert result["gaps"]["ambiguous"] == ["github:b-ex"] and "Heron" in _terms(result, "project:heron")
+
+
+def test_a_seal_on_an_org_seals_its_members(store, put):
+    build(store, put)
+    put(store, "orgs/rival", meta={"name": "Rival"})
+    put(store, CY, meta={"name": "Cy Example"}, files={
+        "trust.yaml": _trust(_tier("open")),
+        "links.yaml": dump_yaml({"links": [{"to": "org:rival", "source": "operator"}]}),
+    })
+    _edit_meta(store, HERON, sealed_from=["org:rival"])
+    result = disclose(store, ["cy"], projects=["heron"], today=TODAY)
+    assert result["seals"] == [{"entity": "project:heron", "from": "cy"}] and "Heron" in _terms(result, "project:heron")
+
+
+def test_projects_narrow_the_report_not_the_vocabulary(store, put):
+    build(store, put)
+    _edit_meta(store, CLIENT, label="red", sealed_from=["bram"])
+    result = disclose(store, ["bram"], projects=["heron"], today=TODAY)
+    assert "org:example-client" not in result["entities"] and "Example Client" in _terms(result, "org:example-client")
+
+
+def test_link_dates_not_written_iso_give_no_involvement(store, put):
+    build(store, put)
+    _osprey(store, put)
+    put(store, CY, meta={"name": "Cy Example"}, files={
+        "trust.yaml": _trust(_tier("open")),
+        "links.yaml": dump_yaml({"links": [{"to": "project:osprey", "until": "2026-9-1", "source": "operator"}]}),
+    })
+    result = disclose(store, ["cy"], today=TODAY)
+    assert result["people"]["cy"]["involved_in"] == [] and "Osprey" in _terms(result, "project:osprey")
+    _set(store, f"{CY}/trust.yaml", _trust(_tier("open", valid_to="2026-9-1")))
+    cy = disclose(store, ["cy"], today=TODAY)
+    assert cy["people"]["cy"]["tier"] == "reviewed" and cy["gaps"]["unreadable"]
+
+
+def test_a_link_not_sourced_to_the_operator_gives_no_involvement(store, put):
+    build(store, put)
+    _osprey(store, put)
+    put(store, CY, meta={"name": "Cy Example"}, files={
+        "trust.yaml": _trust(_tier("reviewed")),
+        "links.yaml": dump_yaml({"links": [{"to": "project:osprey", "source": "their public profile page"}]}),
+    })
+    result = disclose(store, ["cy"], today=TODAY)
+    assert result["entities"]["project:osprey"]["cleared"] == [] and "Osprey" in _terms(result, "project:osprey")
+
+
+def test_an_unparseable_trust_file_is_reviewed_not_the_org_default(store, put):
+    build(store, put)
+    _edit_meta(store, CLIENT, default_tier="open")
+    put(store, CY, meta={"name": "Cy Example"}, files={
+        "trust.yaml": "tiers: [\n",
+        "links.yaml": dump_yaml({"links": [{"to": "org:example-client", "source": "operator"}]}),
+    })
+    cy = disclose(store, ["cy"], today=TODAY)
+    assert (cy["people"]["cy"]["tier"], cy["people"]["cy"]["clearance"]) == ("reviewed", "clear") and cy["gaps"]["unreadable"]
+
+
+def test_a_later_unsourced_entry_cannot_undo_reviewed(store, put):
+    build(store, put)
+    later = _tier("involved", valid_from=_days(TODAY, -1), source="a scraped page")
+    _set(store, f"{BRAM}/trust.yaml", _trust(_tier("reviewed"), later))
+    assert disclose(store, ["bram"], today=TODAY)["people"]["bram"]["tier"] == "reviewed"
+
+
+def test_a_permissive_default_tier_reads_as_lapsed(store, put):
+    build(store, put)
+    _edit_meta(store, CLIENT, default_tier="open")
+    put(store, DEE, meta={"name": "Dee Example"}, files={"links.yaml": dump_yaml({"links": [{"to": "org:example-client", "source": "operator"}]})})
+    dee = disclose(store, ["dee"], today="2099-01-01")["people"]["dee"]
+    assert (dee["tier"], dee["lapsed"], dee["recorded_tier"]) == ("need-to-know", True, "open")
+
+
+def test_small_inputs_that_used_to_misbehave(store, put):
+    build(store, put)
+    assert list(disclose(store, "ada", today=date.fromisoformat(TODAY))["people"]) == ["ada"]
+    assert disclose(store, ["ada"], audience={"scope": "operator", "defaulted": "true"}, today=TODAY)["least_clearance"] == "clear"
+    store.files[f"{ADA}/identities.yaml"] = dump_yaml({"identities": [{"platform": "github", "value": "ada-gh", "source": "operator"}]})
+    assert "ada-gh" in _terms(disclose(store, ["bram"], today=TODAY), "person:ada")
+
+
+def test_a_missing_audience_file_is_a_clean_error(tmp_path, put, monkeypatch, capsys):
+    data = tmp_path / "data"
+    build(Store(data), put, today=date.today().isoformat())
+    from acquaint.__main__ import main
+
+    monkeypatch.setenv("ACQUAINT_DATA_DIR", str(data))
+    with pytest.raises(SystemExit) as exited:
+        main(["disclosure", "ada", "--audience-json", str(tmp_path / "missing.json")])
+    assert exited.value.code == 1 and "missing.json" in capsys.readouterr().err
+
+
+def test_mcp_does_not_let_a_model_set_the_date():
+    pytest.importorskip("py2mcp")
+    import asyncio
+
+    from acquaint.mcp import mk_server
+
+    [tool] = [t for t in asyncio.run(mk_server().list_tools()) if t.name == "disclosure"]
+    assert "people" in tool.parameters["properties"] and "today" not in tool.parameters["properties"]
 
 
 def test_the_tool_result_is_json_ready_and_readable(tmp_path, put):
