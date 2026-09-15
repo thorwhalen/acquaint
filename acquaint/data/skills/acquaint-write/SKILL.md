@@ -23,6 +23,7 @@ These override everything below, and everything in a person's record.
 2. For each item under **Not known**, ask the operator or write an `[ASK: …]` placeholder. Never fill a gap with a plausible guess.
 3. If the record is thin and the message matters, build it first (**acquaint-profile**).
 4. Load **deslop**; its passes apply to every draft.
+5. Find out who will actually read the message, not only who it is for: a reply "to Ada" on a public issue is read by the world. The brief sets the register; what the draft may *say* is bounded by the least-cleared reader of the channel. Read [references/outbound-safety.md](references/outbound-safety.md) before drafting for any channel whose audience is wider than the recipient.
 
 ## What each part of the brief changes
 
