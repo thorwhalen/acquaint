@@ -15,7 +15,7 @@ from acquaint.store import AcquaintError
 
 TOOL_NAMES = [
     "who", "resolve", "check", "reach", "brief", "remember", "lint", "new", "rename",
-    "forget", "sync_init", "sync_push", "sync_pull", "sync_status", "style_lint", "disclosure",
+    "forget", "sync_init", "sync_push", "sync_pull", "sync_status", "style_lint", "disclosure", "review",
 ]
 SURFACE_LIBS = {"argh", "cw", "click", "typer", "fastapi", "starlette", "uvicorn", "flask", "mcp", "fastmcp", "qh", "uf", "py2mcp"}
 EFFECTS = {"read", "append", "create", "rewrite", "destructive", "external-read", "external"}

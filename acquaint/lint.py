@@ -24,8 +24,10 @@ Errors fail ``acquaint lint``; warnings ask a person to look. The rules:
   ``interaction`` log entry whose ``disclosed:`` names no record (**error**). A
   permissive tier past its ``review_by``, a project whose ``Where things live`` names a
   public repository while its label is not ``clear``, a seal on someone with a current
-  link to the sealed record, a field on a kind that does not read it, and non-text
-  vocabulary are **warnings**;
+  link to the sealed record, a field on a kind that does not read it, non-text
+  vocabulary, and a person's link that ended while a permissive tier recorded before
+  that end is still in force ("affiliation ended; permissive tier still in force") are
+  **warnings**;
 - a file that does not parse, or is not valid UTF-8, an entry file the store cannot
   address (a capitalised or linked folder, ``profile.md``), and a broken
   ``_tombstones.yaml`` are **errors**, reported and skipped, never a crash;
@@ -68,6 +70,7 @@ from acquaint.trust import (
     TIERS,
     TRUST_FILE,
     TRUST_SOURCES,
+    ended_affiliations,
     entity_label,
     is_lapsed,
     tier_in_force,
@@ -337,6 +340,17 @@ def _lint_disclosure(
             f"the {in_force['tier']} tier was due for review on {in_force['review_by']}; "
             f"until the operator reviews it, it counts as {DEFAULT_TIER}",
         )
+    if kind == "person":
+        for ended in ended_affiliations(tiers, entity.links, today=today):
+            recorded = f" recorded {ended['tier_recorded']}" if ended["tier_recorded"] else ""
+            add(
+                "warning",
+                "links.yaml",
+                None,
+                "affiliation-ended",
+                f"affiliation ended; permissive tier still in force: the link to {ended['to']} ended on {ended['until']}, "
+                f"but the {ended['tier']} tier{recorded} still applies; confirm or change it (acquaint review {entity.slug})",
+            )
 
     def check_fact(file: str, line: int | None, text: str) -> None:
         found = fact_tags(text)

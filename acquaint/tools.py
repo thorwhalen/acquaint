@@ -34,6 +34,7 @@ from acquaint.lookup import (
     reach_channels,
     resolve_handle,
 )
+from acquaint.review import review_person
 from acquaint.store import ENTRY_FILE, AcquaintError, Entity, Store, data_dir as _data_dir
 from acquaint.trust import effective_tier, entity_label
 
@@ -51,6 +52,7 @@ __all__ = [
     "remember",
     "rename",
     "resolve",
+    "review",
     "style_lint",
     "sync_init",
     "sync_pull",
@@ -459,6 +461,65 @@ def disclosure(
     }
 
 
+def review(person: str, *, today: str | None = None, data_dir: str | None = None) -> dict:
+    """Everything the store says about one person's disclosure standing, with sources and dates, to confirm when a collaboration ends, when someone changes role, or before a tier changes: tier entries, links, the default tiers and clearances reached through links, seals on records and on fact lines, and the rules that name them. Not ok when an affiliation has ended while a permissive tier is still in force. Reads only."""
+    store = _store(data_dir)
+    result = review_person(store, find_entity(store, person), today=today)
+    slug, in_force = result["id"], result["tier_in_force"]
+
+    def dated(entry: dict, *fields: str) -> str:
+        return ", ".join(f"{f} {entry[f]}" for f in fields if entry.get(f) not in (None, ""))
+
+    def rule_line(rule: dict) -> str:
+        return f"when {rule.get('when')} do {rule.get('do')}  [source: {rule.get('source')}]"
+
+    sections = [
+        ("tiers (trust.yaml)", [
+            f"{t.get('tier')}  {dated(t, 'valid_from', 'valid_to', 'review_by', 'recorded')}  [source: {t.get('source')}]"
+            + ("  <- in force" if t["in_force"] else "")
+            for t in result["tiers"]
+        ]),
+        ("links (links.yaml)", [
+            f"{link.get('record') or link.get('to')}  {link['state']}"
+            + (f"  role {link['role']}" if link.get("role") else "")
+            + (f"  {dated(link, 'since', 'until')}" if dated(link, "since", "until") else "")
+            + f"  [source: {link.get('source')}]"
+            for link in result["links"]
+        ]),
+        ("default tiers of linked records (apply when no tier entry is in force)", [
+            f"{d['entity']}: {d['default_tier']}  [label_source: {d['label_source']}]" for d in result["default_tiers"]
+        ]),
+        ("clearances of linked orgs and groups", [
+            f"{c['entity']}: {c['clearance']}  [label_source: {c['label_source']}]" for c in result["clearances"]
+        ]),
+        (f"records sealed from {slug}", [
+            s["entity"] + (f"  via {s['via']}" if s["via"] else "") + f"  [label_source: {s['label_source']}]"
+            for s in result["seals"]
+        ]),
+        (f"fact lines sealed from {slug}", [
+            f"{f['entity']}  {f['file']}" + (f":{f['line']}" if f["line"] else "") for f in result["fact_seals"]
+        ]),
+        ("rules (rules.yaml)", [rule_line(r) for r in result["rules"]]),
+        (f"rules elsewhere naming {slug}", [f"{r['entity']}: {rule_line(r['rule'])}" for r in result["rules_elsewhere"]]),
+    ]
+    lines = [f"{slug} as of {result['as_of']}: tier in force {in_force['tier']}" + (" (lapsed)" if in_force["lapsed"] else "")]
+    for title, items in sections:
+        if items:
+            lines += [f"{title}:", *(f"  {item}" for item in items)]
+    problems = [
+        f"affiliation ended: the link to {e['to']} ended on {e['until']}, but the {e['tier']} tier"
+        + (f" recorded {e['tier_recorded']}" if e["tier_recorded"] else "")
+        + " is still in force; confirm or change the tier"
+        for e in result["ended_affiliations"]
+    ]
+    summary = "; ".join(problems) or (
+        f"{slug}: tier {in_force['tier']}; {len(result['links'])} link(s), "
+        f"{len(result['seals']) + len(result['fact_seals'])} seal(s), "
+        f"{len(result['rules']) + len(result['rules_elsewhere'])} rule(s) to confirm"
+    )
+    return {"ok": not problems, **result, "summary": summary, "text": "\n".join(lines + problems)}
+
+
 def style_lint(
     text: str,
     *,
@@ -704,6 +765,7 @@ TOOLS = [
     sync_status,
     style_lint,
     disclosure,
+    review,
 ]
 
 #: What each tool changes, for surfaces that must decide what to expose or confirm.
@@ -719,6 +781,7 @@ SIDE_EFFECTS = {
     "lint": "read",
     "style_lint": "read",
     "disclosure": "read",
+    "review": "read",
     "remember": "append",
     "new": "create",
     "rename": "rewrite",

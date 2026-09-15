@@ -45,7 +45,7 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 ## The verbs
 
-The same sixteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
 | Verb | Does |
 |---|---|
@@ -56,6 +56,7 @@ The same sixteen functions are the Python API (`acquaint.tools`), the CLI, and t
 | `brief PERSON [--purpose --project]` | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known |
 | `remember ENTITY TEXT [--source --kind --disclosed --reactivate]` | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate` |
 | `disclosure ID... [--project SLUG] [--audience-json - \| FILE]` | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps |
+| `review PERSON` | everything that names someone's disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier |
 | `lint [ENTITY]` | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires |
 | `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
 | `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
