@@ -1,4 +1,4 @@
-> built 2026-09-15 12:49 UTC from 0bde827 (main) · acquaint 0.0.5. Details: build_info.json
+> built 2026-09-15 13:10 UTC from 7d24b09 (main) · acquaint 0.0.6. Details: build_info.json
 
 # index.html.md
 
@@ -51,22 +51,23 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 ## The verbs
 
-The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+The same sixteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
-| Verb                                                                      | Does                                                                                                                                                                  |
-|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `who NAME [-f FIELD] [-b]`                                                | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing                   |
-| `resolve HANDLE`                                                          | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on |
-| `check TEXT`                                                              | before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names                                                                         |
-| `reach PERSON [--purpose --urgency --project --message-type --topic]`     | ordered channels: the person’s own rules > the operator’s rules > project norms > observed habits > defaults                                                          |
-| `brief PERSON [--purpose --project]`                                      | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known                                                           |
-| `remember ENTITY TEXT [--source --kind --reactivate]`                     | append a dated, sourced observation (or identity, preference, view, rule); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate`  |
-| `lint [ENTITY]`                                                           | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires    |
-| `style-lint TEXT [--recipient --tolerance]`                               | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                         |
-| `new KIND NAME [--qualifier --description]`                               | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                               |
-| `rename ID TO`                                                            | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases                                                                      |
-| `forget ID [--confirm]`                                                   | remove the whole folder, leaving a salted tombstone so the person is not silently re-created                                                                          |
-| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below                                                                                                                                        |
+| Verb                                                                      | Does                                                                                                                                                                                                                                                           |
+|---------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `who NAME [-f FIELD] [-b]`                                                | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing                                                                                                            |
+| `resolve HANDLE`                                                          | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on                                                                                          |
+| `check TEXT`                                                              | before publishing: one person written as two (“Ada or Lovelace”), shared names, unknown names                                                                                                                                                                  |
+| `reach PERSON [--purpose --urgency --project --message-type --topic]`     | ordered channels: the person’s own rules > the operator’s rules > project norms > observed habits > defaults                                                                                                                                                   |
+| `brief PERSON [--purpose --project]`                                      | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known                                                                                                                                                    |
+| `remember ENTITY TEXT [--source --kind --disclosed --reactivate]`         | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate` |
+| `disclosure ID... [--project SLUG] [--audience-json - | FILE]`            | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps                                                                                |
+| `lint [ENTITY]`                                                           | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires                                                                                             |
+| `style-lint TEXT [--recipient --tolerance]`                               | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                                                                                                                  |
+| `new KIND NAME [--qualifier --description]`                               | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                                                                                                                        |
+| `rename ID TO`                                                            | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases                                                                                                                                                               |
+| `forget ID [--confirm]`                                                   | remove the whole folder, leaving a salted tombstone so the person is not silently re-created                                                                                                                                                                   |
+| `sync init --repo OWNER/NAME` · `sync push` · `sync pull` · `sync status` | private-repository sync, below                                                                                                                                                                                                                                 |
 
 `--json` prints the result dict; `-` as the text of `check` or `style-lint` reads stdin.
 
@@ -115,7 +116,7 @@ pip install "acquaint[mcp]"
 {"mcpServers": {"acquaint": {"command": "acquaint-mcp"}}}
 ```
 
-The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server’s (set `ACQUAINT_DATA_DIR` in the client configuration), never the model’s. Neither is `remember`’s `reactivate`: making an inactive identity active again is the operator’s call.
+The server exposes the tools that read locally, append or create (`who`, `resolve`, `check`, `reach`, `brief`, `remember`, `lint`, `new`, `style_lint`, `disclosure`). Renaming, forgetting and syncing stay at the terminal. `data_dir` is not exposed: the data root is the server’s (set `ACQUAINT_DATA_DIR` in the client configuration), never the model’s. Neither is `remember`’s `reactivate`: making an inactive identity active again is the operator’s call. Nor is `disclosure`’s `today`, which could revive a lapsed tier.
 
 ## Private sync
 
@@ -271,12 +272,14 @@ These functions take exact references (`ada-lovelace`, `person:ada-lovelace`,
 
 What `remember` can record. The last three need a source at write time.
 
-### acquaint.edit.append_observation(store, ref, text, , source=None, kind='observation', reactivate=False, today=None)
+### acquaint.edit.append_observation(store, ref, text, , source=None, kind='observation', reactivate=False, disclosed=(), today=None)
 
 Append one dated, sourced entry to the entity’s `log/YYYY-MM.md` (and, for `identity`, to `identities.yaml`).
 
 An identity equal to an inactive one is refused, naming that entry, unless
-`reactivate` is set (see `_append_identity()`). A refusal writes nothing.
+`reactivate` is set (see `_append_identity()`). `disclosed` (`interaction`
+only) lists the records the message identified, by exact id or reference, written as
+references (`project:heron`); never the text. A refusal writes nothing.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
@@ -348,23 +351,24 @@ files (a `dol` files store by default).
 
 ### Functions
 
-| [`brief`](_autosummary/acquaint.html.md#acquaint.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                     |
-|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`check`](_autosummary/acquaint.html.md#acquaint.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                             |
-| [`data_dir`](_autosummary/acquaint.html.md#acquaint.data_dir)([data_dir])                               | The data root: the argument, else `$ACQUAINT_DATA_DIR`, else `data_dir` in config.toml, else `~/.local/share/acquaint`.                                                 |
-| [`forget`](_autosummary/acquaint.html.md#acquaint.forget)(entity, \*[, confirm, data_dir])            | Remove an entity's folder and leave a salted tombstone.                                                                                                                 |
-| [`lint`](_autosummary/acquaint.html.md#acquaint.lint)([entity, data_dir])                           | Check records: every preference, view and rule sourced; tiers, labels and seals set by the operator; nothing POLICY.md forbids; files parse; entry files within budget. |
-| [`new`](_autosummary/acquaint.html.md#acquaint.new)(kind, name, \*[, qualifier, description, ...]) | Create a person, project, org or group from its template (a readable slug id; `qualifier` separates two of the same name).                                              |
-| [`reach`](_autosummary/acquaint.html.md#acquaint.reach)(person, \*[, purpose, urgency, ...])         | Ordered channels for reaching someone in a context.                                                                                                                     |
-| [`remember`](_autosummary/acquaint.html.md#acquaint.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                |
-| [`rename`](_autosummary/acquaint.html.md#acquaint.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                          |
-| [`resolve`](_autosummary/acquaint.html.md#acquaint.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                        |
-| [`style_lint`](_autosummary/acquaint.html.md#acquaint.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                           |
-| [`sync_init`](_autosummary/acquaint.html.md#acquaint.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                              |
-| [`sync_pull`](_autosummary/acquaint.html.md#acquaint.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                     |
-| [`sync_push`](_autosummary/acquaint.html.md#acquaint.sync_push)(\*[, message, dry_run, data_dir])        | Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility.                                                          |
-| [`sync_status`](_autosummary/acquaint.html.md#acquaint.sync_status)(\*[, check_visibility, data_dir])      | Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.                                                    |
-| [`who`](_autosummary/acquaint.html.md#acquaint.who)(name, \*[, field, brief, data_dir])            | Look up one person, project, org or group by exact id, name, alias, handle or email.                                                                                    |
+| [`brief`](_autosummary/acquaint.html.md#acquaint.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
+|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`check`](_autosummary/acquaint.html.md#acquaint.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
+| [`data_dir`](_autosummary/acquaint.html.md#acquaint.data_dir)([data_dir])                               | The data root: the argument, else `$ACQUAINT_DATA_DIR`, else `data_dir` in config.toml, else `~/.local/share/acquaint`.                                                                                                                                                                                                                  |
+| [`disclosure`](_autosummary/acquaint.html.md#acquaint.disclosure)(people, \*[, projects, audience, ...])  | Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. |
+| [`forget`](_autosummary/acquaint.html.md#acquaint.forget)(entity, \*[, confirm, data_dir])            | Remove an entity's folder and leave a salted tombstone.                                                                                                                                                                                                                                                                                  |
+| [`lint`](_autosummary/acquaint.html.md#acquaint.lint)([entity, data_dir])                           | Check records: every preference, view and rule sourced; tiers, labels and seals set by the operator; nothing POLICY.md forbids; files parse; entry files within budget.                                                                                                                                                                  |
+| [`new`](_autosummary/acquaint.html.md#acquaint.new)(kind, name, \*[, qualifier, description, ...]) | Create a person, project, org or group from its template (a readable slug id; `qualifier` separates two of the same name).                                                                                                                                                                                                               |
+| [`reach`](_autosummary/acquaint.html.md#acquaint.reach)(person, \*[, purpose, urgency, ...])         | Ordered channels for reaching someone in a context.                                                                                                                                                                                                                                                                                      |
+| [`remember`](_autosummary/acquaint.html.md#acquaint.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                                                                                                                                                                                 |
+| [`rename`](_autosummary/acquaint.html.md#acquaint.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                                                                                                                                                                                           |
+| [`resolve`](_autosummary/acquaint.html.md#acquaint.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                                                                                                                                                                                         |
+| [`style_lint`](_autosummary/acquaint.html.md#acquaint.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                                                                                                                                                                                            |
+| [`sync_init`](_autosummary/acquaint.html.md#acquaint.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                                                                                                                                                                                               |
+| [`sync_pull`](_autosummary/acquaint.html.md#acquaint.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
+| [`sync_push`](_autosummary/acquaint.html.md#acquaint.sync_push)(\*[, message, dry_run, data_dir])        | Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility.                                                                                                                                                                                                                           |
+| [`sync_status`](_autosummary/acquaint.html.md#acquaint.sync_status)(\*[, check_visibility, data_dir])      | Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.                                                                                                                                                                                                                     |
+| [`who`](_autosummary/acquaint.html.md#acquaint.who)(name, \*[, field, brief, data_dir])            | Look up one person, project, org or group by exact id, name, alias, handle or email.                                                                                                                                                                                                                                                     |
 
 ### Classes
 
@@ -587,6 +591,13 @@ wherever the current directory happens to be.
 True
 ```
 
+### acquaint.disclosure(people, , projects=None, audience=None, today=None, data_dir=None)
+
+Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. `projects` limits the records to those plus people. Reads only.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
 ### acquaint.forget(entity, , confirm=False, data_dir=None)
 
 Remove an entity’s folder and leave a salted tombstone. Needs the exact id; without `confirm`, only reports what would be removed.
@@ -615,9 +626,9 @@ Ordered channels for reaching someone in a context. Only active addresses; retur
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
-### acquaint.remember(entity, text, , source=None, kind='observation', reactivate=False, data_dir=None)
+### acquaint.remember(entity, text, , source=None, kind='observation', disclosed=None, reactivate=False, data_dir=None)
 
-Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity’s log, with its source. An identity equal to an inactive one (`stale`, `retracted`, …) is refused, naming that entry and the command with which the operator can make it active again.
+Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity’s log, with its source. An `interaction` may list the records the message identified (`disclosed`: exact ids, never the text). An identity equal to an inactive one (`stale`, `retracted`, …) is refused, naming that entry and the command with which the operator can make it active again.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -860,7 +871,8 @@ renaming, forgetting and syncing are operator actions and stay at the terminal.
 The data root is the server’s, never the model’s: `data_dir` is removed from every
 tool’s schema, so a model cannot write profiles into whatever directory it is working
 in. `remember`’s `reactivate` is removed too: making an inactive identity active
-again changes a recorded status, which is the operator’s call. Point the server
+again changes a recorded status, which is the operator’s call. `disclosure`’s `today` is
+removed too: a model that could set the date could revive a lapsed tier. Point the server
 elsewhere with `ACQUAINT_DATA_DIR` in the client configuration:
 
 ```default
@@ -935,27 +947,28 @@ True
 
 ### Functions
 
-| [`blank_frontmatter`](_autosummary/acquaint.records.html.md#acquaint.records.blank_frontmatter)(text)                          | The text with its frontmatter lines emptied, so line numbers still match the file.                           |
-|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| [`dump_yaml`](_autosummary/acquaint.records.html.md#acquaint.records.dump_yaml)(data)                                  | Write YAML the way a person would: keys in order, short lists inline, unicode kept.                          |
-| [`fact_tags`](_autosummary/acquaint.records.html.md#acquaint.records.fact_tags)(text)                                  | The label and seals one fact carries, and what is wrong with how they are written.                           |
-| [`format_log_entry`](_autosummary/acquaint.records.html.md#acquaint.records.format_log_entry)(entry_id, date, kind, text, \*) | One log entry: a `## id · date · kind` heading, the observation on one line, then `- key: value` fields.     |
-| [`item_blocks`](_autosummary/acquaint.records.html.md#acquaint.records.item_blocks)(text)                                | `(section, first_line, last_line, item)` for every item of a Markdown document.                              |
-| [`items`](_autosummary/acquaint.records.html.md#acquaint.records.items)(text)                                      | `(line, item)` for every item: each bullet with its wrapped lines, or a paragraph.                           |
-| [`join_frontmatter`](_autosummary/acquaint.records.html.md#acquaint.records.join_frontmatter)(meta, body)                     | The inverse of [`split_frontmatter()`](_autosummary/acquaint.records.html.md#acquaint.records.split_frontmatter).                         |
-| [`load_yaml`](_autosummary/acquaint.records.html.md#acquaint.records.load_yaml)(text)                                  | Parse YAML into JSON-ready data, returning `(data, errors)` instead of raising: these files are hand-edited. |
-| [`next_log_id`](_autosummary/acquaint.records.html.md#acquaint.records.next_log_id)(text)                                | The next free entry id in a log, counting every `## eNN` heading however it is written.                      |
-| [`normalize_newlines`](_autosummary/acquaint.records.html.md#acquaint.records.normalize_newlines)(text)                         | `\r\n` and lone `\r` as `\n`, without a leading byte-order mark.                                             |
-| [`normalize_title`](_autosummary/acquaint.records.html.md#acquaint.records.normalize_title)(title)                           |                                                                                                              |
-| [`parse_log`](_autosummary/acquaint.records.html.md#acquaint.records.parse_log)(text)                                  | Entries of an append-only `log/YYYY-MM.md` file, oldest first.                                               |
-| [`sectioned_items`](_autosummary/acquaint.records.html.md#acquaint.records.sectioned_items)(text)                            | `(section, line, item)` for every item: see [`item_blocks()`](_autosummary/acquaint.records.html.md#acquaint.records.item_blocks).  |
-| [`sections`](_autosummary/acquaint.records.html.md#acquaint.records.sections)(body)                                   | `## Title` blocks of a Markdown body, in order, as `{normalized title: text}`.                               |
-| [`slugify`](_autosummary/acquaint.records.html.md#acquaint.records.slugify)(name, \*[, qualifier])                   | A readable, ASCII-folded, lowercase id: `given-family`, plus `--qualifier` on a collision.                   |
-| [`source_kind`](_autosummary/acquaint.records.html.md#acquaint.records.source_kind)(ref)                                 | Classify one source reference.                                                                               |
-| [`source_problem`](_autosummary/acquaint.records.html.md#acquaint.records.source_problem)(text)                             | Why a preference-bearing item is not sourced, or `None` when it is.                                          |
-| [`source_refs`](_autosummary/acquaint.records.html.md#acquaint.records.source_refs)(line)                                | Every `[source: …]` reference in a piece of text, stripped.                                                  |
-| [`split_frontmatter`](_autosummary/acquaint.records.html.md#acquaint.records.split_frontmatter)(text)                          | Split `---` YAML frontmatter from a Markdown body: `(meta, body, errors)`.                                   |
-| [`tags`](_autosummary/acquaint.records.html.md#acquaint.records.tags)(text)                                       | Every `[source: …]`, `[label: …]` and `[sealed-from: …]` tag in a piece of text: `(name, value)`, in order.  |
+| [`blank_frontmatter`](_autosummary/acquaint.records.html.md#acquaint.records.blank_frontmatter)(text)                          | The text with its frontmatter lines emptied, so line numbers still match the file.                                           |
+|---------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| [`disclosed_refs`](_autosummary/acquaint.records.html.md#acquaint.records.disclosed_refs)(value)                            | The record references a log entry's `disclosed:` field lists, lowercased: `project:heron, org:example` or `[project:heron]`. |
+| [`dump_yaml`](_autosummary/acquaint.records.html.md#acquaint.records.dump_yaml)(data)                                  | Write YAML the way a person would: keys in order, short lists inline, unicode kept.                                          |
+| [`fact_tags`](_autosummary/acquaint.records.html.md#acquaint.records.fact_tags)(text)                                  | The label and seals one fact carries, and what is wrong with how they are written.                                           |
+| [`format_log_entry`](_autosummary/acquaint.records.html.md#acquaint.records.format_log_entry)(entry_id, date, kind, text, \*) | One log entry: a `## id · date · kind` heading, the observation on one line, then `- key: value` fields.                     |
+| [`item_blocks`](_autosummary/acquaint.records.html.md#acquaint.records.item_blocks)(text)                                | `(section, first_line, last_line, item)` for every item of a Markdown document.                                              |
+| [`items`](_autosummary/acquaint.records.html.md#acquaint.records.items)(text)                                      | `(line, item)` for every item: each bullet with its wrapped lines, or a paragraph.                                           |
+| [`join_frontmatter`](_autosummary/acquaint.records.html.md#acquaint.records.join_frontmatter)(meta, body)                     | The inverse of [`split_frontmatter()`](_autosummary/acquaint.records.html.md#acquaint.records.split_frontmatter).                                         |
+| [`load_yaml`](_autosummary/acquaint.records.html.md#acquaint.records.load_yaml)(text)                                  | Parse YAML into JSON-ready data, returning `(data, errors)` instead of raising: these files are hand-edited.                 |
+| [`next_log_id`](_autosummary/acquaint.records.html.md#acquaint.records.next_log_id)(text)                                | The next free entry id in a log, counting every `## eNN` heading however it is written.                                      |
+| [`normalize_newlines`](_autosummary/acquaint.records.html.md#acquaint.records.normalize_newlines)(text)                         | `\r\n` and lone `\r` as `\n`, without a leading byte-order mark.                                                             |
+| [`normalize_title`](_autosummary/acquaint.records.html.md#acquaint.records.normalize_title)(title)                           |                                                                                                                              |
+| [`parse_log`](_autosummary/acquaint.records.html.md#acquaint.records.parse_log)(text)                                  | Entries of an append-only `log/YYYY-MM.md` file, oldest first.                                                               |
+| [`sectioned_items`](_autosummary/acquaint.records.html.md#acquaint.records.sectioned_items)(text)                            | `(section, line, item)` for every item: see [`item_blocks()`](_autosummary/acquaint.records.html.md#acquaint.records.item_blocks).                  |
+| [`sections`](_autosummary/acquaint.records.html.md#acquaint.records.sections)(body)                                   | `## Title` blocks of a Markdown body, in order, as `{normalized title: text}`.                                               |
+| [`slugify`](_autosummary/acquaint.records.html.md#acquaint.records.slugify)(name, \*[, qualifier])                   | A readable, ASCII-folded, lowercase id: `given-family`, plus `--qualifier` on a collision.                                   |
+| [`source_kind`](_autosummary/acquaint.records.html.md#acquaint.records.source_kind)(ref)                                 | Classify one source reference.                                                                                               |
+| [`source_problem`](_autosummary/acquaint.records.html.md#acquaint.records.source_problem)(text)                             | Why a preference-bearing item is not sourced, or `None` when it is.                                                          |
+| [`source_refs`](_autosummary/acquaint.records.html.md#acquaint.records.source_refs)(line)                                | Every `[source: …]` reference in a piece of text, stripped.                                                                  |
+| [`split_frontmatter`](_autosummary/acquaint.records.html.md#acquaint.records.split_frontmatter)(text)                          | Split `---` YAML frontmatter from a Markdown body: `(meta, body, errors)`.                                                   |
+| [`tags`](_autosummary/acquaint.records.html.md#acquaint.records.tags)(text)                                       | Every `[source: …]`, `[label: …]` and `[sealed-from: …]` tag in a piece of text: `(name, value)`, in order.                  |
 
 ### acquaint.records.NONE_LOCATED *= ('none located', 'no primary source located', 'no source located')*
 
@@ -971,6 +984,18 @@ The text with its frontmatter lines emptied, so line numbers still match the fil
 ```pycon
 >>> blank_frontmatter("---\nname: Ada\n---\nbody\n")
 '\n\n\nbody\n'
+```
+
+### acquaint.records.disclosed_refs(value)
+
+The record references a log entry’s `disclosed:` field lists, lowercased: `project:heron, org:example` or `[project:heron]`.
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
+```pycon
+>>> disclosed_refs("[project:heron, Org:Example-Client]"), disclosed_refs(""), disclosed_refs(["project:heron"])
+(['project:heron', 'org:example-client'], [], ['project:heron'])
 ```
 
 ### acquaint.records.dump_yaml(data)
@@ -1789,22 +1814,23 @@ with a [`Store`](_autosummary/acquaint.store.html.md#acquaint.store.Store).
 
 ### Functions
 
-| [`brief`](_autosummary/acquaint.tools.html.md#acquaint.tools.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                     |
-|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`check`](_autosummary/acquaint.tools.html.md#acquaint.tools.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                             |
-| [`forget`](_autosummary/acquaint.tools.html.md#acquaint.tools.forget)(entity, \*[, confirm, data_dir])            | Remove an entity's folder and leave a salted tombstone.                                                                                                                 |
-| [`lint`](_autosummary/acquaint.tools.html.md#acquaint.tools.lint)([entity, data_dir])                           | Check records: every preference, view and rule sourced; tiers, labels and seals set by the operator; nothing POLICY.md forbids; files parse; entry files within budget. |
-| [`new`](_autosummary/acquaint.tools.html.md#acquaint.tools.new)(kind, name, \*[, qualifier, description, ...]) | Create a person, project, org or group from its template (a readable slug id; `qualifier` separates two of the same name).                                              |
-| [`reach`](_autosummary/acquaint.tools.html.md#acquaint.tools.reach)(person, \*[, purpose, urgency, ...])         | Ordered channels for reaching someone in a context.                                                                                                                     |
-| [`remember`](_autosummary/acquaint.tools.html.md#acquaint.tools.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                |
-| [`rename`](_autosummary/acquaint.tools.html.md#acquaint.tools.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                          |
-| [`resolve`](_autosummary/acquaint.tools.html.md#acquaint.tools.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                        |
-| [`style_lint`](_autosummary/acquaint.tools.html.md#acquaint.tools.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                           |
-| [`sync_init`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                              |
-| [`sync_pull`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                     |
-| [`sync_push`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_push)(\*[, message, dry_run, data_dir])        | Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility.                                                          |
-| [`sync_status`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_status)(\*[, check_visibility, data_dir])      | Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.                                                    |
-| [`who`](_autosummary/acquaint.tools.html.md#acquaint.tools.who)(name, \*[, field, brief, data_dir])            | Look up one person, project, org or group by exact id, name, alias, handle or email.                                                                                    |
+| [`brief`](_autosummary/acquaint.tools.html.md#acquaint.tools.brief)(person, \*[, purpose, project, data_dir])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
+|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`check`](_autosummary/acquaint.tools.html.md#acquaint.tools.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
+| [`disclosure`](_autosummary/acquaint.tools.html.md#acquaint.tools.disclosure)(people, \*[, projects, audience, ...])  | Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. |
+| [`forget`](_autosummary/acquaint.tools.html.md#acquaint.tools.forget)(entity, \*[, confirm, data_dir])            | Remove an entity's folder and leave a salted tombstone.                                                                                                                                                                                                                                                                                  |
+| [`lint`](_autosummary/acquaint.tools.html.md#acquaint.tools.lint)([entity, data_dir])                           | Check records: every preference, view and rule sourced; tiers, labels and seals set by the operator; nothing POLICY.md forbids; files parse; entry files within budget.                                                                                                                                                                  |
+| [`new`](_autosummary/acquaint.tools.html.md#acquaint.tools.new)(kind, name, \*[, qualifier, description, ...]) | Create a person, project, org or group from its template (a readable slug id; `qualifier` separates two of the same name).                                                                                                                                                                                                               |
+| [`reach`](_autosummary/acquaint.tools.html.md#acquaint.tools.reach)(person, \*[, purpose, urgency, ...])         | Ordered channels for reaching someone in a context.                                                                                                                                                                                                                                                                                      |
+| [`remember`](_autosummary/acquaint.tools.html.md#acquaint.tools.remember)(entity, text, \*[, source, kind, ...])    | Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity's log, with its source.                                                                                                                                                                                                 |
+| [`rename`](_autosummary/acquaint.tools.html.md#acquaint.tools.rename)(entity, to, \*[, data_dir])                 | Change an entity's id (`to` is a slug) or name and id (`to` is a name), rewriting links to it.                                                                                                                                                                                                                                           |
+| [`resolve`](_autosummary/acquaint.tools.html.md#acquaint.tools.resolve)(handle, \*[, data_dir])                    | Map a channel handle (`github:octocat`, `email:ada@example.org`) to the entity it belongs to, with the evidence.                                                                                                                                                                                                                         |
+| [`style_lint`](_autosummary/acquaint.tools.html.md#acquaint.tools.style_lint)(text, \*[, recipient, tolerance, ...])  | The deterministic half of deslop: machine-writing tells in a draft, at the recipient's tolerance and against their blocklist.                                                                                                                                                                                                            |
+| [`sync_init`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_init)(\*, repo[, remote_url, ...])             | Make the data root a checkout of a PRIVATE GitHub repository (created private through `gh` unless `existing_only`), with a pre-push guard.                                                                                                                                                                                               |
+| [`sync_pull`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
+| [`sync_push`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_push)(\*[, message, dry_run, data_dir])        | Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility.                                                                                                                                                                                                                           |
+| [`sync_status`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_status)(\*[, check_visibility, data_dir])      | Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.                                                                                                                                                                                                                     |
+| [`who`](_autosummary/acquaint.tools.html.md#acquaint.tools.who)(name, \*[, field, brief, data_dir])            | Look up one person, project, org or group by exact id, name, alias, handle or email.                                                                                                                                                                                                                                                     |
 
 ### Exceptions
 
@@ -1817,14 +1843,14 @@ Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exceptio
 
 An expected failure with a message meant for the person or agent that asked.
 
-### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
+### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
 
 What each tool changes, for surfaces that must decide what to expose or confirm.
 `read` changes nothing and stays local; `append` adds to a log; `create` adds a
 record; `rewrite` changes existing records; `destructive` removes data;
 `external-read` queries a remote service; `external` acts on one.
 
-### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>]*
+### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>]*
 
 Every tool, in the order surfaces list them.
 
@@ -1838,6 +1864,13 @@ Everything to know before writing to someone: card, writing style, reach, projec
 ### acquaint.tools.check(text, , data_dir=None)
 
 Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.disclosure(people, , projects=None, audience=None, today=None, data_dir=None)
+
+Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. `projects` limits the records to those plus people. Reads only.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -1870,9 +1903,9 @@ Ordered channels for reaching someone in a context. Only active addresses; retur
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
-### acquaint.tools.remember(entity, text, , source=None, kind='observation', reactivate=False, data_dir=None)
+### acquaint.tools.remember(entity, text, , source=None, kind='observation', disclosed=None, reactivate=False, data_dir=None)
 
-Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity’s log, with its source. An identity equal to an inactive one (`stale`, `retracted`, …) is refused, naming that entry and the command with which the operator can make it active again.
+Append a dated observation (`observation`, `interaction`, `identity`, `preference`, `view`, `rule`) to an entity’s log, with its source. An `interaction` may list the records the message identified (`disclosed`: exact ids, never the text). An identity equal to an inactive one (`stale`, `retracted`, …) is refused, naming that entry and the command with which the operator can make it active again.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -2096,16 +2129,18 @@ True
 
 # About this build
 
-This documentation was built on **2026-09-15 12:49 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/0bde8275594f2f77ea1220b5e794986749534450"><code>0bde827</code></a> on branch <code>main</code>, for **acquaint 0.0.5** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-15 13:10 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d"><code>7d24b09</code></a> on branch <code>main</code>, for **acquaint 0.0.6** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.0.6) is behind the latest release on PyPI (0.0.7): `pip install acquaint` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/0bde8275594f2f77ea1220b5e794986749534450"><code>0bde8275594f2f77ea1220b5e794986749534450</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d"><code>7d24b09fc329edde70aa897358556a086dad2b4d</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2116,9 +2151,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34971000927">34971000927</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34973156042">34973156042</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>0bde8275594f2f77ea1220b5e794986749534450</code> (in the history of the built commit) |
+| Event commit | <code>7d24b09fc329edde70aa897358556a086dad2b4d</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2143,13 +2178,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.5/">0.0.5</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.7/">0.0.7</a>, newer than the documented version (0.0.6).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 0bde8275594f2f77ea1220b5e794986749534450
+git checkout 7d24b09fc329edde70aa897358556a086dad2b4d
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

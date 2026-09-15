@@ -17,6 +17,7 @@ acquaint.tools
    
       brief
       check
+      disclosure
       forget
       lint
       new

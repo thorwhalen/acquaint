@@ -32,12 +32,14 @@ These functions take exact references (`ada-lovelace`, `person:ada-lovelace`,
 
 What `remember` can record. The last three need a source at write time.
 
-### acquaint.edit.append_observation(store, ref, text, , source=None, kind='observation', reactivate=False, today=None)
+### acquaint.edit.append_observation(store, ref, text, , source=None, kind='observation', reactivate=False, disclosed=(), today=None)
 
 Append one dated, sourced entry to the entity’s `log/YYYY-MM.md` (and, for `identity`, to `identities.yaml`).
 
 An identity equal to an inactive one is refused, naming that entry, unless
-`reactivate` is set (see `_append_identity()`). A refusal writes nothing.
+`reactivate` is set (see `_append_identity()`). `disclosed` (`interaction`
+only) lists the records the message identified, by exact id or reference, written as
+references (`project:heron`); never the text. A refusal writes nothing.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]

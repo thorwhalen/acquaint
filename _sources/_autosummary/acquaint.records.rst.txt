@@ -15,6 +15,7 @@ acquaint.records
    .. autosummary::
    
       blank_frontmatter
+      disclosed_refs
       dump_yaml
       fact_tags
       format_log_entry

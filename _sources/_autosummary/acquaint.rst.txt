@@ -11,6 +11,7 @@
       brief
       check
       data_dir
+      disclosure
       forget
       lint
       new

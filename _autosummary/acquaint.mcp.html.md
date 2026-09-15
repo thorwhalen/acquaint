@@ -10,7 +10,8 @@ renaming, forgetting and syncing are operator actions and stay at the terminal.
 The data root is the server’s, never the model’s: `data_dir` is removed from every
 tool’s schema, so a model cannot write profiles into whatever directory it is working
 in. `remember`’s `reactivate` is removed too: making an inactive identity active
-again changes a recorded status, which is the operator’s call. Point the server
+again changes a recorded status, which is the operator’s call. `disclosure`’s `today` is
+removed too: a model that could set the date could revive a lapsed tier. Point the server
 elsewhere with `ACQUAINT_DATA_DIR` in the client configuration:
 
 ```default

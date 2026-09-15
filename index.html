@@ -169,7 +169,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 <section id="the-verbs">
 <h2>The verbs<a class="headerlink" href="#the-verbs" title="Link to this heading">#</a></h2>
-<p>The same fifteen functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
+<p>The same sixteen functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -193,25 +193,28 @@ data-aria-dark="Switch to auto color mode">
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">brief</span> <span class="pre">PERSON</span> <span class="pre">[--purpose</span> <span class="pre">--project]</span></code></p></td>
 <td><p>card, writing style, views, reach, project norms, recent observations, reminders, and what is <strong>not</strong> known</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remember</span> <span class="pre">ENTITY</span> <span class="pre">TEXT</span> <span class="pre">[--source</span> <span class="pre">--kind</span> <span class="pre">--reactivate]</span></code></p></td>
-<td><p>append a dated, sourced observation (or identity, preference, view, rule); an identity equal to an inactive one is refused, naming that entry, unless <code class="docutils literal notranslate"><span class="pre">--reactivate</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">remember</span> <span class="pre">ENTITY</span> <span class="pre">TEXT</span> <span class="pre">[--source</span> <span class="pre">--kind</span> <span class="pre">--disclosed</span> <span class="pre">--reactivate]</span></code></p></td>
+<td><p>append a dated, sourced observation (or identity, preference, view, rule); an <code class="docutils literal notranslate"><span class="pre">interaction</span></code> may list the records a message identified (<code class="docutils literal notranslate"><span class="pre">--disclosed</span> <span class="pre">project:heron</span></code>); an identity equal to an inactive one is refused, naming that entry, unless <code class="docutils literal notranslate"><span class="pre">--reactivate</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disclosure</span> <span class="pre">ID...</span> <span class="pre">[--project</span> <span class="pre">SLUG]</span> <span class="pre">[--audience-json</span> <span class="pre">-</span> <span class="pre">|</span> <span class="pre">FILE]</span></code></p></td>
+<td><p>who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
 <td><p>sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
 <td><p>machine-writing tells, enforced by the reader’s tolerance of AI-sounding text</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
 <td><p>scaffold from a template; readable slug ids (<code class="docutils literal notranslate"><span class="pre">ada-lovelace</span></code>, <code class="docutils literal notranslate"><span class="pre">john-smith--example-org</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
 <td><p>new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
 <td><p>remove the whole folder, leaving a salted tombstone so the person is not silently re-created</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
 <td><p>private-repository sync, below</p></td>
 </tr>
 </tbody>
@@ -277,7 +280,7 @@ data-aria-dark="Switch to auto color mode">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="p">{</span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"acquaint"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"acquaint-mcp"</span><span class="p">}}}</span>
 </span></pre></div>
 </div>
-<p>The server exposes the tools that read locally, append or create (<code class="docutils literal notranslate"><span class="pre">who</span></code>, <code class="docutils literal notranslate"><span class="pre">resolve</span></code>, <code class="docutils literal notranslate"><span class="pre">check</span></code>, <code class="docutils literal notranslate"><span class="pre">reach</span></code>, <code class="docutils literal notranslate"><span class="pre">brief</span></code>, <code class="docutils literal notranslate"><span class="pre">remember</span></code>, <code class="docutils literal notranslate"><span class="pre">lint</span></code>, <code class="docutils literal notranslate"><span class="pre">new</span></code>, <code class="docutils literal notranslate"><span class="pre">style_lint</span></code>). Renaming, forgetting and syncing stay at the terminal. <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> is not exposed: the data root is the server’s (set <code class="docutils literal notranslate"><span class="pre">ACQUAINT_DATA_DIR</span></code> in the client configuration), never the model’s. Neither is <code class="docutils literal notranslate"><span class="pre">remember</span></code>’s <code class="docutils literal notranslate"><span class="pre">reactivate</span></code>: making an inactive identity active again is the operator’s call.</p>
+<p>The server exposes the tools that read locally, append or create (<code class="docutils literal notranslate"><span class="pre">who</span></code>, <code class="docutils literal notranslate"><span class="pre">resolve</span></code>, <code class="docutils literal notranslate"><span class="pre">check</span></code>, <code class="docutils literal notranslate"><span class="pre">reach</span></code>, <code class="docutils literal notranslate"><span class="pre">brief</span></code>, <code class="docutils literal notranslate"><span class="pre">remember</span></code>, <code class="docutils literal notranslate"><span class="pre">lint</span></code>, <code class="docutils literal notranslate"><span class="pre">new</span></code>, <code class="docutils literal notranslate"><span class="pre">style_lint</span></code>, <code class="docutils literal notranslate"><span class="pre">disclosure</span></code>). Renaming, forgetting and syncing stay at the terminal. <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> is not exposed: the data root is the server’s (set <code class="docutils literal notranslate"><span class="pre">ACQUAINT_DATA_DIR</span></code> in the client configuration), never the model’s. Neither is <code class="docutils literal notranslate"><span class="pre">remember</span></code>’s <code class="docutils literal notranslate"><span class="pre">reactivate</span></code>: making an inactive identity active again is the operator’s call. Nor is <code class="docutils literal notranslate"><span class="pre">disclosure</span></code>’s <code class="docutils literal notranslate"><span class="pre">today</span></code>, which could revive a lapsed tier.</p>
 </section>
 <section id="private-sync">
 <h2>Private sync<a class="headerlink" href="#private-sync" title="Link to this heading">#</a></h2>
@@ -313,7 +316,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 12:49 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/0bde8275594f2f77ea1220b5e794986749534450">0bde827</a> (main) · acquaint 0.0.5 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-15 13:10 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/7d24b09fc329edde70aa897358556a086dad2b4d">7d24b09</a> (main) · acquaint 0.0.6 · <a href="about-this-build.html">about this build</a></p>
         </article><button class="back-to-top" type="button">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
@@ -348,7 +351,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=282f96c0"></script>
+      <script src="_static/documentation_options.js?v=1fd71caa"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>

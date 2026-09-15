@@ -144,7 +144,8 @@ renaming, forgetting and syncing are operator actions and stay at the terminal.<
 <p>The data root is the server’s, never the model’s: <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> is removed from every
 tool’s schema, so a model cannot write profiles into whatever directory it is working
 in. <code class="docutils literal notranslate"><span class="pre">remember</span></code>’s <code class="docutils literal notranslate"><span class="pre">reactivate</span></code> is removed too: making an inactive identity active
-again changes a recorded status, which is the operator’s call. Point the server
+again changes a recorded status, which is the operator’s call. <code class="docutils literal notranslate"><span class="pre">disclosure</span></code>’s <code class="docutils literal notranslate"><span class="pre">today</span></code> is
+removed too: a model that could set the date could revive a lapsed tier. Point the server
 elsewhere with <code class="docutils literal notranslate"><span class="pre">ACQUAINT_DATA_DIR</span></code> in the client configuration:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="p">{</span><span class="s2">"mcpServers"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"acquaint"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"command"</span><span class="p">:</span> <span class="s2">"acquaint-mcp"</span><span class="p">}}}</span>
 </span></pre></div>
@@ -241,7 +242,7 @@ elsewhere with <code class="docutils literal notranslate"><span class="pre">ACQU
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=282f96c0"></script>
+      <script src="../_static/documentation_options.js?v=1fd71caa"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

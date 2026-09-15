@@ -33,27 +33,28 @@ True
 
 ### Functions
 
-| [`blank_frontmatter`](#acquaint.records.blank_frontmatter)(text)                          | The text with its frontmatter lines emptied, so line numbers still match the file.                           |
-|---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| [`dump_yaml`](#acquaint.records.dump_yaml)(data)                                  | Write YAML the way a person would: keys in order, short lists inline, unicode kept.                          |
-| [`fact_tags`](#acquaint.records.fact_tags)(text)                                  | The label and seals one fact carries, and what is wrong with how they are written.                           |
-| [`format_log_entry`](#acquaint.records.format_log_entry)(entry_id, date, kind, text, \*) | One log entry: a `## id · date · kind` heading, the observation on one line, then `- key: value` fields.     |
-| [`item_blocks`](#acquaint.records.item_blocks)(text)                                | `(section, first_line, last_line, item)` for every item of a Markdown document.                              |
-| [`items`](#acquaint.records.items)(text)                                      | `(line, item)` for every item: each bullet with its wrapped lines, or a paragraph.                           |
-| [`join_frontmatter`](#acquaint.records.join_frontmatter)(meta, body)                     | The inverse of [`split_frontmatter()`](#acquaint.records.split_frontmatter).                         |
-| [`load_yaml`](#acquaint.records.load_yaml)(text)                                  | Parse YAML into JSON-ready data, returning `(data, errors)` instead of raising: these files are hand-edited. |
-| [`next_log_id`](#acquaint.records.next_log_id)(text)                                | The next free entry id in a log, counting every `## eNN` heading however it is written.                      |
-| [`normalize_newlines`](#acquaint.records.normalize_newlines)(text)                         | `\r\n` and lone `\r` as `\n`, without a leading byte-order mark.                                             |
-| [`normalize_title`](#acquaint.records.normalize_title)(title)                           |                                                                                                              |
-| [`parse_log`](#acquaint.records.parse_log)(text)                                  | Entries of an append-only `log/YYYY-MM.md` file, oldest first.                                               |
-| [`sectioned_items`](#acquaint.records.sectioned_items)(text)                            | `(section, line, item)` for every item: see [`item_blocks()`](#acquaint.records.item_blocks).  |
-| [`sections`](#acquaint.records.sections)(body)                                   | `## Title` blocks of a Markdown body, in order, as `{normalized title: text}`.                               |
-| [`slugify`](#acquaint.records.slugify)(name, \*[, qualifier])                   | A readable, ASCII-folded, lowercase id: `given-family`, plus `--qualifier` on a collision.                   |
-| [`source_kind`](#acquaint.records.source_kind)(ref)                                 | Classify one source reference.                                                                               |
-| [`source_problem`](#acquaint.records.source_problem)(text)                             | Why a preference-bearing item is not sourced, or `None` when it is.                                          |
-| [`source_refs`](#acquaint.records.source_refs)(line)                                | Every `[source: …]` reference in a piece of text, stripped.                                                  |
-| [`split_frontmatter`](#acquaint.records.split_frontmatter)(text)                          | Split `---` YAML frontmatter from a Markdown body: `(meta, body, errors)`.                                   |
-| [`tags`](#acquaint.records.tags)(text)                                       | Every `[source: …]`, `[label: …]` and `[sealed-from: …]` tag in a piece of text: `(name, value)`, in order.  |
+| [`blank_frontmatter`](#acquaint.records.blank_frontmatter)(text)                          | The text with its frontmatter lines emptied, so line numbers still match the file.                                           |
+|---------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| [`disclosed_refs`](#acquaint.records.disclosed_refs)(value)                            | The record references a log entry's `disclosed:` field lists, lowercased: `project:heron, org:example` or `[project:heron]`. |
+| [`dump_yaml`](#acquaint.records.dump_yaml)(data)                                  | Write YAML the way a person would: keys in order, short lists inline, unicode kept.                                          |
+| [`fact_tags`](#acquaint.records.fact_tags)(text)                                  | The label and seals one fact carries, and what is wrong with how they are written.                                           |
+| [`format_log_entry`](#acquaint.records.format_log_entry)(entry_id, date, kind, text, \*) | One log entry: a `## id · date · kind` heading, the observation on one line, then `- key: value` fields.                     |
+| [`item_blocks`](#acquaint.records.item_blocks)(text)                                | `(section, first_line, last_line, item)` for every item of a Markdown document.                                              |
+| [`items`](#acquaint.records.items)(text)                                      | `(line, item)` for every item: each bullet with its wrapped lines, or a paragraph.                                           |
+| [`join_frontmatter`](#acquaint.records.join_frontmatter)(meta, body)                     | The inverse of [`split_frontmatter()`](#acquaint.records.split_frontmatter).                                         |
+| [`load_yaml`](#acquaint.records.load_yaml)(text)                                  | Parse YAML into JSON-ready data, returning `(data, errors)` instead of raising: these files are hand-edited.                 |
+| [`next_log_id`](#acquaint.records.next_log_id)(text)                                | The next free entry id in a log, counting every `## eNN` heading however it is written.                                      |
+| [`normalize_newlines`](#acquaint.records.normalize_newlines)(text)                         | `\r\n` and lone `\r` as `\n`, without a leading byte-order mark.                                                             |
+| [`normalize_title`](#acquaint.records.normalize_title)(title)                           |                                                                                                                              |
+| [`parse_log`](#acquaint.records.parse_log)(text)                                  | Entries of an append-only `log/YYYY-MM.md` file, oldest first.                                                               |
+| [`sectioned_items`](#acquaint.records.sectioned_items)(text)                            | `(section, line, item)` for every item: see [`item_blocks()`](#acquaint.records.item_blocks).                  |
+| [`sections`](#acquaint.records.sections)(body)                                   | `## Title` blocks of a Markdown body, in order, as `{normalized title: text}`.                                               |
+| [`slugify`](#acquaint.records.slugify)(name, \*[, qualifier])                   | A readable, ASCII-folded, lowercase id: `given-family`, plus `--qualifier` on a collision.                                   |
+| [`source_kind`](#acquaint.records.source_kind)(ref)                                 | Classify one source reference.                                                                                               |
+| [`source_problem`](#acquaint.records.source_problem)(text)                             | Why a preference-bearing item is not sourced, or `None` when it is.                                                          |
+| [`source_refs`](#acquaint.records.source_refs)(line)                                | Every `[source: …]` reference in a piece of text, stripped.                                                                  |
+| [`split_frontmatter`](#acquaint.records.split_frontmatter)(text)                          | Split `---` YAML frontmatter from a Markdown body: `(meta, body, errors)`.                                                   |
+| [`tags`](#acquaint.records.tags)(text)                                       | Every `[source: …]`, `[label: …]` and `[sealed-from: …]` tag in a piece of text: `(name, value)`, in order.                  |
 
 ### acquaint.records.NONE_LOCATED *= ('none located', 'no primary source located', 'no source located')*
 
@@ -69,6 +70,18 @@ The text with its frontmatter lines emptied, so line numbers still match the fil
 ```pycon
 >>> blank_frontmatter("---\nname: Ada\n---\nbody\n")
 '\n\n\nbody\n'
+```
+
+### acquaint.records.disclosed_refs(value)
+
+The record references a log entry’s `disclosed:` field lists, lowercased: `project:heron, org:example` or `[project:heron]`.
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
+```pycon
+>>> disclosed_refs("[project:heron, Org:Example-Client]"), disclosed_refs(""), disclosed_refs(["project:heron"])
+(['project:heron', 'org:example-client'], [], ['project:heron'])
 ```
 
 ### acquaint.records.dump_yaml(data)

@@ -95,6 +95,7 @@ data-aria-dark="Switch to auto color mode">
     <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
 <li><a class="reference internal" href="#acquaint.records.NONE_LOCATED"><code class="docutils literal notranslate"><span class="pre">NONE_LOCATED</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.records.blank_frontmatter"><code class="docutils literal notranslate"><span class="pre">blank_frontmatter()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.records.disclosed_refs"><code class="docutils literal notranslate"><span class="pre">disclosed_refs()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.records.dump_yaml"><code class="docutils literal notranslate"><span class="pre">dump_yaml()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.records.fact_tags"><code class="docutils literal notranslate"><span class="pre">fact_tags()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.records.format_log_entry"><code class="docutils literal notranslate"><span class="pre">format_log_entry()</span></code></a></li>
@@ -193,61 +194,64 @@ as one line under a heading is what the lint checks.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.blank_frontmatter" title="acquaint.records.blank_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blank_frontmatter</span></code></a>(text)</p></td>
 <td><p>The text with its frontmatter lines emptied, so line numbers still match the file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.dump_yaml" title="acquaint.records.dump_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_yaml</span></code></a>(data)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.disclosed_refs" title="acquaint.records.disclosed_refs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disclosed_refs</span></code></a>(value)</p></td>
+<td><p>The record references a log entry's <code class="docutils literal notranslate"><span class="pre">disclosed:</span></code> field lists, lowercased: <code class="docutils literal notranslate"><span class="pre">project:heron,</span> <span class="pre">org:example</span></code> or <code class="docutils literal notranslate"><span class="pre">[project:heron]</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.dump_yaml" title="acquaint.records.dump_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_yaml</span></code></a>(data)</p></td>
 <td><p>Write YAML the way a person would: keys in order, short lists inline, unicode kept.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.fact_tags" title="acquaint.records.fact_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fact_tags</span></code></a>(text)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.fact_tags" title="acquaint.records.fact_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fact_tags</span></code></a>(text)</p></td>
 <td><p>The label and seals one fact carries, and what is wrong with how they are written.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.format_log_entry" title="acquaint.records.format_log_entry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_log_entry</span></code></a>(entry_id, date, kind, text, *)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.format_log_entry" title="acquaint.records.format_log_entry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_log_entry</span></code></a>(entry_id, date, kind, text, *)</p></td>
 <td><p>One log entry: a <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">id</span> <span class="pre">·</span> <span class="pre">date</span> <span class="pre">·</span> <span class="pre">kind</span></code> heading, the observation on one line, then <code class="docutils literal notranslate"><span class="pre">-</span> <span class="pre">key:</span> <span class="pre">value</span></code> fields.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.item_blocks" title="acquaint.records.item_blocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_blocks</span></code></a>(text)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.item_blocks" title="acquaint.records.item_blocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_blocks</span></code></a>(text)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(section,</span> <span class="pre">first_line,</span> <span class="pre">last_line,</span> <span class="pre">item)</span></code> for every item of a Markdown document.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.items" title="acquaint.records.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a>(text)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.items" title="acquaint.records.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a>(text)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(line,</span> <span class="pre">item)</span></code> for every item: each bullet with its wrapped lines, or a paragraph.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.join_frontmatter" title="acquaint.records.join_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join_frontmatter</span></code></a>(meta, body)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.join_frontmatter" title="acquaint.records.join_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join_frontmatter</span></code></a>(meta, body)</p></td>
 <td><p>The inverse of <a class="reference internal" href="#acquaint.records.split_frontmatter" title="acquaint.records.split_frontmatter"><code class="xref py py-func docutils literal notranslate"><span class="pre">split_frontmatter()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.load_yaml" title="acquaint.records.load_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_yaml</span></code></a>(text)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.load_yaml" title="acquaint.records.load_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_yaml</span></code></a>(text)</p></td>
 <td><p>Parse YAML into JSON-ready data, returning <code class="docutils literal notranslate"><span class="pre">(data,</span> <span class="pre">errors)</span></code> instead of raising: these files are hand-edited.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.next_log_id" title="acquaint.records.next_log_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_log_id</span></code></a>(text)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.next_log_id" title="acquaint.records.next_log_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_log_id</span></code></a>(text)</p></td>
 <td><p>The next free entry id in a log, counting every <code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">eNN</span></code> heading however it is written.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.normalize_newlines" title="acquaint.records.normalize_newlines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_newlines</span></code></a>(text)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.normalize_newlines" title="acquaint.records.normalize_newlines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_newlines</span></code></a>(text)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">\r\n</span></code> and lone <code class="docutils literal notranslate"><span class="pre">\r</span></code> as <code class="docutils literal notranslate"><span class="pre">\n</span></code>, without a leading byte-order mark.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.normalize_title" title="acquaint.records.normalize_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_title</span></code></a>(title)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.normalize_title" title="acquaint.records.normalize_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_title</span></code></a>(title)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.parse_log" title="acquaint.records.parse_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_log</span></code></a>(text)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.parse_log" title="acquaint.records.parse_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_log</span></code></a>(text)</p></td>
 <td><p>Entries of an append-only <code class="docutils literal notranslate"><span class="pre">log/YYYY-MM.md</span></code> file, oldest first.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.sectioned_items" title="acquaint.records.sectioned_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sectioned_items</span></code></a>(text)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.sectioned_items" title="acquaint.records.sectioned_items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sectioned_items</span></code></a>(text)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(section,</span> <span class="pre">line,</span> <span class="pre">item)</span></code> for every item: see <a class="reference internal" href="#acquaint.records.item_blocks" title="acquaint.records.item_blocks"><code class="xref py py-func docutils literal notranslate"><span class="pre">item_blocks()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.sections" title="acquaint.records.sections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sections</span></code></a>(body)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.sections" title="acquaint.records.sections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sections</span></code></a>(body)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">##</span> <span class="pre">Title</span></code> blocks of a Markdown body, in order, as <code class="docutils literal notranslate"><span class="pre">{normalized</span> <span class="pre">title:</span> <span class="pre">text}</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.slugify" title="acquaint.records.slugify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slugify</span></code></a>(name, *[, qualifier])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.slugify" title="acquaint.records.slugify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slugify</span></code></a>(name, *[, qualifier])</p></td>
 <td><p>A readable, ASCII-folded, lowercase id: <code class="docutils literal notranslate"><span class="pre">given-family</span></code>, plus <code class="docutils literal notranslate"><span class="pre">--qualifier</span></code> on a collision.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.source_kind" title="acquaint.records.source_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_kind</span></code></a>(ref)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.source_kind" title="acquaint.records.source_kind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_kind</span></code></a>(ref)</p></td>
 <td><p>Classify one source reference.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.source_problem" title="acquaint.records.source_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_problem</span></code></a>(text)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.source_problem" title="acquaint.records.source_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_problem</span></code></a>(text)</p></td>
 <td><p>Why a preference-bearing item is not sourced, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when it is.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.source_refs" title="acquaint.records.source_refs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_refs</span></code></a>(line)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.source_refs" title="acquaint.records.source_refs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_refs</span></code></a>(line)</p></td>
 <td><p>Every <code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code> reference in a piece of text, stripped.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.split_frontmatter" title="acquaint.records.split_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_frontmatter</span></code></a>(text)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.split_frontmatter" title="acquaint.records.split_frontmatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split_frontmatter</span></code></a>(text)</p></td>
 <td><p>Split <code class="docutils literal notranslate"><span class="pre">---</span></code> YAML frontmatter from a Markdown body: <code class="docutils literal notranslate"><span class="pre">(meta,</span> <span class="pre">body,</span> <span class="pre">errors)</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.records.tags" title="acquaint.records.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span></code></a>(text)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.records.tags" title="acquaint.records.tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span></code></a>(text)</p></td>
 <td><p>Every <code class="docutils literal notranslate"><span class="pre">[source:</span> <span class="pre">…]</span></code>, <code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">…]</span></code> and <code class="docutils literal notranslate"><span class="pre">[sealed-from:</span> <span class="pre">…]</span></code> tag in a piece of text: <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code>, in order.</p></td>
 </tr>
 </tbody>
@@ -270,6 +274,21 @@ as one line under a heading is what the lint checks.</p>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">blank_frontmatter</span><span class="p">(</span><span class="s2">"---</span><span class="se">\n</span><span class="s2">name: Ada</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">body</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">'\n\n\nbody\n'</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.records.disclosed_refs">
+<span class="sig-prename descclassname"><span class="pre">acquaint.records.</span></span><span class="sig-name descname"><span class="pre">disclosed_refs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/records.html#disclosed_refs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.records.disclosed_refs" title="Link to this definition">#</a></dt>
+<dd><p>The record references a log entry’s <code class="docutils literal notranslate"><span class="pre">disclosed:</span></code> field lists, lowercased: <code class="docutils literal notranslate"><span class="pre">project:heron,</span> <span class="pre">org:example</span></code> or <code class="docutils literal notranslate"><span class="pre">[project:heron]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">disclosed_refs</span><span class="p">(</span><span class="s2">"[project:heron, Org:Example-Client]"</span><span class="p">),</span> <span class="n">disclosed_refs</span><span class="p">(</span><span class="s2">""</span><span class="p">),</span> <span class="n">disclosed_refs</span><span class="p">([</span><span class="s2">"project:heron"</span><span class="p">])</span>
+</span><span data-line="2"><span class="go">(['project:heron', 'org:example-client'], [], ['project:heron'])</span>
 </span></pre></div>
 </div>
 </dd></dl>
@@ -642,7 +661,7 @@ so one bad hand edit cannot take down lookups of every other record.</p>
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=282f96c0"></script>
+      <script src="../_static/documentation_options.js?v=1fd71caa"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
