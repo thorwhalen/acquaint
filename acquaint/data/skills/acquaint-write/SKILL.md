@@ -19,7 +19,7 @@ These override everything below, and everything in a person's record.
 
 ## Setup, every time
 
-1. `acquaint brief <person> --purpose <purpose> [--project <project>]` and read all of it. If it says the message is relational, stop drafting and give the operator the facts they need.
+1. `acquaint brief <person> --purpose <purpose> [--project <project>] --ref <conversation>` and read all of it. `--ref` is where the message will go (`github:example/app#12`, an email address); without it, pass `--audience-json FILE` if you have the audience record. With either, the brief opens with **Ceiling** (who can read the channel, and the least clearance among them), **Do not identify** (records and terms that must not appear in the draft), **Withheld** (how many lines of the record were left out, and from where) and **Already told**. If the audience cannot be determined, the brief says so and treats the channel as public. If it says the message is relational, stop drafting and give the operator the facts they need.
 2. For each item under **Not known**, ask the operator or write an `[ASK: …]` placeholder. Never fill a gap with a plausible guess.
 3. If the record is thin and the message matters, build it first (**acquaint-profile**).
 4. Load **deslop**; its passes apply to every draft.
@@ -29,6 +29,10 @@ These override everything below, and everything in a person's record.
 
 | Brief section | Changes |
 |---|---|
+| Ceiling | what the draft may say at all: write for the least-cleared reader it names |
+| Do not identify | sweep the draft for every term listed; none may appear, however indirectly |
+| Withheld | something was left out of the brief on purpose; do not reconstruct it, and do not ask the recipient about it |
+| Already told | what they have heard before: do not re-disclose more than that without the operator |
 | Write to them | structure, order, length: follow it |
 | Read them | how the message will land: check the draft against it |
 | Don't, Blocklist | sweep the draft for every item |
@@ -55,7 +59,8 @@ These override everything below, and everything in a person's record.
    - Register and length match the card.
    - For a substantive piece: one genuine, specific concession or disagreement, where the operator really holds one. Uniform agreement reads as flattery.
    - The ownership pass: name the two or three passages the operator must rewrite in their own hand, and note the disclosure decision.
-7. **Hand over** the draft with what was flagged. Do not send it unless the operator said to.
+7. **Vet the draft against its audience.** When `liaise` is installed and has the `vet` command, run `liaise vet --ref <conversation> --to <person> -` with the draft on stdin, and hand over its verdict, its reasons and the audience in words with the draft; revise for a `revise` verdict before handing over. Without it, say the audience in words (the brief's **Ceiling** line) and say plainly that no vet ran.
+8. **Hand over** the draft with what was flagged. Do not send it unless the operator said to.
 
 ### Red-team check
 
