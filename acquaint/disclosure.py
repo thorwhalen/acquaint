@@ -86,7 +86,12 @@ __all__ = [
 ]
 
 #: What each tier may see outside the reader's own projects.
-TIER_CLEARANCE = {"open": "amber", "involved": "green", "need-to-know": "clear", "reviewed": "clear"}
+TIER_CLEARANCE = {
+    "open": "amber",
+    "involved": "green",
+    "need-to-know": "clear",
+    "reviewed": "clear",
+}
 #: A reader's clearance for a project they hold a current link to.
 INVOLVED_CLEARANCE = "red"
 #: correspond's audience scopes, narrowest first.
@@ -110,7 +115,15 @@ _BLOCK_INDICATORS = {"", "|", ">", "|-", ">-", "|+", ">+"}
 _RAW_COMMENT_RE = re.compile(r"\s+#.*$")
 _TIER_DATES = ("valid_from", "valid_to", "review_by")
 _LINK_DATES = ("since", "until")
-_GAPS = ("unrecorded", "ambiguous", "not_a_person", "no_tier", "organisation", "unreadable", "unresolved_seals")
+_GAPS = (
+    "unrecorded",
+    "ambiguous",
+    "not_a_person",
+    "no_tier",
+    "organisation",
+    "unreadable",
+    "unresolved_seals",
+)
 
 
 def may_see(clearance: str, label: str) -> bool:
@@ -118,7 +131,9 @@ def may_see(clearance: str, label: str) -> bool:
     return LABELS.index(clearance) <= LABELS.index(label)
 
 
-def most_restrictive_reader(clearances: Iterable[str], *, default: str = _NO_CEILING) -> str:
+def most_restrictive_reader(
+    clearances: Iterable[str], *, default: str = _NO_CEILING
+) -> str:
     """The least clearance among readers (the one that sees least); ``default`` when there are none."""
     return max(clearances, key=LABELS.index, default=default)
 
@@ -175,7 +190,11 @@ def id_list(value: Any) -> list[str]:
 
 def _broken(entity: Entity, *files: str) -> list[str]:
     """The parse problems of these files of the entity, as ``<key>/<file>: <problem>``."""
-    return [f"{entity.key}/{error}" for error in entity.errors if error.split(":", 1)[0] in files]
+    return [
+        f"{entity.key}/{error}"
+        for error in entity.errors
+        if error.split(":", 1)[0] in files
+    ]
 
 
 def _find_key(store: Store, ref: Any) -> str | None:
@@ -212,7 +231,9 @@ def _links(store: Store, entity: Entity, today: str) -> list[tuple[Entity, bool]
     for link in entity.links:
         readable = _dates_ok(link, _LINK_DATES)
         since, until = link.get("since"), link.get("until")
-        current = (_blank(since) or str(since) <= today) and (_blank(until) or today < str(until))
+        current = (_blank(since) or str(since) <= today) and (
+            _blank(until) or today < str(until)
+        )
         key = _find_key(store, link.get("to", ""))
         if key and (current or not readable):
             trusted = readable and _operator_sourced(link.get("source"))
@@ -220,7 +241,9 @@ def _links(store: Store, entity: Entity, today: str) -> list[tuple[Entity, bool]
     return [(store[key], trusted) for key, trusted in found.items()]
 
 
-def _tier(entity: Entity, links: list[tuple[Entity, bool]], today: str) -> tuple[dict[str, Any], list[str]]:
+def _tier(
+    entity: Entity, links: list[tuple[Entity, bool]], today: str
+) -> tuple[dict[str, Any], list[str]]:
     """The tier in force today, failing closed, and what could not be read."""
     unreadable = _broken(entity, TRUST_FILE, _LINKS_FILE)
     unreadable += [
@@ -229,24 +252,46 @@ def _tier(entity: Entity, links: list[tuple[Entity, bool]], today: str) -> tuple
         if not _dates_ok(entry, _TIER_DATES)
     ][:1]
     if unreadable:
-        tier = {"tier": _MOST_RESTRICTIVE_TIER, "recorded_tier": None, "lapsed": False, "review_by": None,
-                "source": "unreadable records, read as reviewed"}
+        tier = {
+            "tier": _MOST_RESTRICTIVE_TIER,
+            "recorded_tier": None,
+            "lapsed": False,
+            "review_by": None,
+            "source": "unreadable records, read as reviewed",
+        }
         return tier, unreadable
 
-    sourced = [e for e in entity.trust if source_kind(str(e.get("source") or "")) in TRUST_SOURCES]
+    sourced = [
+        e
+        for e in entity.trust
+        if source_kind(str(e.get("source") or "")) in TRUST_SOURCES
+    ]
     entry = tier_in_force(sourced, today=today)
     if entry is not None:
         value, lapsed = effective_tier(sourced, today=today)
-        tier = {"tier": value, "recorded_tier": entry.get("tier"), "lapsed": lapsed,
-                "review_by": entry.get("review_by"), "source": entry.get("source")}
+        tier = {
+            "tier": value,
+            "recorded_tier": entry.get("tier"),
+            "lapsed": lapsed,
+            "review_by": entry.get("review_by"),
+            "source": entry.get("source"),
+        }
     else:
         tier = _default_tier(links)
 
     unsourced = tier_in_force([e for e in entity.trust if e not in sourced], today=today)
     if unsourced is not None:
-        value = unsourced.get("tier") if unsourced.get("tier") in TIERS else _MOST_RESTRICTIVE_TIER
+        value = (
+            unsourced.get("tier")
+            if unsourced.get("tier") in TIERS
+            else _MOST_RESTRICTIVE_TIER
+        )
         if _tier_rank(value) > _tier_rank(tier["tier"]):
-            tier = {**tier, "tier": value, "source": f"an entry not sourced to the operator ({unsourced.get('source')!r}), which can only restrict"}
+            tier = {
+                **tier,
+                "tier": value,
+                "source": f"an entry not sourced to the operator ({unsourced.get('source')!r}), which can only restrict",
+            }
     return tier, []
 
 
@@ -257,7 +302,14 @@ def _default_tier(links: list[tuple[Entity, bool]]) -> dict[str, Any]:
         if other.kind not in DEFAULT_TIER_KINDS:
             continue
         if _broken(other, ENTRY_FILE):
-            defaults.append((_MOST_RESTRICTIVE_TIER, None, False, f"the unreadable entry file of {other.ref}"))
+            defaults.append(
+                (
+                    _MOST_RESTRICTIVE_TIER,
+                    None,
+                    False,
+                    f"the unreadable entry file of {other.ref}",
+                )
+            )
             continue
         value = other.meta.get("default_tier")
         if _blank(value):
@@ -265,11 +317,27 @@ def _default_tier(links: list[tuple[Entity, bool]]) -> dict[str, Any]:
         value = value if value in TIERS else _MOST_RESTRICTIVE_TIER
         lapsed = value in PERMISSIVE_TIERS
         effective = _stricter_tier(value, DEFAULT_TIER) if lapsed else value
-        defaults.append((effective, value if lapsed else None, lapsed, f"default_tier of {other.ref}"))
+        defaults.append(
+            (effective, value if lapsed else None, lapsed, f"default_tier of {other.ref}")
+        )
     if not defaults:
-        return {"tier": DEFAULT_TIER, "recorded_tier": None, "lapsed": False, "review_by": None, "source": None}
-    value, recorded, lapsed, source = max(defaults, key=lambda row: (_tier_rank(row[0]), row[3]))
-    return {"tier": value, "recorded_tier": recorded, "lapsed": lapsed, "review_by": None, "source": source}
+        return {
+            "tier": DEFAULT_TIER,
+            "recorded_tier": None,
+            "lapsed": False,
+            "review_by": None,
+            "source": None,
+        }
+    value, recorded, lapsed, source = max(
+        defaults, key=lambda row: (_tier_rank(row[0]), row[3])
+    )
+    return {
+        "tier": value,
+        "recorded_tier": recorded,
+        "lapsed": lapsed,
+        "review_by": None,
+        "source": source,
+    }
 
 
 def already_told(entity: Entity, *, store: Store | None = None) -> list[dict[str, str]]:
@@ -283,7 +351,11 @@ def already_told(entity: Entity, *, store: Store | None = None) -> list[dict[str
         return store[key].ref if key else ref
 
     told = [
-        {"entity": as_ref(ref), "date": entry["date"], "entry": f"{log_name}#{entry['id']}"}
+        {
+            "entity": as_ref(ref),
+            "date": entry["date"],
+            "entry": f"{log_name}#{entry['id']}",
+        }
         for log_name in sorted(name for name in entity if name.startswith("log/"))
         for entry in parse_log(entity[log_name])
         if entry["kind"] == _INTERACTION
@@ -298,7 +370,11 @@ def already_told(entity: Entity, *, store: Store | None = None) -> list[dict[str
 def _resolve_reader(store: Store, text: str) -> tuple[str | None, str | None, list[str]]:
     """``(key, None, [])`` for an exact id, reference or channel identity with a named platform; else ``(None, problem, candidate keys)``."""
     text = str(text).strip()
-    key = person_key(store, text) if ":" not in text or text.split(":", 1)[0] in {"person", "people"} else None
+    key = (
+        person_key(store, text)
+        if ":" not in text or text.split(":", 1)[0] in {"person", "people"}
+        else None
+    )
     if key is None and ":" not in text and "/" not in text and not text.startswith("@"):
         candidates = store.find_id(text)
         if len(candidates) > 1:
@@ -312,8 +388,14 @@ def _resolve_reader(store: Store, text: str) -> tuple[str | None, str | None, li
     if len(owners) == 1 and found["platform"]:
         return owners[0], None, []
     # Who it could still be: inactive and name-only owners, and anyone whose identities cannot be read.
-    candidates = {m["key"] for m in found["matches"] + found["inactive"] + found["by_name"]}
-    candidates |= {k for k in store if store[k].kind == _PERSON_KIND and _broken(store[k], _IDENTITIES_FILE)}
+    candidates = {
+        m["key"] for m in found["matches"] + found["inactive"] + found["by_name"]
+    }
+    candidates |= {
+        k
+        for k in store
+        if store[k].kind == _PERSON_KIND and _broken(store[k], _IDENTITIES_FILE)
+    }
     return None, "ambiguous" if owners else "unrecorded", sorted(candidates)
 
 
@@ -342,14 +424,18 @@ def parse_audience(audience: str | Mapping | None) -> dict[str, Any] | None:
     warnings = []
     scope = audience.get("scope")
     if scope not in SCOPES:
-        warnings.append(f"audience scope {scope!r} is not one of {', '.join(SCOPES)}; read as public")
+        warnings.append(
+            f"audience scope {scope!r} is not one of {', '.join(SCOPES)}; read as public"
+        )
         scope = _UNKNOWN_SCOPE
     if audience.get("defaulted") not in (None, False):
         scope = _UNKNOWN_SCOPE
     raw = audience.get("readers")
     if not isinstance(raw, (list, tuple)):
         if not _blank(raw):
-            warnings.append(f"audience readers should be a list, not {raw!r}; read as one unknown reader")
+            warnings.append(
+                f"audience readers should be a list, not {raw!r}; read as one unknown reader"
+            )
         raw = [None] if not _blank(raw) else []
     readers: list[str | None] = []
     for reader in raw:
@@ -357,10 +443,18 @@ def parse_audience(audience: str | Mapping | None) -> dict[str, Any] | None:
             readers.append(reader.strip())
         elif isinstance(reader, Mapping) and reader.get("is_self") is True:
             continue
-        elif isinstance(reader, Mapping) and reader.get("channel") and (reader.get("handle") or reader.get("native_id")):
-            readers.append(f"{reader['channel']}:{reader.get('handle') or reader.get('native_id')}")
+        elif (
+            isinstance(reader, Mapping)
+            and reader.get("channel")
+            and (reader.get("handle") or reader.get("native_id"))
+        ):
+            readers.append(
+                f"{reader['channel']}:{reader.get('handle') or reader.get('native_id')}"
+            )
         else:
-            warnings.append(f"an audience reader that cannot be resolved counts as a stranger: {reader!r}")
+            warnings.append(
+                f"an audience reader that cannot be resolved counts as a stranger: {reader!r}"
+            )
             readers.append(None)
     return {
         "ref": str(audience.get("ref") or ""),
@@ -377,20 +471,35 @@ def _organisation(store: Store, ref: str) -> Entity | None:
     if not sep or not place:
         return None
     place = place.split("#", 1)[0].strip("/")
-    for handle in dict.fromkeys([f"{channel}:{place}", f"{channel}:{place.split('/', 1)[0]}"]):
+    for handle in dict.fromkeys(
+        [f"{channel}:{place}", f"{channel}:{place.split('/', 1)[0]}"]
+    ):
         found = resolve_handle(store, handle)
-        owners = sorted({m["key"] for m in found["matches"] if store[m["key"]].kind in CLEARANCE_KINDS})
+        owners = sorted(
+            {
+                m["key"]
+                for m in found["matches"]
+                if store[m["key"]].kind in CLEARANCE_KINDS
+            }
+        )
         if len(owners) == 1:
             return store[owners[0]]
     return None
 
 
-def _ceiling(store: Store, audience: dict | None, gaps: dict) -> tuple[str | None, dict | None]:
+def _ceiling(
+    store: Store, audience: dict | None, gaps: dict
+) -> tuple[str | None, dict | None]:
     """The clearance of the readers an audience cannot list (``None``: every reader is listed, or no audience), and what it says about the audience."""
     if audience is None:
         return None, None
     scope, complete = audience["scope"], audience["complete"]
-    about: dict[str, Any] = {"scope": scope, "complete": complete, "ref": audience["ref"], "organisation": None}
+    about: dict[str, Any] = {
+        "scope": scope,
+        "complete": complete,
+        "ref": audience["ref"],
+        "organisation": None,
+    }
     ceiling: str | None = _STRANGER
     if scope == "operator" or (complete and scope != "public"):
         ceiling = None
@@ -413,7 +522,9 @@ def _ceiling(store: Store, audience: dict | None, gaps: dict) -> tuple[str | Non
 def _label(entity: Entity) -> str:
     """The record's label; one not set by the operator may restrict, never widen, the kind's default."""
     label, default = entity_label(entity.meta, entity.kind), entity_label({}, entity.kind)
-    if _operator_sourced(entity.meta.get("label_source")) or LABELS.index(label) <= LABELS.index(default):
+    if _operator_sourced(entity.meta.get("label_source")) or LABELS.index(
+        label
+    ) <= LABELS.index(default):
         return label
     return default
 
@@ -439,7 +550,9 @@ def _raw_terms(text: str) -> list[str]:
         found = _RAW_FIELD_RE.match(line)
         if found:
             field, value = found.group(1), found.group(2)
-        elif field and (line[:1] in (" ", "\t") or _RAW_ITEM_RE.match(line)):  # a continuation, a list item or a folded scalar's text
+        elif field and (
+            line[:1] in (" ", "\t") or _RAW_ITEM_RE.match(line)
+        ):  # a continuation, a list item or a folded scalar's text
             value = line
         else:
             field = field if not line[:1].strip() else None
@@ -455,7 +568,13 @@ def _raw_terms(text: str) -> list[str]:
 def _terms(entity: Entity) -> list[str]:
     """Name, aliases, vocabulary, id and recorded handles, each once (compared without case); read leniently when the entry file does not parse."""
     raw = _raw_terms(entity.text(ENTRY_FILE)) if _broken(entity, ENTRY_FILE) else []
-    raw += [entity.name, *entity.aka, *_listed(entity.meta.get("vocabulary")), entity.slug, entity.slug.replace("-", " ")]
+    raw += [
+        entity.name,
+        *entity.aka,
+        *_listed(entity.meta.get("vocabulary")),
+        entity.slug,
+        entity.slug.replace("-", " "),
+    ]
     raw += [identity.get("value") for identity in entity.identities]
     seen: dict[str, str] = {}
     for term in raw:
@@ -530,7 +649,9 @@ def disclose(
     for project in projects:
         key = find_entity(store, project, names=False)
         if store[key].kind == _PERSON_KIND:
-            raise AcquaintError(f"{project!r} is a person, not a project: name readers before --project")
+            raise AcquaintError(
+                f"{project!r} is a person, not a project: name readers before --project"
+            )
         report_keys.append(key)
 
     gaps: dict[str, list[str]] = {name: [] for name in _GAPS}
@@ -539,10 +660,14 @@ def disclose(
     links_of = {k: _links(store, store[k], today) for k in person_keys}
     uncertain = {k for k in person_keys if _uncertain_links(store, store[k], today)}
     readers: dict[str, dict[str, Any]] = {}  # store key -> the person's answer
-    strangers: list[list[str]] = []  # readers with no single person record: their candidate keys
+    strangers: list[
+        list[str]
+    ] = []  # readers with no single person record: their candidate keys
 
     def add_reader(text: str | None, via: str) -> None:
-        key, problem, candidates = _resolve_reader(store, text) if text is not None else (None, None, [])
+        key, problem, candidates = (
+            _resolve_reader(store, text) if text is not None else (None, None, [])
+        )
         if key is None:
             if problem:
                 gaps[problem].append(text)
@@ -562,7 +687,11 @@ def disclose(
         readers[key] = {
             **tier,
             "clearance": TIER_CLEARANCE[tier["tier"]],
-            "involved_in": [] if unreadable else [o.ref for o, trusted in links_of[key] if trusted and o.kind == "project"],
+            "involved_in": []
+            if unreadable
+            else [
+                o.ref for o, trusted in links_of[key] if trusted and o.kind == "project"
+            ],
             "already_told": already_told(entity, store=store),
             "via": via,
         }
@@ -593,11 +722,19 @@ def disclose(
             if reader_key in sealed_keys:
                 sealed.append(slug)
                 not_cleared.append(slug)
-            elif not withheld and (reader_key == key or entity.ref in reader["involved_in"] or may_see(reader["clearance"], label)):
+            elif not withheld and (
+                reader_key == key
+                or entity.ref in reader["involved_in"]
+                or may_see(reader["clearance"], label)
+            ):
                 cleared.append(slug)
             else:
                 not_cleared.append(slug)
-        above_unlisted = withheld or bool(sealed_keys & stranger_candidates) or any(not may_see(c, label) for c in unlisted)
+        above_unlisted = (
+            withheld
+            or bool(sealed_keys & stranger_candidates)
+            or any(not may_see(c, label) for c in unlisted)
+        )
         seals += [{"entity": entity.ref, "from": slug} for slug in sealed]
         if key in report:
             entities[entity.ref] = {
@@ -609,7 +746,12 @@ def disclose(
             }
         if not_cleared or above_unlisted:
             vocabulary += [
-                {"term": term, "entity": entity.ref, "label": label, "sealed_from": sealed}
+                {
+                    "term": term,
+                    "entity": entity.ref,
+                    "label": label,
+                    "sealed_from": sealed,
+                }
                 for term in _terms(entity)
             ]
 

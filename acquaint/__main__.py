@@ -39,7 +39,9 @@ def _audience_json(value):
     try:
         return Path(value).read_text(encoding="utf-8")
     except OSError as error:
-        raise tools.AcquaintError(f"--audience-json {value}: {error.strerror or error}") from error
+        raise tools.AcquaintError(
+            f"--audience-json {value}: {error.strerror or error}"
+        ) from error
 
 
 def _egress(as_json):
@@ -72,8 +74,17 @@ def main(argv=None):
     }
     stdin = {"text": {"codec": lambda text: sys.stdin.read() if text == "-" else text}}
     disclosure = {
-        "projects": {"flags": ["--project"], "action": "extend", "nargs": "+", "dest": "projects"},
-        "audience": {"flags": ["--audience-json"], "dest": "audience", "codec": _audience_json},
+        "projects": {
+            "flags": ["--project"],
+            "action": "extend",
+            "nargs": "+",
+            "dest": "projects",
+        },
+        "audience": {
+            "flags": ["--audience-json"],
+            "dest": "audience",
+            "codec": _audience_json,
+        },
     }
     config = {"check": stdin, "style-lint": stdin, "disclosure": disclosure}
     args = [a for a in argv if a != "--json"]
@@ -86,7 +97,9 @@ def main(argv=None):
             egress=_egress(as_json),
             config=config,
         )
-    except tools.AcquaintError as error:  # raised while decoding an argument, before any tool runs
+    except (
+        tools.AcquaintError
+    ) as error:  # raised while decoding an argument, before any tool runs
         print(f"acquaint: {error}", file=sys.stderr)
         code = 1
     raise SystemExit(code)

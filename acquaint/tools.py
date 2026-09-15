@@ -401,8 +401,14 @@ def disclosure(
     )
     lines = []
     for slug, person in result["people"].items():
-        involved = f"; involved in {', '.join(person['involved_in'])}" if person["involved_in"] else ""
-        lapsed = f" (recorded {person['recorded_tier']}, lapsed)" if person["lapsed"] else ""
+        involved = (
+            f"; involved in {', '.join(person['involved_in'])}"
+            if person["involved_in"]
+            else ""
+        )
+        lapsed = (
+            f" (recorded {person['recorded_tier']}, lapsed)" if person["lapsed"] else ""
+        )
         source = person["source"] or "nothing recorded"
         told = ", ".join(f"{t['entity']} ({t['date']})" for t in person["already_told"])
         lines.append(
@@ -414,8 +420,16 @@ def disclosure(
         lines.append(
             f"audience: {audience_line['scope']}"
             + ("" if audience_line["complete"] else ", not every reader listed")
-            + (f", unlisted readers at {audience_line['ceiling']}" if audience_line["ceiling"] else "")
-            + (f" ({audience_line['organisation']})" if audience_line["organisation"] else "")
+            + (
+                f", unlisted readers at {audience_line['ceiling']}"
+                if audience_line["ceiling"]
+                else ""
+            )
+            + (
+                f" ({audience_line['organisation']})"
+                if audience_line["organisation"]
+                else ""
+            )
         )
     lines.append(f"least clearance: {result['least_clearance']}")
     lines += [f"sealed: {s['entity']} from {s['from']}" for s in result["seals"]]
@@ -428,12 +442,21 @@ def disclosure(
             f"  {ref} [{terms[0]['label']}]: " + ", ".join(t["term"] for t in terms)
             for ref, terms in sorted(records.items())
         ]
-    lines += [f"gap: {name}: {', '.join(values)}" for name, values in result["gaps"].items() if values]
+    lines += [
+        f"gap: {name}: {', '.join(values)}"
+        for name, values in result["gaps"].items()
+        if values
+    ]
     summary = (
         f"least clearance {result['least_clearance']}; {len(records)} record(s) not to identify, "
         f"{len(result['seals'])} seal(s), {sum(map(len, result['gaps'].values()))} gap(s)"
     )
-    return {"ok": True, **result, "summary": summary, "text": "\n".join(lines + [summary])}
+    return {
+        "ok": True,
+        **result,
+        "summary": summary,
+        "text": "\n".join(lines + [summary]),
+    }
 
 
 def style_lint(

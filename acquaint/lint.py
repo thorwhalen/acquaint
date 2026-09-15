@@ -369,9 +369,21 @@ def _lint_disclosure(
             check_fact(where, None, entry["text"])
             for ref in disclosed_refs(entry.get("disclosed", "")):
                 if not _link_exists(ref, keys, ids):
-                    add("error", where, None, "unknown-disclosed", f"disclosed: {ref} names no record in the store")
+                    add(
+                        "error",
+                        where,
+                        None,
+                        "unknown-disclosed",
+                        f"disclosed: {ref} names no record in the store",
+                    )
             if entry.get("disclosed") and entry["kind"] != "interaction":
-                add("warning", where, None, "misplaced-field", f"disclosed: is read on interaction entries only; this is a {entry['kind']}")
+                add(
+                    "warning",
+                    where,
+                    None,
+                    "misplaced-field",
+                    f"disclosed: is read on interaction entries only; this is a {entry['kind']}",
+                )
 
 
 def _lint_entity(
