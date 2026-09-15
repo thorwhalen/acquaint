@@ -158,7 +158,13 @@ def _audience_record(
             if isinstance(error, ImportError)
             else f"{type(error).__name__}: {error}"
         )
-        unknown = {"ref": str(ref), "scope": "public", "complete": False, "readers": [], "defaulted": True}
+        unknown = {
+            "ref": str(ref),
+            "scope": "public",
+            "complete": False,
+            "readers": [],
+            "defaulted": True,
+        }
         return unknown, None, [f"{_UNKNOWN_AUDIENCE_WARNING} ({reason})"]
 
 
@@ -200,12 +206,16 @@ def _ceiling(
 
     def keep(text: str) -> bool:
         tags = fact_tags(text)
-        if tags["problems"] or (tags["label"] is not None and tags["label"] not in LABELS):
+        if tags["problems"] or (
+            tags["label"] is not None and tags["label"] not in LABELS
+        ):
             return False
         if tags["label"] is not None and not may_see(least, tags["label"]):
             return False
         if tags["sealed_from"]:
-            sealed = {person_key(store, r, handle_prefix=True) for r in tags["sealed_from"]}
+            sealed = {
+                person_key(store, r, handle_prefix=True) for r in tags["sealed_from"]
+            }
             if unlisted or None in sealed or sealed & readers:
                 return False
         return True
@@ -216,7 +226,12 @@ def _ceiling(
             continue
         row = grouped.setdefault(
             term["entity"],
-            {"entity": term["entity"], "label": term["label"], "sealed_from": term["sealed_from"], "terms": []},
+            {
+                "entity": term["entity"],
+                "label": term["label"],
+                "sealed_from": term["sealed_from"],
+                "terms": [],
+            },
         )
         row["terms"].append(term["term"])
     if answer["gaps"]["unreadable"] or answer["gaps"]["unresolved_seals"]:
@@ -354,14 +369,18 @@ def compose_brief(
         if norms:
             project_ref = store[project_key].ref
             hidden = {row["entity"] for row in at_write_time["do_not_identify"]}
-            if project_ref in hidden:  # a project above the ceiling: none of its norms reach the drafter
+            if (
+                project_ref in hidden
+            ):  # a project above the ceiling: none of its norms reach the drafter
                 counts[project_ref] = len(item_blocks(norms))
                 norms = ""
             else:
                 norms = minimised(norms, project_ref)
         shown = [entry for entry in observations if keep(entry["text"])]
         if len(shown) < len(observations):
-            counts[entity.ref] = counts.get(entity.ref, 0) + len(observations) - len(shown)
+            counts[entity.ref] = (
+                counts.get(entity.ref, 0) + len(observations) - len(shown)
+            )
         observations = shown
         at_write_time["withheld"] = [{"entity": r, "count": n} for r, n in counts.items()]
 
@@ -393,11 +412,19 @@ def compose_brief(
 
 def _render_ceiling(brief: dict[str, Any]) -> list[str]:
     ceiling = brief["ceiling"]
-    out = ["## Ceiling", f"{ceiling['line']} (least clearance: {ceiling['least_clearance']}).", ""]
+    out = [
+        "## Ceiling",
+        f"{ceiling['line']} (least clearance: {ceiling['least_clearance']}).",
+        "",
+    ]
     out.append("## Do not identify")
     out += [
         f"- {row['entity']} [{row['label']}]: {', '.join(row['terms'])}"
-        + (f" (sealed from {', '.join(row['sealed_from'])})" if row["sealed_from"] else "")
+        + (
+            f" (sealed from {', '.join(row['sealed_from'])})"
+            if row["sealed_from"]
+            else ""
+        )
         for row in brief["do_not_identify"]
     ] or ["Nothing above the ceiling."]
     out += ["", "## Withheld"]
@@ -407,7 +434,8 @@ def _render_ceiling(brief: dict[str, Any]) -> list[str]:
     ] or ["Nothing."]
     out += ["", "## Already told"]
     out += [
-        f"- {row['entity']} ({row['date']}, {row['entry']})" for row in brief["already_told"]
+        f"- {row['entity']} ({row['date']}, {row['entry']})"
+        for row in brief["already_told"]
     ] or ["Nothing recorded."]
     return out + [""]
 
