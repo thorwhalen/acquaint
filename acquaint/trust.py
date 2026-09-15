@@ -154,4 +154,8 @@ def fact_label(text: str, record_label: str) -> str:
     tags = fact_tags(text)
     if tags["label"] is None and not tags["problems"]:
         return record_label
-    return tags["label"] if tags["label"] in LABELS and not tags["problems"] else _UNKNOWN_LABEL
+    return (
+        tags["label"]
+        if tags["label"] in LABELS and not tags["problems"]
+        else _UNKNOWN_LABEL
+    )

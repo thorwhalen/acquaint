@@ -65,9 +65,7 @@ _THEMATIC_BREAK_RE = re.compile(r"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")
 _FENCE_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 #: The inline tags a fact line may carry: its source, and the label and seals of what it says.
-_TAG_RE = re.compile(
-    r"\[(?P<name>source|label|sealed-from):\s*(?P<value>[^\]]*)\]", re.I
-)
+_TAG_RE = re.compile(r"\[(?P<name>source|label|sealed-from):\s*(?P<value>[^\]]*)\]", re.I)
 #: Anything that starts like a label or seal tag, so a misspelt one is reported instead of ignored.
 _FACT_TAG_LIKE_RE = re.compile(
     r"\[\s*(?P<name>label|sealed[\s_-]*from)\b(?P<rest>[^\[\]\n]*)(?P<close>\])?", re.I

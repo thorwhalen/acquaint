@@ -206,7 +206,10 @@ def _lint_disclosure(
                 rule,
                 f"{field} is {value!r}; use one of {', '.join(allowed)}",
             )
-    for field, kinds in (("clearance", CLEARANCE_KINDS), ("default_tier", DEFAULT_TIER_KINDS)):
+    for field, kinds in (
+        ("clearance", CLEARANCE_KINDS),
+        ("default_tier", DEFAULT_TIER_KINDS),
+    ):
         if meta.get(field) not in (None, "") and kind not in kinds:
             add(
                 "warning",
