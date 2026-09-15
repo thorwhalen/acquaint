@@ -106,6 +106,8 @@ _IDENTITIES_FILE = "identities.yaml"
 _RAW_FIELD_RE = re.compile(r"^\s*(name|aka|vocabulary)\s*:\s*(.*)$")
 _RAW_ITEM_RE = re.compile(r"^\s*-\s+(.*)$")
 _BLOCK_INDICATORS = {"", "|", ">", "|-", ">-", "|+", ">+"}
+#: A YAML comment: ``#`` after whitespace, to the end of the line (quotes are not tracked; a shorter term is still scanned).
+_RAW_COMMENT_RE = re.compile(r"\s+#.*$")
 _TIER_DATES = ("valid_from", "valid_to", "review_by")
 _LINK_DATES = ("since", "until")
 _GAPS = ("unrecorded", "ambiguous", "not_a_person", "no_tier", "organisation", "unreadable", "unresolved_seals")
@@ -423,6 +425,8 @@ def _raw_terms(text: str) -> list[str]:
     ['Osprey', 'Grey', 'the fish hawk', 'O.']
     >>> _raw_terms('---\\nname: >-\\n  Heron Initiative\\nvocabulary: ["the bird project",\\n  "H."]\\nlabel: [red\\n---\\n')
     ['Heron Initiative', 'the bird project', 'H.']
+    >>> _raw_terms('---\\nname: Heron Initiative  # public name\\naka:\\n- Grey Wing\\nvocabulary: [the bird project, H.]  # codenames\\nlabel: [red\\n---\\n')
+    ['Heron Initiative', 'Grey Wing', 'the bird project', 'H.']
     """
     lines = normalize_newlines(text).split("\n")
     if lines and lines[0].strip() == "---":
@@ -431,10 +435,11 @@ def _raw_terms(text: str) -> list[str]:
     for line in lines:
         if line.strip() == "---":
             break
+        line = _RAW_COMMENT_RE.sub("", line)
         found = _RAW_FIELD_RE.match(line)
         if found:
             field, value = found.group(1), found.group(2)
-        elif field and line[:1] in (" ", "\t"):  # a continuation, a list item or a folded scalar's text
+        elif field and (line[:1] in (" ", "\t") or _RAW_ITEM_RE.match(line)):  # a continuation, a list item or a folded scalar's text
             value = line
         else:
             field = field if not line[:1].strip() else None
