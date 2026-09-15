@@ -28,6 +28,7 @@ records, and :mod:`acquaint.lint` says what is wrong with them.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from datetime import date
 from typing import Any
 
 from acquaint.records import fact_tags
@@ -43,9 +44,12 @@ __all__ = [
     "TRUST_FILE",
     "TRUST_SOURCES",
     "effective_tier",
+    "ended_affiliations",
     "entity_label",
     "fact_label",
+    "is_iso_date",
     "is_lapsed",
+    "link_state",
     "tier_in_force",
 ]
 
@@ -128,6 +132,55 @@ def effective_tier(tiers: Sequence[Mapping], *, today: str) -> tuple[str | None,
     if is_lapsed(entry, today=today):
         return DEFAULT_TIER, True
     return entry["tier"], False
+
+
+def is_iso_date(value: Any) -> bool:
+    """Whether a value is a date written ``YYYY-MM-DD``.
+
+    >>> is_iso_date("2026-09-15"), is_iso_date("2026-9-1"), is_iso_date(None)
+    (True, False, False)
+    """
+    try:
+        return date.fromisoformat(str(value)).isoformat() == str(value)
+    except ValueError:
+        return False
+
+
+def link_state(link: Mapping, *, today: str) -> str:
+    """Where a ``links.yaml`` link stands today: ``current``, ``ended`` (``until`` today or earlier), ``future`` (``since`` after today), or ``unreadable`` (a date not written ``YYYY-MM-DD``).
+
+    >>> [link_state(l, today="2026-09-15") for l in ({}, {"until": "2026-09-15"}, {"since": "2026-10-01"}, {"until": "soon"})]
+    ['current', 'ended', 'future', 'unreadable']
+    """
+    since, until = link.get("since"), link.get("until")
+    if any(not _blank(value) and not is_iso_date(value) for value in (since, until)):
+        return "unreadable"
+    if not _blank(until) and str(until) <= today:
+        return "ended"
+    if not _blank(since) and str(since) > today:
+        return "future"
+    return "current"
+
+
+def ended_affiliations(tiers: Sequence[Mapping], links: Sequence[Mapping], *, today: str) -> list[dict]:
+    """Links that ended while a permissive tier recorded before their end is still in force: ``{to, until, tier, tier_recorded}``.
+
+    A tier recorded (or starting) after the link ended was set with the end in view, so it
+    is not reported; a lapsed tier already counts as :data:`DEFAULT_TIER`.
+
+    >>> tiers = [{"tier": "open", "valid_from": "2026-09-01", "recorded": "2026-09-01", "review_by": "2026-11-01"}]
+    >>> ended_affiliations(tiers, [{"to": "project:heron", "until": "2026-09-10"}], today="2026-09-15")
+    [{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]
+    """
+    entry = tier_in_force(tiers, today=today)
+    if entry is None or entry.get("tier") not in PERMISSIVE_TIERS or is_lapsed(entry, today=today):
+        return []
+    started = str(entry.get("recorded") or entry.get("valid_from") or "")
+    return [
+        {"to": link.get("to"), "until": str(link["until"]), "tier": entry["tier"], "tier_recorded": started or None}
+        for link in links
+        if link_state(link, today=today) == "ended" and (not started or started <= str(link["until"]))
+    ]
 
 
 def entity_label(meta: Mapping, kind: str) -> str:

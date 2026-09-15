@@ -69,6 +69,8 @@ from acquaint.trust import (
     TRUST_SOURCES,
     effective_tier,
     entity_label,
+    is_iso_date,
+    link_state,
     tier_in_force,
 )
 
@@ -114,7 +116,6 @@ _BLOCK_INDICATORS = {"", "|", ">", "|-", ">-", "|+", ">+"}
 #: A YAML comment: ``#`` after whitespace, to the end of the line (quotes are not tracked; a shorter term is still scanned).
 _RAW_COMMENT_RE = re.compile(r"\s+#.*$")
 _TIER_DATES = ("valid_from", "valid_to", "review_by")
-_LINK_DATES = ("since", "until")
 _GAPS = (
     "unrecorded",
     "ambiguous",
@@ -145,15 +146,8 @@ def _blank(value: Any) -> bool:
     return value is None or value == ""
 
 
-def _is_iso_date(value: Any) -> bool:
-    try:
-        return date.fromisoformat(str(value)).isoformat() == str(value)
-    except ValueError:
-        return False
-
-
 def _dates_ok(mapping: Mapping, fields: Sequence[str]) -> bool:
-    return all(_blank(mapping.get(f)) or _is_iso_date(mapping.get(f)) for f in fields)
+    return all(_blank(mapping.get(f)) or is_iso_date(mapping.get(f)) for f in fields)
 
 
 def _tier_rank(tier: str) -> int:
@@ -229,14 +223,10 @@ def _links(store: Store, entity: Entity, today: str) -> list[tuple[Entity, bool]
     """``(record, trusted)`` for every link that is current or whose dates cannot be read; ``trusted`` is operator-sourced with readable dates."""
     found: dict[str, bool] = {}
     for link in entity.links:
-        readable = _dates_ok(link, _LINK_DATES)
-        since, until = link.get("since"), link.get("until")
-        current = (_blank(since) or str(since) <= today) and (
-            _blank(until) or today < str(until)
-        )
+        state = link_state(link, today=today)
         key = _find_key(store, link.get("to", ""))
-        if key and (current or not readable):
-            trusted = readable and _operator_sourced(link.get("source"))
+        if key and state in ("current", "unreadable"):
+            trusted = state == "current" and _operator_sourced(link.get("source"))
             found[key] = found.get(key, False) or trusted
     return [(store[key], trusted) for key, trusted in found.items()]
 
@@ -588,12 +578,11 @@ def _uncertain_links(store: Store, entity: Entity, today: str) -> bool:
     """Whether some of the person's links cannot be followed: ``links.yaml`` does not parse, or a link that may be current names no record, or several."""
     if _broken(entity, _LINKS_FILE):
         return True
-    for link in entity.links:
-        until = link.get("until")
-        ended = not _blank(until) and _is_iso_date(until) and str(until) <= today
-        if not ended and _find_key(store, link.get("to", "")) is None:
-            return True
-    return False
+    return any(
+        link_state(link, today=today) != "ended"
+        and _find_key(store, link.get("to", "")) is None
+        for link in entity.links
+    )
 
 
 def _sealed(
