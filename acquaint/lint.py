@@ -342,7 +342,9 @@ def _lint_disclosure(
         )
     if kind == "person":
         for ended in ended_affiliations(tiers, entity.links, today=today):
-            recorded = f" recorded {ended['tier_recorded']}" if ended["tier_recorded"] else ""
+            recorded = (
+                f" recorded {ended['tier_recorded']}" if ended["tier_recorded"] else ""
+            )
             add(
                 "warning",
                 "links.yaml",

@@ -468,41 +468,78 @@ def review(person: str, *, today: str | None = None, data_dir: str | None = None
     slug, in_force = result["id"], result["tier_in_force"]
 
     def dated(entry: dict, *fields: str) -> str:
-        return ", ".join(f"{f} {entry[f]}" for f in fields if entry.get(f) not in (None, ""))
+        return ", ".join(
+            f"{f} {entry[f]}" for f in fields if entry.get(f) not in (None, "")
+        )
 
     def rule_line(rule: dict) -> str:
-        return f"when {rule.get('when')} do {rule.get('do')}  [source: {rule.get('source')}]"
+        return (
+            f"when {rule.get('when')} do {rule.get('do')}  [source: {rule.get('source')}]"
+        )
 
     sections = [
-        ("tiers (trust.yaml)", [
-            f"{t.get('tier')}  {dated(t, 'valid_from', 'valid_to', 'review_by', 'recorded')}  [source: {t.get('source')}]"
-            + ("  <- in force" if t["in_force"] else "")
-            for t in result["tiers"]
-        ]),
-        ("links (links.yaml)", [
-            f"{link.get('record') or link.get('to')}  {link['state']}"
-            + (f"  role {link['role']}" if link.get("role") else "")
-            + (f"  {dated(link, 'since', 'until')}" if dated(link, "since", "until") else "")
-            + f"  [source: {link.get('source')}]"
-            for link in result["links"]
-        ]),
-        ("default tiers of linked records (apply when no tier entry is in force)", [
-            f"{d['entity']}: {d['default_tier']}  [label_source: {d['label_source']}]" for d in result["default_tiers"]
-        ]),
-        ("clearances of linked orgs and groups", [
-            f"{c['entity']}: {c['clearance']}  [label_source: {c['label_source']}]" for c in result["clearances"]
-        ]),
-        (f"records sealed from {slug}", [
-            s["entity"] + (f"  via {s['via']}" if s["via"] else "") + f"  [label_source: {s['label_source']}]"
-            for s in result["seals"]
-        ]),
-        (f"fact lines sealed from {slug}", [
-            f"{f['entity']}  {f['file']}" + (f":{f['line']}" if f["line"] else "") for f in result["fact_seals"]
-        ]),
+        (
+            "tiers (trust.yaml)",
+            [
+                f"{t.get('tier')}  {dated(t, 'valid_from', 'valid_to', 'review_by', 'recorded')}  [source: {t.get('source')}]"
+                + ("  <- in force" if t["in_force"] else "")
+                for t in result["tiers"]
+            ],
+        ),
+        (
+            "links (links.yaml)",
+            [
+                f"{link.get('record') or link.get('to')}  {link['state']}"
+                + (f"  role {link['role']}" if link.get("role") else "")
+                + (
+                    f"  {dated(link, 'since', 'until')}"
+                    if dated(link, "since", "until")
+                    else ""
+                )
+                + f"  [source: {link.get('source')}]"
+                for link in result["links"]
+            ],
+        ),
+        (
+            "default tiers of linked records (apply when no tier entry is in force)",
+            [
+                f"{d['entity']}: {d['default_tier']}  [label_source: {d['label_source']}]"
+                for d in result["default_tiers"]
+            ],
+        ),
+        (
+            "clearances of linked orgs and groups",
+            [
+                f"{c['entity']}: {c['clearance']}  [label_source: {c['label_source']}]"
+                for c in result["clearances"]
+            ],
+        ),
+        (
+            f"records sealed from {slug}",
+            [
+                s["entity"]
+                + (f"  via {s['via']}" if s["via"] else "")
+                + f"  [label_source: {s['label_source']}]"
+                for s in result["seals"]
+            ],
+        ),
+        (
+            f"fact lines sealed from {slug}",
+            [
+                f"{f['entity']}  {f['file']}" + (f":{f['line']}" if f["line"] else "")
+                for f in result["fact_seals"]
+            ],
+        ),
         ("rules (rules.yaml)", [rule_line(r) for r in result["rules"]]),
-        (f"rules elsewhere naming {slug}", [f"{r['entity']}: {rule_line(r['rule'])}" for r in result["rules_elsewhere"]]),
+        (
+            f"rules elsewhere naming {slug}",
+            [f"{r['entity']}: {rule_line(r['rule'])}" for r in result["rules_elsewhere"]],
+        ),
     ]
-    lines = [f"{slug} as of {result['as_of']}: tier in force {in_force['tier']}" + (" (lapsed)" if in_force["lapsed"] else "")]
+    lines = [
+        f"{slug} as of {result['as_of']}: tier in force {in_force['tier']}"
+        + (" (lapsed)" if in_force["lapsed"] else "")
+    ]
     for title, items in sections:
         if items:
             lines += [f"{title}:", *(f"  {item}" for item in items)]
@@ -517,7 +554,12 @@ def review(person: str, *, today: str | None = None, data_dir: str | None = None
         f"{len(result['seals']) + len(result['fact_seals'])} seal(s), "
         f"{len(result['rules']) + len(result['rules_elsewhere'])} rule(s) to confirm"
     )
-    return {"ok": not problems, **result, "summary": summary, "text": "\n".join(lines + problems)}
+    return {
+        "ok": not problems,
+        **result,
+        "summary": summary,
+        "text": "\n".join(lines + problems),
+    }
 
 
 def style_lint(

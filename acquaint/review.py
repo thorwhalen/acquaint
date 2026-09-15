@@ -69,7 +69,9 @@ def _fact_lines(entity: Entity) -> Iterator[tuple[str, int | None, str]]:
             yield f"{log_name}#{entry['id']}", None, entry["text"]
 
 
-def _seals(store: Store, person: Entity, linked: set[str]) -> tuple[list[dict], list[dict]]:
+def _seals(
+    store: Store, person: Entity, linked: set[str]
+) -> tuple[list[dict], list[dict]]:
     """Records sealed from the person, directly or through a linked record; and fact lines sealed from them."""
     records, facts = [], []
     for key in store:
@@ -86,25 +88,38 @@ def _seals(store: Store, person: Entity, linked: set[str]) -> tuple[list[dict], 
                     }
                 )
         for file, line, text in _fact_lines(other):
-            if any(person_key(store, ref, handle_prefix=True) == person.key for ref in fact_tags(text)["sealed_from"]):
+            if any(
+                person_key(store, ref, handle_prefix=True) == person.key
+                for ref in fact_tags(text)["sealed_from"]
+            ):
                 facts.append({"entity": other.ref, "file": file, "line": line})
     return records, facts
 
 
-def _linked_fields(store: Store, keys: list[str], field: str, kinds: tuple[str, ...]) -> list[dict]:
+def _linked_fields(
+    store: Store, keys: list[str], field: str, kinds: tuple[str, ...]
+) -> list[dict]:
     return [
-        {"entity": store[k].ref, field: store[k].meta[field], "label_source": store[k].meta.get("label_source")}
+        {
+            "entity": store[k].ref,
+            field: store[k].meta[field],
+            "label_source": store[k].meta.get("label_source"),
+        }
         for k in keys
         if store[k].kind in kinds and store[k].meta.get(field) not in (None, "")
     ]
 
 
-def review_person(store: Store, key: str, *, today: str | date | None = None) -> dict[str, Any]:
+def review_person(
+    store: Store, key: str, *, today: str | date | None = None
+) -> dict[str, Any]:
     """The review list for one person (by store key). See the module docstring; reads only."""
     today = str(today) if today else date.today().isoformat()
     person = store[key]
     if person.kind != _PERSON_KIND:
-        raise AcquaintError(f"{person.ref} is not a person: review lists a person's tiers, links, seals and rules")
+        raise AcquaintError(
+            f"{person.ref} is not a person: review lists a person's tiers, links, seals and rules"
+        )
     trust, links = person.trust, person.links
     in_force = tier_in_force(trust, today=today)
     tier, lapsed = effective_tier(trust, today=today)
@@ -113,7 +128,9 @@ def review_person(store: Store, key: str, *, today: str | date | None = None) ->
     for link in links:
         state = link_state(link, today=today)
         target = _find_key(store, link.get("to", ""))
-        listed_links.append({**link, "state": state, "record": store[target].ref if target else None})
+        listed_links.append(
+            {**link, "state": state, "record": store[target].ref if target else None}
+        )
         if target and state in _BEARING_STATES:
             linked.append(target)
     linked = list(dict.fromkeys(linked))
@@ -127,7 +144,9 @@ def review_person(store: Store, key: str, *, today: str | date | None = None) ->
         "tier_in_force": {"tier": tier, "lapsed": lapsed},
         "tiers": [{**entry, "in_force": entry is in_force} for entry in trust],
         "links": listed_links,
-        "default_tiers": _linked_fields(store, linked, "default_tier", DEFAULT_TIER_KINDS),
+        "default_tiers": _linked_fields(
+            store, linked, "default_tier", DEFAULT_TIER_KINDS
+        ),
         "clearances": _linked_fields(store, linked, "clearance", CLEARANCE_KINDS),
         "seals": seals,
         "fact_seals": fact_seals,

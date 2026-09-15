@@ -162,7 +162,9 @@ def link_state(link: Mapping, *, today: str) -> str:
     return "current"
 
 
-def ended_affiliations(tiers: Sequence[Mapping], links: Sequence[Mapping], *, today: str) -> list[dict]:
+def ended_affiliations(
+    tiers: Sequence[Mapping], links: Sequence[Mapping], *, today: str
+) -> list[dict]:
     """Links that ended while a permissive tier recorded before their end is still in force: ``{to, until, tier, tier_recorded}``.
 
     A tier recorded (or starting) after the link ended was set with the end in view, so it
@@ -173,13 +175,23 @@ def ended_affiliations(tiers: Sequence[Mapping], links: Sequence[Mapping], *, to
     [{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]
     """
     entry = tier_in_force(tiers, today=today)
-    if entry is None or entry.get("tier") not in PERMISSIVE_TIERS or is_lapsed(entry, today=today):
+    if (
+        entry is None
+        or entry.get("tier") not in PERMISSIVE_TIERS
+        or is_lapsed(entry, today=today)
+    ):
         return []
     started = str(entry.get("recorded") or entry.get("valid_from") or "")
     return [
-        {"to": link.get("to"), "until": str(link["until"]), "tier": entry["tier"], "tier_recorded": started or None}
+        {
+            "to": link.get("to"),
+            "until": str(link["until"]),
+            "tier": entry["tier"],
+            "tier_recorded": started or None,
+        }
         for link in links
-        if link_state(link, today=today) == "ended" and (not started or started <= str(link["until"]))
+        if link_state(link, today=today) == "ended"
+        and (not started or started <= str(link["until"]))
     ]
 
 
