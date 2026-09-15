@@ -6,20 +6,39 @@ card sections, the writing card (``style.md``), positions and standing objection
 belongs to, recent observations (marked as evidence, not facts), reminders for the
 purpose, the disclosure stance, and an explicit list of what is **not** known, so gaps
 get asked about instead of filled in.
+
+**At write time**, given the conversation it is for (``ref``: correspond is asked who can
+read it) or an audience record (``audience``), the brief also carries, before the writing
+card, from :func:`acquaint.disclosure.disclose`:
+
+- **Ceiling**: the audience in words and the least clearance among its readers;
+- **Do not identify**: the records above that ceiling, with the terms that name them (the
+  recipient's own record is not listed: the message goes to them);
+- **Withheld**: per record, how many lines were left out of the brief, never their text. A
+  line is left out when its ``[label: …]`` is above the least clearance, when its
+  ``[sealed-from: …]`` names a reader, nobody, or anyone at all on a channel whose readers
+  cannot all be listed, or when its tag is malformed;
+- **Already told**: the records ``interaction`` log entries say were disclosed to them.
+
+Without correspond, or when it fails, the audience is unknown and treated as public.
 """
 
 from __future__ import annotations
 
+import json
 import re
+from collections.abc import Callable, Mapping
 from datetime import date
 from typing import Any
 
 from acquaint.deslop import recipient_card
+from acquaint.disclosure import disclose, may_see, parse_audience, person_key
 from acquaint.lint import lint_store
 from acquaint.lookup import NO_CHANNEL_NAMED, reach_channels
-from acquaint.records import item_blocks, parse_log, split_frontmatter
+from acquaint.records import fact_tags, item_blocks, parse_log, split_frontmatter
 from acquaint.resources import data_yaml
 from acquaint.store import AcquaintError, Store
+from acquaint.trust import LABELS
 
 __all__ = ["CARD_SECTIONS", "compose_brief"]
 
@@ -27,6 +46,24 @@ __all__ = ["CARD_SECTIONS", "compose_brief"]
 CARD_SECTIONS = ("Who", "Write to them", "Read them", "Don't", "Now")
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 _UNTIL_RE = re.compile(r"\(until:\s*(\d{4}-\d{2}-\d{2})\)")
+#: An audience scope in words, when the audience record comes without them.
+_SCOPE_WORDS = {
+    "public": "world-readable",
+    "org": "readable across an organisation",
+    "group": "readable by a group's members",
+    "named": "readable by its named recipients",
+    "operator": "seen by the operator only",
+}
+#: What to write for, at each least clearance.
+_CEILING_ADVICE = {
+    "clear": "write for a stranger",
+    "green": "leave out anything labelled amber or red",
+    "amber": "leave out anything labelled red",
+    "red": "no label ceiling",
+}
+#: Disclosure gaps that mean a reader could not be pinned to one person.
+_STRANGER_GAPS = ("unrecorded", "ambiguous", "not_a_person")
+_UNKNOWN_AUDIENCE_WARNING = "audience unknown; treated as public"
 
 
 def _visible(text: str) -> str:
@@ -35,18 +72,30 @@ def _visible(text: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def _drop_expired(text: str, today: str) -> str:
-    """The text without items whose ``(until: …)`` has passed; an item spanning several lines goes whole."""
+def _minimise(text: str, keep: Callable[[str], bool]) -> tuple[str, int]:
+    """The text without the items ``keep`` refuses, and how many went; an item spanning several lines goes whole."""
     drop: set[int] = set()
+    count = 0
     for _, first, last, item in item_blocks(text):
-        until = _UNTIL_RE.search(item)
-        if until and until.group(1) < today:
+        if not keep(item):
             drop.update(range(first, last + 1))
-    return "\n".join(
+            count += 1
+    kept = "\n".join(
         line
         for number, line in enumerate(text.split("\n"), start=1)
         if number not in drop
-    ).strip()
+    )
+    return kept.strip(), count
+
+
+def _drop_expired(text: str, today: str) -> str:
+    """The text without items whose ``(until: …)`` has passed; an item spanning several lines goes whole."""
+
+    def current(item: str) -> bool:
+        until = _UNTIL_RE.search(item)
+        return not until or until.group(1) >= today
+
+    return _minimise(text, current)[0]
 
 
 def _by_title(section_map: dict[str, str]) -> dict[str, str]:
@@ -62,15 +111,150 @@ def _recent_observations(entity, limit: int) -> list[dict]:
     return entries[-limit:] if limit else entries
 
 
+# ------------------------------------------------------------------ the audience
+
+
+def _ask_correspond(ref: str) -> Any:
+    """The default audience reader: ``correspond.audience(ref)``."""
+    import correspond
+
+    return correspond.audience(ref)
+
+
+def _as_record(found: Any) -> tuple[dict, str | None]:
+    """An audience (a correspond ``Audience``, its dict, or ``correspond.tools.audience``'s result) as ``(record, words)``."""
+    if hasattr(found, "to_dict"):
+        words = found.in_words() if hasattr(found, "in_words") else None
+        return dict(found.to_dict()), words
+    if isinstance(found, Mapping):
+        if isinstance(found.get("audience"), Mapping):
+            return dict(found["audience"]), found.get("words")
+        return dict(found), None
+    raise AcquaintError(
+        f"an audience is a correspond Audience record, not {type(found).__name__}"
+    )
+
+
+def _audience_record(
+    ref: str | None, audience: Any, reader: Callable[[str], Any] | None
+) -> tuple[dict, str | None, list[str]]:
+    """``(record, words, warnings)`` for the audience given, or the one ``reader`` finds for ``ref``; unknown is public."""
+    if ref is not None and audience is not None:
+        raise AcquaintError(
+            "give a conversation reference or an audience record, not both"
+        )
+    if audience is not None:
+        if isinstance(audience, str):
+            try:
+                audience = json.loads(audience)
+            except json.JSONDecodeError as error:
+                raise AcquaintError(f"the audience is not valid JSON: {error}") from error
+        return (*_as_record(audience), [])
+    try:
+        return (*_as_record((reader or _ask_correspond)(ref)), [])
+    except Exception as error:  # correspond missing or failing: an audience nobody could compute is public
+        reason = (
+            "correspond is not installed"
+            if isinstance(error, ImportError)
+            else f"{type(error).__name__}: {error}"
+        )
+        unknown = {"ref": str(ref), "scope": "public", "complete": False, "readers": [], "defaulted": True}
+        return unknown, None, [f"{_UNKNOWN_AUDIENCE_WARNING} ({reason})"]
+
+
+def _words(record: Mapping) -> str:
+    """The audience in words, from its scope, when the record came without them."""
+    parsed = parse_audience(record)
+    words = _SCOPE_WORDS[parsed["scope"]]
+    if record.get("defaulted") not in (None, False):
+        return f"{words} (assumed: the audience could not be determined)"
+    if not parsed["complete"] and parsed["scope"] in ("named", "group", "org"):
+        return f"{words}; not every reader is listed"
+    return words
+
+
+def _ceiling(
+    store: Store,
+    entity,
+    *,
+    ref: str | None,
+    audience: Any,
+    project_key: str | None,
+    today: str,
+    audience_reader: Callable[[str], Any] | None,
+) -> dict[str, Any]:
+    """The write-time additions to a brief, and ``keep``: whether one line of the record may stay in it."""
+    record, words, warnings = _audience_record(ref, audience, audience_reader)
+    answer = disclose(
+        store,
+        [entity.ref],
+        projects=[project_key] if project_key else (),
+        audience=record,
+        today=today,
+    )
+    least = answer["least_clearance"]
+    unlisted = (answer["audience"] or {}).get("ceiling") is not None or any(
+        answer["gaps"][gap] for gap in _STRANGER_GAPS
+    )
+    readers = {key for slug in answer["people"] if (key := person_key(store, slug))}
+
+    def keep(text: str) -> bool:
+        tags = fact_tags(text)
+        if tags["problems"] or (tags["label"] is not None and tags["label"] not in LABELS):
+            return False
+        if tags["label"] is not None and not may_see(least, tags["label"]):
+            return False
+        if tags["sealed_from"]:
+            sealed = {person_key(store, r, handle_prefix=True) for r in tags["sealed_from"]}
+            if unlisted or None in sealed or sealed & readers:
+                return False
+        return True
+
+    grouped: dict[str, dict[str, Any]] = {}
+    for term in answer["vocabulary"]:
+        if term["entity"] == entity.ref:
+            continue
+        row = grouped.setdefault(
+            term["entity"],
+            {"entity": term["entity"], "label": term["label"], "sealed_from": term["sealed_from"], "terms": []},
+        )
+        row["terms"].append(term["term"])
+    if answer["gaps"]["unreadable"] or answer["gaps"]["unresolved_seals"]:
+        warnings.append(
+            "some records could not be read, or a seal names nobody; ask the operator before relying on this ceiling"
+        )
+    words = words or _words(record)
+    return {
+        "audience": record,
+        "ceiling": {
+            "audience": words,
+            "least_clearance": least,
+            "line": f"{words}; {_CEILING_ADVICE[least]}",
+        },
+        "do_not_identify": list(grouped.values()),
+        "already_told": answer["people"].get(entity.slug, {}).get("already_told", []),
+        "warnings": [*warnings, *answer["warnings"]],
+        "keep": keep,
+    }
+
+
 def compose_brief(
     store: Store,
     key: str,
     *,
     purpose: str | None = None,
     project: str | None = None,
+    ref: str | None = None,
+    audience: Mapping | str | None = None,
     today: str | None = None,
+    audience_reader: Callable[[str], Any] | None = None,
 ) -> dict[str, Any]:
-    """Assemble the brief for writing to one entity, as data plus a Markdown ``text`` rendering."""
+    """Assemble the brief for writing to one entity, as data plus a Markdown ``text`` rendering.
+
+    With ``ref`` (a conversation reference) or ``audience`` (an audience record, or its
+    JSON), the brief is held to that audience's ceiling (see the module docstring).
+    ``audience_reader`` finds the audience for a ``ref``: ``correspond.audience`` by default.
+    """
     today = today or date.today().isoformat()
     entity = store[key]
     purposes = data_yaml("purposes.yaml")
@@ -142,6 +326,45 @@ def compose_brief(
     if project and not project_key:
         gaps.append(f"no project {project!r} in the store, so no project norms")
 
+    at_write_time: dict[str, Any] = {}
+    warnings = list(writing["warnings"])
+    if ref is not None or audience is not None:
+        at_write_time = _ceiling(
+            store,
+            entity,
+            ref=ref,
+            audience=audience,
+            project_key=project_key,
+            today=today,
+            audience_reader=audience_reader,
+        )
+        keep = at_write_time.pop("keep")
+        warnings += at_write_time.pop("warnings")
+        counts: dict[str, int] = {}
+
+        def minimised(text: str, record_ref: str) -> str:
+            kept, dropped = _minimise(text, keep)
+            if dropped:
+                counts[record_ref] = counts.get(record_ref, 0) + dropped
+            return kept
+
+        card = {title: minimised(text, entity.ref) for title, text in card.items()}
+        style_text = minimised(style_text, entity.ref)
+        views_text = minimised(views_text, entity.ref)
+        if norms:
+            project_ref = store[project_key].ref
+            hidden = {row["entity"] for row in at_write_time["do_not_identify"]}
+            if project_ref in hidden:  # a project above the ceiling: none of its norms reach the drafter
+                counts[project_ref] = len(item_blocks(norms))
+                norms = ""
+            else:
+                norms = minimised(norms, project_ref)
+        shown = [entry for entry in observations if keep(entry["text"])]
+        if len(shown) < len(observations):
+            counts[entity.ref] = counts.get(entity.ref, 0) + len(observations) - len(shown)
+        observations = shown
+        at_write_time["withheld"] = [{"entity": r, "count": n} for r, n in counts.items()]
+
     result = {
         "id": entity.slug,
         "key": key,
@@ -161,10 +384,32 @@ def compose_brief(
         "reminders": reminders,
         "gaps": gaps,
         "lint": {"errors": len(lint["errors"]), "warnings": len(lint["warnings"])},
-        "warnings": writing["warnings"],
+        "warnings": warnings,
+        **at_write_time,
     }
     result["text"] = _render(entity, result)
     return result
+
+
+def _render_ceiling(brief: dict[str, Any]) -> list[str]:
+    ceiling = brief["ceiling"]
+    out = ["## Ceiling", f"{ceiling['line']} (least clearance: {ceiling['least_clearance']}).", ""]
+    out.append("## Do not identify")
+    out += [
+        f"- {row['entity']} [{row['label']}]: {', '.join(row['terms'])}"
+        + (f" (sealed from {', '.join(row['sealed_from'])})" if row["sealed_from"] else "")
+        for row in brief["do_not_identify"]
+    ] or ["Nothing above the ceiling."]
+    out += ["", "## Withheld"]
+    out += [
+        f"- {row['entity']}: {row['count']} fact{'' if row['count'] == 1 else 's'} above the ceiling, left out of this brief"
+        for row in brief["withheld"]
+    ] or ["Nothing."]
+    out += ["", "## Already told"]
+    out += [
+        f"- {row['entity']} ({row['date']}, {row['entry']})" for row in brief["already_told"]
+    ] or ["Nothing recorded."]
+    return out + [""]
 
 
 def _render(entity, brief: dict[str, Any]) -> str:
@@ -186,6 +431,8 @@ def _render(entity, brief: dict[str, Any]) -> str:
             f"**This is a relational message ({brief['purpose']}). The operator writes it; do not draft the text.**",
             "",
         ]
+    if "ceiling" in brief:
+        out += _render_ceiling(brief)
 
     out.append("## How to reach them")
     if brief["reach"]:

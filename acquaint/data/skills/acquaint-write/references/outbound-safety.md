@@ -44,9 +44,8 @@ A brief tunes the words to one person. It does not make the channel private. "Wr
 - **Fact tags**: a line tagged `[label: …]` or `[sealed-from: …]` stays out of any draft whose readers are not cleared for it. Leave it out, or ask the operator.
 - **What each reader may be told**: `acquaint disclosure ada bram --project heron` gives each reader's tier and clearance, the least clearance, the seals, the terms to keep out of the draft (`vocabulary`), what each was already told, and the gaps. With `--audience-json FILE` (a correspond `Audience` record) the readers the channel cannot list count too: a public channel holds the draft to `clear`.
 - **What was already told**: after a message goes out, `acquaint remember ada "…" --kind interaction --disclosed project:heron` records the records it identified, never its text.
+- **The ceiling in the brief**: `acquaint brief ada --purpose reply --ref github:example/app#12` asks correspond who can read the conversation (anything it cannot determine is public) and opens the brief with the ceiling, the records and terms not to identify, how many lines were withheld from the brief (never their text), and what Ada was already told (§10.3). `--audience-json FILE` takes an audience record instead.
 
 ## Proposed in the report, not built yet
 
-- **correspond** computes an `Audience` for any conversation reference, and anything unknown resolves to public (§10.2).
-- **acquaint** puts the ceiling, the terms not to identify and the facts withheld into the brief (§10.3).
-- **liaise** evaluates a draft against both and returns a verdict (send, delay, revise, approve, refuse). A command outside cases would let this skill check a draft before handing it over (§10.4).
+- **liaise** evaluates a draft against both and returns a verdict (send, delay, revise, approve, refuse). `liaise vet` would let this skill check a draft before handing it over (§10.4); the skill runs it when it is installed.

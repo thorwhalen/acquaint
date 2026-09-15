@@ -346,12 +346,19 @@ def brief(
     *,
     purpose: str | None = None,
     project: str | None = None,
+    ref: str | None = None,
+    audience: str | None = None,
     data_dir: str | None = None,
 ) -> dict:
-    """Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps."""
+    """Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps. With ``ref`` (the conversation the message goes to; correspond is asked who can read it, and an unknown audience is public) or ``audience`` (an audience record as JSON), it opens with the ceiling, the records not to identify, how many lines were withheld, and what they were already told."""
     store = _store(data_dir)
     result = compose_brief(
-        store, find_entity(store, person), purpose=purpose, project=project
+        store,
+        find_entity(store, person),
+        purpose=purpose,
+        project=project,
+        ref=ref,
+        audience=audience,
     )
     return {
         "ok": True,

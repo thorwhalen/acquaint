@@ -86,7 +86,13 @@ def main(argv=None):
             "codec": _audience_json,
         },
     }
-    config = {"check": stdin, "style-lint": stdin, "disclosure": disclosure}
+    brief = {"audience": disclosure["audience"]}
+    config = {
+        "check": stdin,
+        "style-lint": stdin,
+        "disclosure": disclosure,
+        "brief": brief,
+    }
     args = [a for a in argv if a != "--json"]
     try:
         code = cw.dispatch(
