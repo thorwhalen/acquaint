@@ -31,6 +31,16 @@ A self-stated form of address may be recorded, because courtesy needs it. It is 
 - Identities are never merged on a single shared attribute. Record "not the same person" when you learn it.
 - `Now` entries carry an `(until: YYYY-MM-DD)` and expire.
 
+## Who may be told what
+
+**Only the operator grants trust. A tier records a consequence, not a judgement:** it says what happens to messages, never what the person is like, so it passes the test above.
+
+- **Tiers**, in `trust.yaml` beside a person's entry file: `open` (may hear about the operator's other work), `involved`, `need-to-know` (the default), or `reviewed` (every message to them is approved first). Each entry has `valid_from`, `valid_to`, `recorded` and a `source` that is `operator` or the person's own quoted words (`self: "…"`). `open` and `involved` need a `review_by`, and count as `need-to-know` once it passes. A changed tier is a new entry; the old one keeps its `valid_to`.
+- **Labels, seals and vocabulary**, in any record's frontmatter: `label` (`red` > `amber` > `green` > `clear`; projects, orgs and groups default to `amber`, people to `green`), `sealed_from` (ids of people who must hear nothing about it, whatever their tier), `vocabulary` (codenames and internal terms beyond `name` and `aka`), `clearance` (orgs and groups: what members who cannot be listed may hear) and `default_tier` (orgs and projects: the tier of people linked only through them). A label, seal, clearance or default tier needs `label_source: operator`.
+- **Facts**: one line may carry `[label: amber]` or `[sealed-from: ada-lovelace]` beside its source tag. An untagged line has its record's label.
+
+`acquaint lint` fails on a tier or label the operator did not set, an unknown value, a permissive tier without a review date, a seal naming nobody, and a malformed tag. It warns on a lapsed tier, a project listed in a public repository whose label is not `clear`, and a seal on someone linked to the sealed record.
+
 ## Legitimate interest
 
 <!-- The operator's one-page note: the professional interest served, why these notes are needed for it, and why keeping them does not override the people's own interests. Write it before the store holds people other than yourself. -->

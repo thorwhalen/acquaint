@@ -7,7 +7,8 @@ Windows will have them.
 
 The formats are deliberately hand-editable Markdown: YAML frontmatter for what a
 machine looks up, ``## Sections`` of items for what a person writes, and an inline
-``[source: …]`` tag on every item that states a preference, a view or a rule. Sections,
+``[source: …]`` tag on every item that states a preference, a view or a rule (beside it, a
+fact may carry ``[label: …]`` and ``[sealed-from: …]``, read by the same tag reader). Sections,
 items and code blocks follow CommonMark's rules closely enough that what a reader sees
 as one line under a heading is what the lint checks.
 
@@ -35,6 +36,7 @@ __all__ = [
     "NONE_LOCATED",
     "blank_frontmatter",
     "dump_yaml",
+    "fact_tags",
     "format_log_entry",
     "item_blocks",
     "items",
@@ -51,6 +53,7 @@ __all__ = [
     "source_problem",
     "source_refs",
     "split_frontmatter",
+    "tags",
 ]
 
 _FRONTMATTER_RE = re.compile(
@@ -61,7 +64,16 @@ _BULLET_RE = re.compile(r"^(?P<indent>[ \t]*)(?:[-*+]|\d{1,3}[.)])[ \t]+(?P<text
 _THEMATIC_BREAK_RE = re.compile(r"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")
 _FENCE_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
-_SOURCE_TAG_RE = re.compile(r"\[source:\s*(?P<ref>[^\]]*)\]", re.I)
+#: The inline tags a fact line may carry: its source, and the label and seals of what it says.
+_TAG_RE = re.compile(
+    r"\[(?P<name>source|label|sealed-from):\s*(?P<value>[^\]]*)\]", re.I
+)
+#: Anything that starts like a label or seal tag, so a misspelt one is reported instead of ignored.
+_FACT_TAG_LIKE_RE = re.compile(
+    r"\[\s*(?P<name>label|sealed[\s_-]*from)\b(?P<rest>[^\[\]\n]*)(?P<close>\])?", re.I
+)
+_TAG_LABEL_RE = re.compile(r"[\w+-]+")
+_TAG_ID_RE = re.compile(r"(?:[a-z]+:)?[a-z0-9][a-z0-9-]*")
 #: Quoted words, with at least one word character inside: straight or curly double quotes,
 #: curly single quotes, or straight single quotes that open after a non-word character (so
 #: the apostrophes in "it's what they're like" are not quotes, and 'don't email me' is one).
@@ -407,13 +419,68 @@ def items(text: str) -> list[tuple[int, str]]:
 # --------------------------------------------------------------------- source tags
 
 
+def tags(text: str) -> list[tuple[str, str]]:
+    """Every ``[source: …]``, ``[label: …]`` and ``[sealed-from: …]`` tag in a piece of text: ``(name, value)``, in order.
+
+    >>> tags("- Heron ships in October [label: amber] [Sealed-From: bram] [source: operator 2026-09-15]")
+    [('label', 'amber'), ('sealed-from', 'bram'), ('source', 'operator 2026-09-15')]
+    """
+    return [
+        (match.group("name").lower(), match.group("value").strip())
+        for match in _TAG_RE.finditer(text)
+    ]
+
+
 def source_refs(line: str) -> list[str]:
     """Every ``[source: …]`` reference in a piece of text, stripped.
 
     >>> source_refs("- Short replies. [source: log/2026-09.md#e03] [source: operator]")
     ['log/2026-09.md#e03', 'operator']
     """
-    return [match.group("ref").strip() for match in _SOURCE_TAG_RE.finditer(line)]
+    return [value for name, value in tags(line) if name == "source"]
+
+
+def fact_tags(text: str) -> dict[str, Any]:
+    """The label and seals one fact carries, and what is wrong with how they are written.
+
+    ``{"label": str | None, "sealed_from": [ids], "problems": [messages]}``. The label is
+    returned lowercased and unchecked: which labels exist is :mod:`acquaint.trust`'s
+    business. A tag that starts like ``[label`` or ``[sealed from`` but is not written
+    ``[label: <label>]`` or ``[sealed-from: <id>, <id>]`` is a problem, never ignored.
+
+    >>> fact_tags("- Cy is changing jobs. [label: red] [sealed-from: bram, person:dee] [source: operator]")
+    {'label': 'red', 'sealed_from': ['bram', 'person:dee'], 'problems': []}
+    >>> for problem in fact_tags("- Heron slips. [label amber] [sealed_from: bram] [source: operator]")["problems"]:
+    ...     print(problem)
+    '[label amber]' is not a tag acquaint reads; write [label: <label>]
+    '[sealed_from: bram]' is not a tag acquaint reads; write [sealed-from: <id>, <id>]
+    """
+    label, sealed_from, problems = None, [], []
+    for match in _FACT_TAG_LIKE_RE.finditer(text):
+        written = match.group(0)
+        is_label = match.group("name").lower() == "label"
+        strict = _TAG_RE.fullmatch(written)
+        if not strict:
+            hint = "[label: <label>]" if is_label else "[sealed-from: <id>, <id>]"
+            problems.append(f"{written!r} is not a tag acquaint reads; write {hint}")
+            continue
+        value = strict.group("value").strip().lower()
+        if is_label:
+            if label is not None:
+                problems.append(f"{written!r} is a second label; a fact has one")
+            elif not _TAG_LABEL_RE.fullmatch(value):
+                problems.append(f"{written!r} does not name one label")
+            else:
+                label = value
+            continue
+        ids = [part.strip() for part in value.split(",")]
+        if all(_TAG_ID_RE.fullmatch(part) for part in ids):
+            sealed_from += ids
+        else:
+            problems.append(
+                f"{written!r} lists ids separated by commas, e.g. [sealed-from: ada-lovelace, person:bram]"
+            )
+    return {"label": label, "sealed_from": sealed_from, "problems": problems}
 
 
 def source_kind(ref: str) -> str:

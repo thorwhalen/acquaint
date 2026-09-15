@@ -48,13 +48,13 @@ The same fifteen functions are the Python API (`acquaint.tools`), the CLI, and t
 
 | Verb | Does |
 |---|---|
-| `who NAME [-f FIELD] [-b]` | one field, the identity block, or the whole entry file; lists candidates instead of guessing |
+| `who NAME [-f FIELD] [-b]` | one field (`email`, `aka`, `label`, `tier`, any frontmatter key), the identity block, or the whole entry file; lists candidates instead of guessing |
 | `resolve HANDLE` | `github:octocat`, `email:…` → the person, with the evidence; a handle without its platform, a match by name only, or an inactive identity is reported, never acted on |
 | `check TEXT` | before publishing: one person written as two ("Ada or Lovelace"), shared names, unknown names |
 | `reach PERSON [--purpose --urgency --project --message-type --topic]` | ordered channels: the person's own rules > the operator's rules > project norms > observed habits > defaults |
 | `brief PERSON [--purpose --project]` | card, writing style, views, reach, project norms, recent observations, reminders, and what is **not** known |
 | `remember ENTITY TEXT [--source --kind --reactivate]` | append a dated, sourced observation (or identity, preference, view, rule); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate` |
-| `lint [ENTITY]` | sources on every preference; parseable files; entry-file budget; policy tripwires |
+| `lint [ENTITY]` | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires |
 | `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
 | `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
 | `rename ID TO` | new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases |

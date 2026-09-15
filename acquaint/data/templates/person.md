@@ -26,4 +26,11 @@
 <!-- Optional files, added as they are needed: identities.yaml (handles, with evidence),
      rules.yaml (channel rules), links.yaml (affiliations), style.md (the writing card),
      views.md (positions and standing objections), sources.md (where their writing lives),
-     log/ (append-only observations). -->
+     log/ (append-only observations), trust.yaml (the disclosure tier the operator set:
+     open, involved, need-to-know or reviewed, each entry with valid_from, valid_to,
+     review_by, recorded and source; open and involved need review_by).
+     Only the operator grants trust; a tier records a consequence, not a judgement.
+     When others must not hear about this person, the frontmatter may carry label (red,
+     amber, green or clear; default green), sealed_from (ids), vocabulary and
+     label_source: operator. One line may carry [label: amber] or [sealed-from: <id>]
+     beside its source tag. See POLICY.md, "Who may be told what". -->

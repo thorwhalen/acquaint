@@ -5,7 +5,7 @@ Layout under the data root (one folder per entity, one entry file each)::
     POLICY.md                    what may be recorded
     _tombstones.yaml             salted hashes of forgotten entities' identifiers
     people/<slug>/PROFILE.md     the entry file (required)
-    people/<slug>/identities.yaml, rules.yaml, links.yaml, style.md, views.md,
+    people/<slug>/identities.yaml, rules.yaml, links.yaml, trust.yaml, style.md, views.md,
                   sources.md, log/YYYY-MM.md, research/…   (each optional)
     projects/<slug>/PROFILE.md   (and orgs/, groups/, or any other kind)
 
@@ -68,6 +68,7 @@ _YAML_LISTS = (
     ("identities.yaml", "identities"),
     ("rules.yaml", "rules"),
     ("links.yaml", "links"),
+    ("trust.yaml", "tiers"),
 )
 
 
@@ -313,6 +314,11 @@ class Entity(MutableMapping):
     def links(self) -> list[dict]:
         """Affiliations from ``links.yaml``: ``{to, relation, role, since, until, source}``."""
         return self._yaml_list("links.yaml", "links")[0]
+
+    @property
+    def trust(self) -> list[dict]:
+        """Disclosure tiers from ``trust.yaml``: ``{tier, valid_from, valid_to, review_by, recorded, source, note}`` (see :mod:`acquaint.trust`)."""
+        return self._yaml_list("trust.yaml", "tiers")[0]
 
     @property
     def errors(self) -> list[str]:
