@@ -21,6 +21,9 @@ dependencies = [
     "cw>=0.1.1,<0.2",
     "dol",
     "pyyaml",
+    # The tells catalogue behind `style-lint` lives in ductus, the read-side package
+    # that gauges how machine-written a text reads. One catalogue, both directions.
+    "ductus>=0.0.1",
 ]
 
 [project.license]
