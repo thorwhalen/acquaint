@@ -9,8 +9,11 @@ recorded as ``ai_tolerance`` in their ``style.md`` (``tolerant``, ``neutral``,
 - **averse** enforces E, W and S, with the tightest counts.
 
 Findings outside the enforced tiers are still reported, marked ``enforced: False``.
-The catalogue is data (``acquaint/data/deslop/tells.yaml``) and a keyword argument,
-so a list derived from the operator's own writing can replace it without code changes.
+The tells catalogue itself lives in ``ductus`` (the read-side package that gauges how
+machine-written a text reads); this module reads it from there and layers the reader
+calibration on top, so the two halves cannot drift apart. It is still a keyword
+argument, so a list derived from the operator's own writing replaces it without code
+changes.
 
 >>> result = lint_text("Great question! This robust tool serves as a bridge.", tolerance="neutral")
 >>> sorted({f["rule"] for f in result["findings"] if f["enforced"]})
@@ -31,6 +34,7 @@ from acquaint.resources import data_yaml
 
 __all__ = [
     "TOLERANCES",
+    "shipped_catalogue",
     "lint_text",
     "normalize_tolerance",
     "recipient_card",
@@ -42,6 +46,27 @@ _WORD_RE = re.compile(r"[A-Za-z0-9’']+")
 _SENTENCE_RE = re.compile(r"[^.!?\n]+[.!?]*")
 _QUOTED_RE = re.compile(r"[\"“]([^\"”]+)[\"”]")
 _SOURCE_TAG_RE = re.compile(r"\[source:[^\]]*\]", re.I)
+
+
+def shipped_catalogue() -> dict[str, Any]:
+    """The default catalogue: ``ductus``'s tells and thresholds, this package's calibration.
+
+    ``ductus`` owns the patterns and the shared rhythm thresholds -- it is the read
+    side, and a catalogue that disagreed with the one used to *find* machine writing
+    would be worse than useless. What this package adds is the part ``ductus``
+    deliberately lacks: who tolerates what.
+
+    >>> catalogue = shipped_catalogue()
+    >>> sorted(catalogue)
+    ['metrics', 'relational', 'rules', 'tolerance']
+    >>> len(catalogue["rules"]) > 10 and "averse" in catalogue["tolerance"]
+    True
+    """
+    from ductus.tells import load_catalogue
+
+    tells = load_catalogue()
+    local = data_yaml("deslop/tells.yaml")
+    return {**tells, **local}
 
 
 def normalize_tolerance(value: Any) -> tuple[str, str | None]:
@@ -152,7 +177,7 @@ def lint_text(
     An unrecognised ``tolerance`` is an error here; normalise recorded values first
     with :func:`normalize_tolerance`.
     """
-    catalog = catalog if catalog is not None else data_yaml("deslop/tells.yaml")
+    catalog = catalog if catalog is not None else shipped_catalogue()
     levels = catalog["tolerance"]
     if tolerance not in TOLERANCES and tolerance not in levels:
         raise ValueError(
