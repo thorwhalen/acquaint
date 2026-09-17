@@ -11,8 +11,11 @@ recorded as `ai_tolerance` in their `style.md` (`tolerant`, `neutral`,
 - **averse** enforces E, W and S, with the tightest counts.
 
 Findings outside the enforced tiers are still reported, marked `enforced: False`.
-The catalogue is data (`acquaint/data/deslop/tells.yaml`) and a keyword argument,
-so a list derived from the operator’s own writing can replace it without code changes.
+The tells catalogue itself lives in `ductus` (the read-side package that gauges how
+machine-written a text reads); this module reads it from there and layers the reader
+calibration on top, so the two halves cannot drift apart. It is still a keyword
+argument, so a list derived from the operator’s own writing replaces it without code
+changes.
 
 ```pycon
 >>> result = lint_text("Great question! This robust tool serves as a bridge.", tolerance="neutral")
@@ -24,11 +27,12 @@ True
 
 ### Functions
 
-| [`lint_text`](#acquaint.deslop.lint_text)(text, \*[, tolerance, blocklist, ...])   | Check a draft against the tells catalogue at a reader's tolerance: `{"ok", "findings", "metrics", "relational"}`.   |
-|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| [`normalize_tolerance`](#acquaint.deslop.normalize_tolerance)(value)                         | A recorded `ai_tolerance` as one of `TOLERANCES`, with a warning when it was something else.                        |
-| [`recipient_card`](#acquaint.deslop.recipient_card)(entity)                             | What the check needs from a recipient's writing card (`style.md`): tolerance, disclosure, blocklist, warnings.      |
-| [`text_metrics`](#acquaint.deslop.text_metrics)(text)                                 | Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.                    |
+| [`shipped_catalogue`](#acquaint.deslop.shipped_catalogue)()                              | The default catalogue: `ductus`'s tells and thresholds, this package's calibration.                               |
+|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| [`lint_text`](#acquaint.deslop.lint_text)(text, \*[, tolerance, blocklist, ...]) | Check a draft against the tells catalogue at a reader's tolerance: `{"ok", "findings", "metrics", "relational"}`. |
+| [`normalize_tolerance`](#acquaint.deslop.normalize_tolerance)(value)                       | A recorded `ai_tolerance` as one of `TOLERANCES`, with a warning when it was something else.                      |
+| [`recipient_card`](#acquaint.deslop.recipient_card)(entity)                           | What the check needs from a recipient's writing card (`style.md`): tolerance, disclosure, blocklist, warnings.    |
+| [`text_metrics`](#acquaint.deslop.text_metrics)(text)                               | Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.                  |
 
 ### acquaint.deslop.lint_text(text, , tolerance='neutral', blocklist=(), catalog=None)
 
@@ -66,6 +70,26 @@ quotes one, else the item without its source tag.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+### acquaint.deslop.shipped_catalogue()
+
+The default catalogue: `ductus`’s tells and thresholds, this package’s calibration.
+
+`ductus` owns the patterns and the shared rhythm thresholds – it is the read
+side, and a catalogue that disagreed with the one used to *find* machine writing
+would be worse than useless. What this package adds is the part `ductus`
+deliberately lacks: who tolerates what.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+```pycon
+>>> catalogue = shipped_catalogue()
+>>> sorted(catalogue)
+['metrics', 'relational', 'rules', 'tolerance']
+>>> len(catalogue["rules"]) > 10 and "averse" in catalogue["tolerance"]
+True
+```
 
 ### acquaint.deslop.text_metrics(text)
 

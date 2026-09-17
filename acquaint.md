@@ -1,4 +1,4 @@
-> built 2026-09-15 13:29 UTC from 81e5790 (main) · acquaint 0.0.8. Details: build_info.json
+> built 2026-09-17 07:31 UTC from 3c2d053 (main) · acquaint 0.0.9. Details: build_info.json
 
 # index.html.md
 
@@ -168,8 +168,11 @@ recorded as `ai_tolerance` in their `style.md` (`tolerant`, `neutral`,
 - **averse** enforces E, W and S, with the tightest counts.
 
 Findings outside the enforced tiers are still reported, marked `enforced: False`.
-The catalogue is data (`acquaint/data/deslop/tells.yaml`) and a keyword argument,
-so a list derived from the operator’s own writing can replace it without code changes.
+The tells catalogue itself lives in `ductus` (the read-side package that gauges how
+machine-written a text reads); this module reads it from there and layers the reader
+calibration on top, so the two halves cannot drift apart. It is still a keyword
+argument, so a list derived from the operator’s own writing replaces it without code
+changes.
 
 ```pycon
 >>> result = lint_text("Great question! This robust tool serves as a bridge.", tolerance="neutral")
@@ -181,11 +184,12 @@ True
 
 ### Functions
 
-| [`lint_text`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.lint_text)(text, \*[, tolerance, blocklist, ...])   | Check a draft against the tells catalogue at a reader's tolerance: `{"ok", "findings", "metrics", "relational"}`.   |
-|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| [`normalize_tolerance`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.normalize_tolerance)(value)                         | A recorded `ai_tolerance` as one of `TOLERANCES`, with a warning when it was something else.                        |
-| [`recipient_card`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.recipient_card)(entity)                             | What the check needs from a recipient's writing card (`style.md`): tolerance, disclosure, blocklist, warnings.      |
-| [`text_metrics`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.text_metrics)(text)                                 | Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.                    |
+| [`shipped_catalogue`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.shipped_catalogue)()                              | The default catalogue: `ductus`'s tells and thresholds, this package's calibration.                               |
+|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| [`lint_text`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.lint_text)(text, \*[, tolerance, blocklist, ...]) | Check a draft against the tells catalogue at a reader's tolerance: `{"ok", "findings", "metrics", "relational"}`. |
+| [`normalize_tolerance`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.normalize_tolerance)(value)                       | A recorded `ai_tolerance` as one of `TOLERANCES`, with a warning when it was something else.                      |
+| [`recipient_card`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.recipient_card)(entity)                           | What the check needs from a recipient's writing card (`style.md`): tolerance, disclosure, blocklist, warnings.    |
+| [`text_metrics`](_autosummary/acquaint.deslop.html.md#acquaint.deslop.text_metrics)(text)                               | Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.                  |
 
 ### acquaint.deslop.lint_text(text, , tolerance='neutral', blocklist=(), catalog=None)
 
@@ -223,6 +227,26 @@ quotes one, else the item without its source tag.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+### acquaint.deslop.shipped_catalogue()
+
+The default catalogue: `ductus`’s tells and thresholds, this package’s calibration.
+
+`ductus` owns the patterns and the shared rhythm thresholds – it is the read
+side, and a catalogue that disagreed with the one used to *find* machine writing
+would be worse than useless. What this package adds is the part `ductus`
+deliberately lacks: who tolerates what.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+```pycon
+>>> catalogue = shipped_catalogue()
+>>> sorted(catalogue)
+['metrics', 'relational', 'rules', 'tolerance']
+>>> len(catalogue["rules"]) > 10 and "averse" in catalogue["tolerance"]
+True
+```
 
 ### acquaint.deslop.text_metrics(text)
 
@@ -2189,7 +2213,7 @@ True
 
 # About this build
 
-This documentation was built on **2026-09-15 13:29 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/81e57909216589bf381f6498de73ad8e9f1832ad"><code>81e5790</code></a> on branch <code>main</code>, for **acquaint 0.0.8** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-17 07:31 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/3c2d05348935366d9b1ff6e5cd7e872b041d9091"><code>3c2d053</code></a> on branch <code>main</code>, for **acquaint 0.0.9** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -2198,7 +2222,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/81e57909216589bf381f6498de73ad8e9f1832ad"><code>81e57909216589bf381f6498de73ad8e9f1832ad</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/3c2d05348935366d9b1ff6e5cd7e872b041d9091"><code>3c2d05348935366d9b1ff6e5cd7e872b041d9091</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2209,9 +2233,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/34975113382">34975113382</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/35194810329">35194810329</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>81e57909216589bf381f6498de73ad8e9f1832ad</code> (in the history of the built commit) |
+| Event commit | <code>3c2d05348935366d9b1ff6e5cd7e872b041d9091</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2236,13 +2260,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.8/">0.0.8</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.9/">0.0.9</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 81e57909216589bf381f6498de73ad8e9f1832ad
+git checkout 3c2d05348935366d9b1ff6e5cd7e872b041d9091
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

@@ -8,6 +8,7 @@ acquaint.deslop
 
    .. autosummary::
    
+      shipped_catalogue
       lint_text
       normalize_tolerance
       recipient_card

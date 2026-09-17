@@ -96,6 +96,7 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#acquaint.deslop.lint_text"><code class="docutils literal notranslate"><span class="pre">lint_text()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.deslop.normalize_tolerance"><code class="docutils literal notranslate"><span class="pre">normalize_tolerance()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.deslop.recipient_card"><code class="docutils literal notranslate"><span class="pre">recipient_card()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.deslop.shipped_catalogue"><code class="docutils literal notranslate"><span class="pre">shipped_catalogue()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.deslop.text_metrics"><code class="docutils literal notranslate"><span class="pre">text_metrics()</span></code></a></li>
 </ul>
 </div><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div></div>
@@ -147,8 +148,11 @@ recorded as <code class="docutils literal notranslate"><span class="pre">ai_tole
 <li><p><strong>averse</strong> enforces E, W and S, with the tightest counts.</p></li>
 </ul>
 <p>Findings outside the enforced tiers are still reported, marked <code class="docutils literal notranslate"><span class="pre">enforced:</span> <span class="pre">False</span></code>.
-The catalogue is data (<code class="docutils literal notranslate"><span class="pre">acquaint/data/deslop/tells.yaml</span></code>) and a keyword argument,
-so a list derived from the operator’s own writing can replace it without code changes.</p>
+The tells catalogue itself lives in <code class="docutils literal notranslate"><span class="pre">ductus</span></code> (the read-side package that gauges how
+machine-written a text reads); this module reads it from there and layers the reader
+calibration on top, so the two halves cannot drift apart. It is still a keyword
+argument, so a list derived from the operator’s own writing replaces it without code
+changes.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">lint_text</span><span class="p">(</span><span class="s2">"Great question! This robust tool serves as a bridge."</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="s2">"neutral"</span><span class="p">)</span>
 </span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">({</span><span class="n">f</span><span class="p">[</span><span class="s2">"rule"</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">"findings"</span><span class="p">]</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">"enforced"</span><span class="p">]})</span>
 </span><span data-line="3"><span class="go">['ai-vocabulary', 'chat-leftover', 'copula-avoidance']</span>
@@ -160,16 +164,19 @@ so a list derived from the operator’s own writing can replace it without code 
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.deslop.lint_text" title="acquaint.deslop.lint_text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lint_text</span></code></a>(text, *[, tolerance, blocklist, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.deslop.shipped_catalogue" title="acquaint.deslop.shipped_catalogue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shipped_catalogue</span></code></a>()</p></td>
+<td><p>The default catalogue: <code class="docutils literal notranslate"><span class="pre">ductus</span></code>'s tells and thresholds, this package's calibration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.deslop.lint_text" title="acquaint.deslop.lint_text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lint_text</span></code></a>(text, *[, tolerance, blocklist, ...])</p></td>
 <td><p>Check a draft against the tells catalogue at a reader's tolerance: <code class="docutils literal notranslate"><span class="pre">{&quot;ok&quot;,</span> <span class="pre">&quot;findings&quot;,</span> <span class="pre">&quot;metrics&quot;,</span> <span class="pre">&quot;relational&quot;}</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.deslop.normalize_tolerance" title="acquaint.deslop.normalize_tolerance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_tolerance</span></code></a>(value)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.deslop.normalize_tolerance" title="acquaint.deslop.normalize_tolerance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_tolerance</span></code></a>(value)</p></td>
 <td><p>A recorded <code class="docutils literal notranslate"><span class="pre">ai_tolerance</span></code> as one of <code class="xref py py-data docutils literal notranslate"><span class="pre">TOLERANCES</span></code>, with a warning when it was something else.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.deslop.recipient_card" title="acquaint.deslop.recipient_card"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recipient_card</span></code></a>(entity)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.deslop.recipient_card" title="acquaint.deslop.recipient_card"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recipient_card</span></code></a>(entity)</p></td>
 <td><p>What the check needs from a recipient's writing card (<code class="docutils literal notranslate"><span class="pre">style.md</span></code>): tolerance, disclosure, blocklist, warnings.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.deslop.text_metrics" title="acquaint.deslop.text_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_metrics</span></code></a>(text)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.deslop.text_metrics" title="acquaint.deslop.text_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_metrics</span></code></a>(text)</p></td>
 <td><p>Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.</p></td>
 </tr>
 </tbody>
@@ -219,6 +226,28 @@ quotes one, else the item without its source tag.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="acquaint.deslop.shipped_catalogue">
+<span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">shipped_catalogue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/deslop.html#shipped_catalogue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.shipped_catalogue" title="Link to this definition">#</a></dt>
+<dd><p>The default catalogue: <code class="docutils literal notranslate"><span class="pre">ductus</span></code>’s tells and thresholds, this package’s calibration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ductus</span></code> owns the patterns and the shared rhythm thresholds – it is the read
+side, and a catalogue that disagreed with the one used to <em>find</em> machine writing
+would be worse than useless. What this package adds is the part <code class="docutils literal notranslate"><span class="pre">ductus</span></code>
+deliberately lacks: who tolerates what.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">catalogue</span> <span class="o">=</span> <span class="n">shipped_catalogue</span><span class="p">()</span>
+</span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">catalogue</span><span class="p">)</span>
+</span><span data-line="3"><span class="go">['metrics', 'relational', 'rules', 'tolerance']</span>
+</span><span data-line="4"><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">catalogue</span><span class="p">[</span><span class="s2">"rules"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="ow">and</span> <span class="s2">"averse"</span> <span class="ow">in</span> <span class="n">catalogue</span><span class="p">[</span><span class="s2">"tolerance"</span><span class="p">]</span>
+</span><span data-line="5"><span class="go">True</span>
+</span></pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -278,7 +307,7 @@ quotes one, else the item without its source tag.</p>
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=53b53b71"></script>
+      <script src="../_static/documentation_options.js?v=f7cdbf68"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
