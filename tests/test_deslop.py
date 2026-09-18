@@ -6,7 +6,12 @@ from acquaint import tools
 from acquaint.deslop import lint_text, recipient_card
 from acquaint.store import Store
 
-CONTRASTIVE = "This isn't just a tool, it's a new way of working. It is not only fast, but also simple."
+# Two genuine contrastive-negation constructions. The second used to read "not only
+# fast, but also simple" -- which is the ordinary English correlative, not the model's
+# antithesis habit, and `ductus` stopped matching it after measuring that it implicated
+# 19 human-written documents and zero machine-written spans. Telling a writer to remove
+# "not only X but also Y" was bad advice, so the narrowing is right here too.
+CONTRASTIVE = "This isn't just a tool, it's a new way of working. It is not merely fast, but also simple."
 TRIADS = "It is fast, simple, and cheap. We tested speed, memory, and cost. Teams, partners, and clients like it."
 CLEAN = "The export will be ready on Friday. Can you grant read access to the sales folder by Thursday? If not, I will send a zip instead."
 
@@ -60,6 +65,26 @@ def test_filler_adverbs_are_a_likely_pattern_not_an_error():
 def test_overlapping_patterns_count_once():
     result = lint_text(CONTRASTIVE, tolerance="neutral")
     assert len([f for f in result["findings"] if f["rule"] == "contrastive-negation"]) == 2
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "It is not only fast, but also simple.",
+        "Not only me but also my sister went.",
+        "She was not only the first to arrive but the last to leave.",
+    ],
+)
+def test_the_not_only_correlative_is_ordinary_english(text):
+    """"not only X but also Y" is a correlative conjunction, not a machine tell.
+
+    It was matched by `contrastive-negation` until `ductus` measured it against 350
+    human-written texts: 19 documents implicated, zero machine-written spans matched.
+    Advising a writer to remove it is bad advice, which is why the narrowing landed
+    here and not only in the read side.
+    """
+    rules = {f["rule"] for f in lint_text(text, tolerance="averse")["findings"]}
+    assert "contrastive-negation" not in rules, rules
 
 
 @pytest.mark.parametrize("text", ["I'm so sorry for your loss.", "I owe you an apology for how I handled the review."])
