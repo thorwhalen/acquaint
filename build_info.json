@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-09-17T07:31:37Z",
+  "built_at": "2026-09-18T13:08:59Z",
   "package": {
     "name": "acquaint",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "display_name": "acquaint",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "3c2d05348935366d9b1ff6e5cd7e872b041d9091",
-    "short_commit": "3c2d053",
+    "commit": "78a19fa58611f6f5914472dee8ace8852b405125",
+    "short_commit": "78a19fa",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/thorwhalen/acquaint",
-    "commit_url": "https://github.com/thorwhalen/acquaint/commit/3c2d05348935366d9b1ff6e5cd7e872b041d9091",
+    "commit_url": "https://github.com/thorwhalen/acquaint/commit/78a19fa58611f6f5914472dee8ace8852b405125",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "thorwhalen/acquaint",
-    "sha": "3c2d05348935366d9b1ff6e5cd7e872b041d9091",
+    "sha": "78a19fa58611f6f5914472dee8ace8852b405125",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "35194810329",
-    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/35194810329",
+    "run_id": "35348349985",
+    "run_url": "https://github.com/thorwhalen/acquaint/actions/runs/35348349985",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,11 +60,11 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.0.9",
+    "latest": "0.0.10",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 3c2d05348935366d9b1ff6e5cd7e872b041d9091\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/thorwhalen/acquaint && cd acquaint\ngit checkout 78a19fa58611f6f5914472dee8ace8852b405125\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
