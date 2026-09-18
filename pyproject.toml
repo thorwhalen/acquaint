@@ -23,7 +23,10 @@ dependencies = [
     "pyyaml",
     # The tells catalogue behind `style-lint` lives in ductus, the read-side package
     # that gauges how machine-written a text reads. One catalogue, both directions.
-    "ductus>=0.0.1",
+    # >=0.0.8 for the narrowed `contrastive-negation` pattern: "not only X but also Y"
+    # is the ordinary English correlative, and earlier versions flagged it. Pinned
+    # because tests/test_deslop.py asserts it is no longer a finding.
+    "ductus>=0.0.8",
 ]
 
 [project.license]
