@@ -14,7 +14,7 @@ A brief tunes the words to one person. It does not make the channel private. "Wr
 2. **Work out who can read that channel** (§3):
    - **A public GitHub repository:** anyone. Comments are emailed with their body to watchers and participants, copied into public archives within the hour, and their edit history is readable. Treat a post there as irrevocable.
    - **A private repository in an organisation:** by default every member of the organisation, plus outside collaborators, owners and installed apps. Not "just us".
-   - **Email:** every To, Cc and Bcc address, every member behind a list address, and anyone a recipient forwards to or shares a mailbox with.
+   - **Email or a DM:** every To, Cc and Bcc address and every member behind a list address. The message is judged by the people it is addressed to: the chance that a recipient forwards it is accepted, not counted as a reader (§4.4). An address with no record is a stranger.
    - **A Telegram channel with a username, or an ntfy topic:** public.
    - **Anything you cannot check:** public.
 3. **Write for the least-cleared reader.** What a stranger may not read stays out of a public thread. Offer to send it on a channel whose audience is the recipient.
@@ -42,7 +42,7 @@ A brief tunes the words to one person. It does not make the channel private. "Wr
 - **Tiers** on people, set by the operator only: `acquaint who ada -f tier` gives `open`, `involved`, `need-to-know` or `reviewed`. A `reviewed` recipient's messages all go to the operator first; a lapsed permissive tier reads `need-to-know`.
 - **Labels, seals and vocabulary** on projects, orgs, groups and people: `-f label` (`red` > `amber` > `green` > `clear`), `-f sealed_from` (who must hear nothing about the record, whatever their tier), `-f vocabulary` (codenames that identify it). An org or group may carry `clearance`; an org or project may carry `default_tier`.
 - **Fact tags**: a line tagged `[label: …]` or `[sealed-from: …]` stays out of any draft whose readers are not cleared for it. Leave it out, or ask the operator.
-- **What each reader may be told**: `acquaint disclosure ada bram --project heron` gives each reader's tier and clearance, the least clearance, the seals, the terms to keep out of the draft (`vocabulary`), what each was already told, and the gaps. With `--audience-json FILE` (a correspond `Audience` record) the readers the channel cannot list count too: a public channel holds the draft to `clear`.
+- **What each reader may be told**: `acquaint disclosure ada bram --project heron` gives each reader's tier and clearance, the least clearance, the seals, the terms to keep out of the draft (`vocabulary`), what each was already told, and the gaps. With `--audience-json FILE` (a correspond `Audience` record) the readers the channel cannot list count too: a public channel holds the draft to `clear`, while an email or DM is judged by the readers it names.
 - **What was already told**: after a message goes out, `acquaint remember ada "…" --kind interaction --disclosed project:heron` records the records it identified, never its text.
 - **The ceiling in the brief**: `acquaint brief ada --purpose reply --ref github:example/app#12` asks correspond who can read the conversation (anything it cannot determine is public) and opens the brief with the ceiling, the records and terms not to identify, how many lines were withheld from the brief (never their text), and what Ada was already told (§10.3). `--audience-json FILE` takes an audience record instead.
 

@@ -193,7 +193,7 @@ def test_a_seal_beats_a_link(store, put):
 @pytest.mark.parametrize("scope, complete, expected", [
     ("operator", False, "amber"),
     ("named", True, "amber"),
-    ("named", False, "clear"),
+    ("named", False, "amber"),
     ("group", False, "clear"),
     ("somewhere", True, "clear"),
 ])
@@ -203,6 +203,46 @@ def test_scopes(store, put, scope, complete, expected):
     store.files[f"{ADA}/identities.yaml"] = dump_yaml({"identities": [{"platform": "email", "value": "ada@example.org", "source": "operator"}]})
     result = disclose(store, [], audience=_audience(scope, complete=complete, readers=[reader]), today=TODAY)
     assert result["least_clearance"] == expected and list(result["people"]) == ["ada"]
+
+
+def test_an_email_is_judged_by_its_named_readers_not_capped_for_being_incomplete(store, put):
+    """Design §4.4's worked case: emailing a reader cleared for a labelled project is not capped; the same text to a public conversation is."""
+    build(store, put)
+    store.files[f"{ADA}/identities.yaml"] = dump_yaml({"identities": [{"platform": "email", "value": "ada@example.org", "source": "operator"}]})
+    ada = {"channel": "email", "native_id": "ada@example.org"}
+    email = disclose(store, [], projects=["heron"], audience=_audience("named", ref="email:ada@example.org", readers=[ada]), today=TODAY)
+    assert email["audience"]["complete"] is False and email["audience"]["ceiling"] is None
+    assert email["least_clearance"] == "amber"
+    assert email["entities"]["project:heron"]["cleared"] == ["ada"]
+    assert email["entities"]["project:heron"]["above_unlisted_readers"] is False
+    assert _terms(email, "project:heron") == []
+    public = disclose(store, [], projects=["heron"], audience=_audience("public", readers=[ada]), today=TODAY)
+    assert public["audience"]["ceiling"] == "clear" and public["least_clearance"] == "clear"
+    assert public["entities"]["project:heron"]["above_unlisted_readers"] is True
+    assert _terms(public, "project:heron") == HERON_TERMS
+
+
+def test_a_named_audience_still_counts_its_unknown_readers(store, put):
+    build(store, put)
+    stranger = {"channel": "email", "native_id": "someone@example.net"}
+    result = disclose(store, ["ada"], audience=_audience("named", ref="email:someone@example.net", readers=[stranger]), today=TODAY)
+    assert result["audience"]["ceiling"] is None and result["least_clearance"] == "clear"
+    assert _terms(result, "project:heron") == HERON_TERMS
+
+
+@pytest.mark.parametrize("readers", [
+    [],
+    [{"channel": "email", "native_id": "me@example.org", "is_self": True}],
+    None,
+])
+def test_a_named_audience_that_names_nobody_keeps_the_strangers_ceiling(store, put, readers):
+    build(store, put)
+    audience = {"ref": "email:list@example.org", "scope": "named", "complete": False}
+    if readers is not None:
+        audience["readers"] = readers
+    result = disclose(store, [], projects=["heron"], audience=json.dumps(audience), today=TODAY)
+    assert result["audience"]["ceiling"] == "clear" and result["least_clearance"] == "clear"
+    assert _terms(result, "project:heron") == HERON_TERMS
 
 
 def test_audience_readers_resolve_as_resolve_does_and_the_operator_is_not_a_reader(store, put):
