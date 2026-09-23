@@ -86,6 +86,15 @@ def test_a_named_audience_of_ada_alone_hides_nothing(store, put):
     assert result["withheld"] == [] and SEALED_FACT in _dump(result)
 
 
+def test_an_email_to_ada_is_judged_by_ada_even_though_it_can_be_forwarded(store, put):
+    """Discussion 32 §4.4: forwarding is accepted, so an incomplete email to Ada keeps what Ada may read, seals on others included."""
+    email = {**ONLY_ADA, "complete": False}
+    result = compose_brief(_fixture(store, put), ADA, purpose="reply", audience=email, today=TODAY)
+    assert "project:heron" not in _entities(result)
+    assert result["withheld"] == [] and SEALED_FACT in _dump(result)
+    assert "judged by the readers it names" in result["ceiling"]["line"]
+
+
 class _FakeAudience:
     def __init__(self, data):
         self.data = data

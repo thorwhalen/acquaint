@@ -16,10 +16,12 @@ One read-only answer (:func:`disclose`), computed from what the operator recorde
 - An **audience** (a correspond ``Audience`` record, as JSON or a mapping) adds the readers
   it lists and, when it cannot list them all, an unlisted class at a ceiling: ``public`` →
   ``clear``; ``org`` or ``group`` → the ``clearance`` of the org or group the conversation
-  belongs to, else ``clear``; ``named`` (an email to listed people, a DM) and ``operator``
-  → no ceiling, complete or not: a named audience is judged by the readers it names, so an
-  email is not capped merely because forwarding makes it incomplete (liaise discussion 32,
-  §4.4). An unknown scope, or a ``defaulted`` record, reads as ``public``.
+  belongs to, else ``clear``; ``operator`` → no ceiling; ``named`` (an email to listed
+  people, a DM) → no ceiling, complete or not, as long as it lists at least one reader: a
+  named audience is judged by the readers it names, so an email is not capped merely
+  because forwarding makes it incomplete (liaise discussion 32, §4.4). An incomplete
+  ``named`` audience that lists nobody (a Bcc-only email, recipients correspond could not
+  list) → ``clear``. An unknown scope, or a ``defaulted`` record, reads as ``public``.
 - ``least_clearance`` is the most restrictive clearance among all readers (tier-based,
   before project involvement); an unresolved reader counts as ``clear``. With no reader to
   hold anything back from, it is ``red``.
@@ -102,8 +104,6 @@ INVOLVED_CLEARANCE = "red"
 SCOPES = ("operator", "named", "group", "org", "public")
 #: The scope an unknown or missing one reads as.
 _UNKNOWN_SCOPE = "public"
-#: Scopes whose unlisted readers get no ceiling: the audience is judged by the readers it names.
-_UNCAPPED_SCOPES = frozenset({"operator", "named"})
 #: What an unlisted reader, or one with no record, may see.
 _STRANGER = "clear"
 #: ``least_clearance`` when there is no reader to hold anything back from.
@@ -495,7 +495,8 @@ def _ceiling(
         "organisation": None,
     }
     ceiling: str | None = _STRANGER
-    if scope in _UNCAPPED_SCOPES or (complete and scope != "public"):
+    judged_by_its_readers = scope == "named" and bool(audience["readers"])
+    if scope == "operator" or judged_by_its_readers or (complete and scope != "public"):
         ceiling = None
     elif scope in CLEARANCE_KINDS:
         found = _organisation(store, audience["ref"])

@@ -430,6 +430,13 @@ def disclosure(
             f"audience: {audience_line['scope']}"
             + ("" if audience_line["complete"] else ", not every reader listed")
             + (
+                " (judged by the readers it names)"
+                if audience_line["scope"] == "named"
+                and not audience_line["complete"]
+                and audience_line["ceiling"] is None
+                else ""
+            )
+            + (
                 f", unlisted readers at {audience_line['ceiling']}"
                 if audience_line["ceiling"]
                 else ""

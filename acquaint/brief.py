@@ -16,8 +16,10 @@ card, from :func:`acquaint.disclosure.disclose`:
   recipient's own record is not listed: the message goes to them);
 - **Withheld**: per record, how many lines were left out of the brief, never their text. A
   line is left out when its ``[label: …]`` is above the least clearance, when its
-  ``[sealed-from: …]`` names a reader, nobody, or anyone at all on a channel whose readers
-  cannot all be listed, or when its tag is malformed;
+  ``[sealed-from: …]`` names a reader, nobody, or anyone at all on a channel with readers
+  it cannot list (public, an org or group, a reader with no record; an email or DM is
+  judged by the readers it names, so forwarding does not count), or when its tag is
+  malformed;
 - **Already told**: the records ``interaction`` log entries say were disclosed to them.
 
 Without correspond, or when it fails, the audience is unknown and treated as public.
@@ -174,8 +176,10 @@ def _words(record: Mapping) -> str:
     words = _SCOPE_WORDS[parsed["scope"]]
     if record.get("defaulted") not in (None, False):
         return f"{words} (assumed: the audience could not be determined)"
-    if not parsed["complete"] and parsed["scope"] in ("named", "group", "org"):
+    if not parsed["complete"] and parsed["scope"] in ("group", "org"):
         return f"{words}; not every reader is listed"
+    if not parsed["complete"] and parsed["scope"] == "named" and parsed["readers"]:
+        return f"{words}; judged by the readers it names (forwarding is not counted)"
     return words
 
 

@@ -230,6 +230,21 @@ def test_a_named_audience_still_counts_its_unknown_readers(store, put):
     assert _terms(result, "project:heron") == HERON_TERMS
 
 
+@pytest.mark.parametrize("readers", [
+    [],
+    [{"channel": "email", "native_id": "me@example.org", "is_self": True}],
+    None,
+])
+def test_a_named_audience_that_names_nobody_keeps_the_strangers_ceiling(store, put, readers):
+    build(store, put)
+    audience = {"ref": "email:list@example.org", "scope": "named", "complete": False}
+    if readers is not None:
+        audience["readers"] = readers
+    result = disclose(store, [], projects=["heron"], audience=json.dumps(audience), today=TODAY)
+    assert result["audience"]["ceiling"] == "clear" and result["least_clearance"] == "clear"
+    assert _terms(result, "project:heron") == HERON_TERMS
+
+
 def test_audience_readers_resolve_as_resolve_does_and_the_operator_is_not_a_reader(store, put):
     build(store, put)
     store.files[f"{BRAM}/identities.yaml"] = dump_yaml({"identities": [{"platform": "github", "value": "bram-example", "source": "operator"}]})
