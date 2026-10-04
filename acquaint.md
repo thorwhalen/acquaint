@@ -1,4 +1,4 @@
-> built 2026-09-23 16:18 UTC from 10db47f (main) · acquaint 0.0.12. Details: build_info.json
+> built 2026-10-04 07:53 UTC from 2ff3844 (main) · acquaint 0.0.12. Details: build_info.json
 
 # index.html.md
 
@@ -2213,7 +2213,7 @@ True
 
 # About this build
 
-This documentation was built on **2026-09-23 16:18 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/10db47f6ffd823f288f5f6f72aee9643e9079dd9"><code>10db47f</code></a> on branch <code>main</code>, for **acquaint 0.0.12** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-04 07:53 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/2ff3844f68b7a0955579e26b5fbe25d43602f0ed"><code>2ff3844</code></a> on branch <code>main</code>, for **acquaint 0.0.12** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -2222,9 +2222,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/10db47f6ffd823f288f5f6f72aee9643e9079dd9"><code>10db47f6ffd823f288f5f6f72aee9643e9079dd9</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/2ff3844f68b7a0955579e26b5fbe25d43602f0ed"><code>2ff3844f68b7a0955579e26b5fbe25d43602f0ed</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
-| Tags at this commit | <code>0.0.12</code>                                                                                                                                        |
+| Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
 | Remote              | <code>https://github.com/thorwhalen/acquaint</code>                                                                                                        |
 
@@ -2233,9 +2233,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/35887566832">35887566832</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37187082293">37187082293</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>7d1bc29dded7d8f1c2293446ba0f349069ddec8d</code> (in the history of the built commit) |
+| Event commit | <code>2ff3844f68b7a0955579e26b5fbe25d43602f0ed</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2266,7 +2266,7 @@ Latest release: <a href="https://pypi.org/project/acquaint/0.0.12/">0.0.12</a>, 
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 10db47f6ffd823f288f5f6f72aee9643e9079dd9
+git checkout 2ff3844f68b7a0955579e26b5fbe25d43602f0ed
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
