@@ -30,6 +30,14 @@ Read the store's `POLICY.md` once per session.
 
 Collect writing **verifiably by them**: bylined articles, posts from their own accounts, messages they sent the operator, their comments on issues and pull requests. Exclude anything ghostwritten, quoted by others, or of unclear authorship. Record in `sources.md`, one bullet per source: where it lives, how authorship was verified, the date range, the number of items, and when it was mined.
 
+**Email bodies are mostly other people's words.** A reply carries the whole thread under it (quoted with `>`, or under an Outlook `From: … Sent: …` block with no marker at all), plus a signature and a disclaimer. Never extract from raw bodies. Save each thread (a Gmail `get_thread` result works as saved) and keep only the person's own text with correspond:
+
+```bash
+correspond authored-thread thread.json --author their@address --json
+```
+
+Use each message's `full_text`: the text above the quote plus any answers they wrote *inside* the quote ("Responses below."), recovered by comparing with the earlier messages. A bare forward has no authored text: count it, but do not extract from it. A `note` means announced inline answers could not be recovered; read that message by hand or leave it out. Give the readers these extracted files, not the raw threads.
+
 Rough minimums before a habit is worth recording (heuristics, not thresholds from a paper): ~20 messages per channel for length and layout; 10–20 for greetings and sign-offs; ~10 requests before describing how they ask; one explicit statement for a stated preference.
 
 ## Step 2 — extraction, in parallel
