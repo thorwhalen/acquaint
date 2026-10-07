@@ -292,6 +292,7 @@ data-aria-dark="Switch to auto color mode">
 </span></pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span></code> creates the repository through <code class="docutils literal notranslate"><span class="pre">gh</span></code> as private, refuses to continue unless <code class="docutils literal notranslate"><span class="pre">gh</span></code> reports it <code class="docutils literal notranslate"><span class="pre">PRIVATE</span></code>, and installs a pre-push hook, active in every worktree, that allows a push only through <code class="docutils literal notranslate"><span class="pre">origin</span></code>, only when <code class="docutils literal notranslate"><span class="pre">origin</span></code> has exactly the one URL recorded at init (no <code class="docutils literal notranslate"><span class="pre">pushurl</span></code> or <code class="docutils literal notranslate"><span class="pre">pushInsteadOf</span></code> redirect), only when that URL names the checked repository on github.com, and only while <code class="docutils literal notranslate"><span class="pre">gh</span></code> still reports it private. <code class="docutils literal notranslate"><span class="pre">push</span></code>, <code class="docutils literal notranslate"><span class="pre">pull</span></code> and <code class="docutils literal notranslate"><span class="pre">status</span></code> check again. <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span></code> takes over only an empty folder or a clone of that same repository.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code> also reports <code class="docutils literal notranslate"><span class="pre">auto_commit</span></code>: true only while the repository is private, owned by a person rather than an organisation, has that person as its only collaborator and no pending invitation. The <code class="docutils literal notranslate"><span class="pre">acquaint-profile</span></code> skill then commits and pushes profile edits straight away; otherwise it leaves them uncommitted for the operator to review. <code class="docutils literal notranslate"><span class="pre">auto_commit_reason</span></code> says which condition decided.</p>
 <p>What this does <strong>not</strong> protect: a private repository is access control, not encryption (the host can read everything); <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">--no-verify</span></code> skips the hook; whoever controls the repository’s git config or the <code class="docutils literal notranslate"><span class="pre">gh</span></code> on <code class="docutils literal notranslate"><span class="pre">PATH</span></code> controls what the guard sees; moving the data root disables the hook until <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--existing-only</span></code> runs again; file names and commit messages contain people’s names; deleting a folder does not remove it from history or other clones. <code class="docutils literal notranslate"><span class="pre">git-remote-gcrypt</span></code> would encrypt contents, names and history; it is the planned upgrade, but the guard does not support it yet, so <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span></code> refuses <code class="docutils literal notranslate"><span class="pre">gcrypt::</span></code> URLs (<a class="reference external" href="https://github.com/thorwhalen/acquaint/issues/13">#13</a>).</p>
 </section>
 <section id="python">
@@ -319,7 +320,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-10-04 07:53 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/2ff3844f68b7a0955579e26b5fbe25d43602f0ed">2ff3844</a> (main) · acquaint 0.0.12 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-10-07 07:27 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095">66f070f</a> (main) · acquaint 0.0.13 · <a href="about-this-build.html">about this build</a></p>
         </article><button class="back-to-top" type="button">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
@@ -354,7 +355,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=3bbcec59"></script>
+      <script src="_static/documentation_options.js?v=9fc46840"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>

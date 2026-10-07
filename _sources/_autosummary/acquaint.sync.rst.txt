@@ -13,6 +13,7 @@ acquaint.sync
       pull
       push
       run_command
+      sole_access
       status
       visibility
    

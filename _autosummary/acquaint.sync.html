@@ -98,6 +98,7 @@ data-aria-dark="Switch to auto color mode">
 <li><a class="reference internal" href="#acquaint.sync.pull"><code class="docutils literal notranslate"><span class="pre">pull()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.sync.push"><code class="docutils literal notranslate"><span class="pre">push()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.sync.run_command"><code class="docutils literal notranslate"><span class="pre">run_command()</span></code></a></li>
+<li><a class="reference internal" href="#acquaint.sync.sole_access"><code class="docutils literal notranslate"><span class="pre">sole_access()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.sync.status"><code class="docutils literal notranslate"><span class="pre">status()</span></code></a></li>
 <li><a class="reference internal" href="#acquaint.sync.visibility"><code class="docutils literal notranslate"><span class="pre">visibility()</span></code></a></li>
 </ul>
@@ -191,10 +192,13 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 <tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.sync.run_command" title="acquaint.sync.run_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_command</span></code></a>(args, *[, cwd])</p></td>
 <td><p>Run <code class="docutils literal notranslate"><span class="pre">git</span></code> or <code class="docutils literal notranslate"><span class="pre">gh</span></code> (<code class="docutils literal notranslate"><span class="pre">gh</span></code> pinned to github.com), capturing text output.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.sync.status" title="acquaint.sync.status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">status</span></code></a>(root, *[, check_visibility, run])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.sync.sole_access" title="acquaint.sync.sole_access"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sole_access</span></code></a>(repo, *[, run])</p></td>
+<td><p>Whether only the repository's owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.sync.status" title="acquaint.sync.status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">status</span></code></a>(root, *[, check_visibility, run])</p></td>
 <td><p>Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#acquaint.sync.visibility" title="acquaint.sync.visibility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">visibility</span></code></a>(repo, *[, run])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#acquaint.sync.visibility" title="acquaint.sync.visibility"><code class="xref py py-obj docutils literal notranslate"><span class="pre">visibility</span></code></a>(repo, *[, run])</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PRIVATE</span></code>, <code class="docutils literal notranslate"><span class="pre">PUBLIC</span></code> or <code class="docutils literal notranslate"><span class="pre">INTERNAL</span></code>, as <code class="docutils literal notranslate"><span class="pre">gh</span></code> reports it now for the repository on github.com.</p></td>
 </tr>
 </tbody>
@@ -260,9 +264,25 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="acquaint.sync.sole_access">
+<span class="sig-prename descclassname"><span class="pre">acquaint.sync.</span></span><span class="sig-name descname"><span class="pre">sole_access</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">run_command&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/sync.html#sole_access"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.sync.sole_access" title="Link to this definition">#</a></dt>
+<dd><p>Whether only the repository’s owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending.</p>
+<p>This decides whether profile edits may be committed and pushed without the operator
+reviewing the diff first: nobody else will see them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="acquaint.sync.status">
 <span class="sig-prename descclassname"><span class="pre">acquaint.sync.</span></span><span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_visibility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">run_command&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/sync.html#status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.sync.status" title="Link to this definition">#</a></dt>
 <dd><p>Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">check_visibility</span></code>, <code class="docutils literal notranslate"><span class="pre">auto_commit</span></code> says whether edits may be committed and pushed
+without the operator reviewing them first (<a class="reference internal" href="#acquaint.sync.sole_access" title="acquaint.sync.sole_access"><code class="xref py py-func docutils literal notranslate"><span class="pre">sole_access()</span></code></a>), and
+<code class="docutils literal notranslate"><span class="pre">auto_commit_reason</span></code> says why or why not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
@@ -323,7 +343,7 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=3bbcec59"></script>
+      <script src="../_static/documentation_options.js?v=9fc46840"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

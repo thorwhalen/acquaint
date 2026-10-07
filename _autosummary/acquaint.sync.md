@@ -38,14 +38,15 @@ Every `git` and `gh` call goes through `run`, so tests can script `gh` while
 
 ### Functions
 
-| [`github_urls`](#acquaint.sync.github_urls)(repo)                               | Every remote URL accepted for a GitHub repository.                                                                   |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| [`init`](#acquaint.sync.init)(root, repo, \*[, remote_url, create, ...]) | Make `root` a checkout of the private GitHub repository `repo`, creating it (private) if needed.                     |
-| [`pull`](#acquaint.sync.pull)(root, \*[, dry_run, run])                  | Re-check the remote and its visibility, then rebase local work onto it (uncommitted edits are stashed and restored). |
-| [`push`](#acquaint.sync.push)(root, \*[, message, dry_run, run])         | Commit everything, rebase onto the remote, and push, after re-checking the remote, the guard and the visibility.     |
-| [`run_command`](#acquaint.sync.run_command)(args, \*[, cwd])                    | Run `git` or `gh` (`gh` pinned to github.com), capturing text output.                                                |
-| [`status`](#acquaint.sync.status)(root, \*[, check_visibility, run])       | Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.            |
-| [`visibility`](#acquaint.sync.visibility)(repo, \*[, run])                     | `PRIVATE`, `PUBLIC` or `INTERNAL`, as `gh` reports it now for the repository on github.com.                          |
+| [`github_urls`](#acquaint.sync.github_urls)(repo)                               | Every remote URL accepted for a GitHub repository.                                                                                                                        |
+|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`init`](#acquaint.sync.init)(root, repo, \*[, remote_url, create, ...]) | Make `root` a checkout of the private GitHub repository `repo`, creating it (private) if needed.                                                                          |
+| [`pull`](#acquaint.sync.pull)(root, \*[, dry_run, run])                  | Re-check the remote and its visibility, then rebase local work onto it (uncommitted edits are stashed and restored).                                                      |
+| [`push`](#acquaint.sync.push)(root, \*[, message, dry_run, run])         | Commit everything, rebase onto the remote, and push, after re-checking the remote, the guard and the visibility.                                                          |
+| [`run_command`](#acquaint.sync.run_command)(args, \*[, cwd])                    | Run `git` or `gh` (`gh` pinned to github.com), capturing text output.                                                                                                     |
+| [`sole_access`](#acquaint.sync.sole_access)(repo, \*[, run])                    | Whether only the repository's owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending. |
+| [`status`](#acquaint.sync.status)(root, \*[, check_visibility, run])       | Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.                                                                 |
+| [`visibility`](#acquaint.sync.visibility)(repo, \*[, run])                     | `PRIVATE`, `PUBLIC` or `INTERNAL`, as `gh` reports it now for the repository on github.com.                                                                               |
 
 ### acquaint.sync.github_urls(repo)
 
@@ -87,9 +88,23 @@ Run `git` or `gh` (`gh` pinned to github.com), capturing text output.
 * **Return type:**
   [`CompletedProcess`](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
 
+### acquaint.sync.sole_access(repo, \*, run=<function run_command>)
+
+Whether only the repository’s owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending.
+
+This decides whether profile edits may be committed and pushed without the operator
+reviewing the diff first: nobody else will see them.
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`bool`](https://docs.python.org/3/builtins/functions.html#bool), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
 ### acquaint.sync.status(root, \*, check_visibility=True, run=<function run_command>)
 
 Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.
+
+With `check_visibility`, `auto_commit` says whether edits may be committed and pushed
+without the operator reviewing them first ([`sole_access()`](#acquaint.sync.sole_access)), and
+`auto_commit_reason` says why or why not.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]

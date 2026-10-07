@@ -1,4 +1,4 @@
-> built 2026-10-04 07:53 UTC from 2ff3844 (main) · acquaint 0.0.12. Details: build_info.json
+> built 2026-10-07 07:27 UTC from 66f070f (main) · acquaint 0.0.13. Details: build_info.json
 
 # index.html.md
 
@@ -127,6 +127,8 @@ acquaint sync init --repo <owner>/<name>
 ```
 
 `sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook, active in every worktree, that allows a push only through `origin`, only when `origin` has exactly the one URL recorded at init (no `pushurl` or `pushInsteadOf` redirect), only when that URL names the checked repository on github.com, and only while `gh` still reports it private. `push`, `pull` and `status` check again. `sync init` takes over only an empty folder or a clone of that same repository.
+
+`sync status` also reports `auto_commit`: true only while the repository is private, owned by a person rather than an organisation, has that person as its only collaborator and no pending invitation. The `acquaint-profile` skill then commits and pushes profile edits straight away; otherwise it leaves them uncommitted for the operator to review. `auto_commit_reason` says which condition decided.
 
 What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; whoever controls the repository’s git config or the `gh` on `PATH` controls what the guard sees; moving the data root disables the hook until `sync init --existing-only` runs again; file names and commit messages contain people’s names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` would encrypt contents, names and history; it is the planned upgrade, but the guard does not support it yet, so `sync init` refuses `gcrypt::` URLs ([#13](https://github.com/thorwhalen/acquaint/issues/13)).
 
@@ -1755,14 +1757,15 @@ Every `git` and `gh` call goes through `run`, so tests can script `gh` while
 
 ### Functions
 
-| [`github_urls`](_autosummary/acquaint.sync.html.md#acquaint.sync.github_urls)(repo)                               | Every remote URL accepted for a GitHub repository.                                                                   |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| [`init`](_autosummary/acquaint.sync.html.md#acquaint.sync.init)(root, repo, \*[, remote_url, create, ...]) | Make `root` a checkout of the private GitHub repository `repo`, creating it (private) if needed.                     |
-| [`pull`](_autosummary/acquaint.sync.html.md#acquaint.sync.pull)(root, \*[, dry_run, run])                  | Re-check the remote and its visibility, then rebase local work onto it (uncommitted edits are stashed and restored). |
-| [`push`](_autosummary/acquaint.sync.html.md#acquaint.sync.push)(root, \*[, message, dry_run, run])         | Commit everything, rebase onto the remote, and push, after re-checking the remote, the guard and the visibility.     |
-| [`run_command`](_autosummary/acquaint.sync.html.md#acquaint.sync.run_command)(args, \*[, cwd])                    | Run `git` or `gh` (`gh` pinned to github.com), capturing text output.                                                |
-| [`status`](_autosummary/acquaint.sync.html.md#acquaint.sync.status)(root, \*[, check_visibility, run])       | Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.            |
-| [`visibility`](_autosummary/acquaint.sync.html.md#acquaint.sync.visibility)(repo, \*[, run])                     | `PRIVATE`, `PUBLIC` or `INTERNAL`, as `gh` reports it now for the repository on github.com.                          |
+| [`github_urls`](_autosummary/acquaint.sync.html.md#acquaint.sync.github_urls)(repo)                               | Every remote URL accepted for a GitHub repository.                                                                                                                        |
+|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`init`](_autosummary/acquaint.sync.html.md#acquaint.sync.init)(root, repo, \*[, remote_url, create, ...]) | Make `root` a checkout of the private GitHub repository `repo`, creating it (private) if needed.                                                                          |
+| [`pull`](_autosummary/acquaint.sync.html.md#acquaint.sync.pull)(root, \*[, dry_run, run])                  | Re-check the remote and its visibility, then rebase local work onto it (uncommitted edits are stashed and restored).                                                      |
+| [`push`](_autosummary/acquaint.sync.html.md#acquaint.sync.push)(root, \*[, message, dry_run, run])         | Commit everything, rebase onto the remote, and push, after re-checking the remote, the guard and the visibility.                                                          |
+| [`run_command`](_autosummary/acquaint.sync.html.md#acquaint.sync.run_command)(args, \*[, cwd])                    | Run `git` or `gh` (`gh` pinned to github.com), capturing text output.                                                                                                     |
+| [`sole_access`](_autosummary/acquaint.sync.html.md#acquaint.sync.sole_access)(repo, \*[, run])                    | Whether only the repository's owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending. |
+| [`status`](_autosummary/acquaint.sync.html.md#acquaint.sync.status)(root, \*[, check_visibility, run])       | Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.                                                                 |
+| [`visibility`](_autosummary/acquaint.sync.html.md#acquaint.sync.visibility)(repo, \*[, run])                     | `PRIVATE`, `PUBLIC` or `INTERNAL`, as `gh` reports it now for the repository on github.com.                                                                               |
 
 ### acquaint.sync.github_urls(repo)
 
@@ -1804,9 +1807,23 @@ Run `git` or `gh` (`gh` pinned to github.com), capturing text output.
 * **Return type:**
   [`CompletedProcess`](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
 
+### acquaint.sync.sole_access(repo, \*, run=<function run_command>)
+
+Whether only the repository’s owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending.
+
+This decides whether profile edits may be committed and pushed without the operator
+reviewing the diff first: nobody else will see them.
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`bool`](https://docs.python.org/3/builtins/functions.html#bool), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
 ### acquaint.sync.status(root, \*, check_visibility=True, run=<function run_command>)
 
 Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.
+
+With `check_visibility`, `auto_commit` says whether edits may be committed and pushed
+without the operator reviewing them first ([`sole_access()`](_autosummary/acquaint.sync.html.md#acquaint.sync.sole_access)), and
+`auto_commit_reason` says why or why not.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
@@ -2213,16 +2230,18 @@ True
 
 # About this build
 
-This documentation was built on **2026-10-04 07:53 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/2ff3844f68b7a0955579e26b5fbe25d43602f0ed"><code>2ff3844</code></a> on branch <code>main</code>, for **acquaint 0.0.12** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-07 07:27 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095"><code>66f070f</code></a> on branch <code>main</code>, for **acquaint 0.0.13** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.0.13) is behind the latest release on PyPI (0.0.14): `pip install acquaint` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/2ff3844f68b7a0955579e26b5fbe25d43602f0ed"><code>2ff3844f68b7a0955579e26b5fbe25d43602f0ed</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095"><code>66f070f9464f29b322a5da365df96d1a56020095</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2233,9 +2252,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37187082293">37187082293</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37587287979">37587287979</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>2ff3844f68b7a0955579e26b5fbe25d43602f0ed</code> (in the history of the built commit) |
+| Event commit | <code>66f070f9464f29b322a5da365df96d1a56020095</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2260,13 +2279,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.12/">0.0.12</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.14/">0.0.14</a>, newer than the documented version (0.0.13).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 2ff3844f68b7a0955579e26b5fbe25d43602f0ed
+git checkout 66f070f9464f29b322a5da365df96d1a56020095
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
