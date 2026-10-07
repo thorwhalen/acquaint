@@ -140,7 +140,13 @@ def sole_access(repo: str, *, run: Runner = run_command) -> tuple[bool, str]:
     reviewing the diff first: nobody else will see them.
     """
     found = run(
-        ["gh", "api", f"repos/{repo}", "--jq", "[.private, .owner.login, .owner.type] | @tsv"]
+        [
+            "gh",
+            "api",
+            f"repos/{repo}",
+            "--jq",
+            "[.private, .owner.login, .owner.type] | @tsv",
+        ]
     )
     if found.returncode != 0:
         return False, f"could not read {repo} through gh"
@@ -151,8 +157,13 @@ def sole_access(repo: str, *, run: Runner = run_command) -> tuple[bool, str]:
     if private != "true":
         return False, f"{repo} is not private"
     if owner_type != "User":
-        return False, f"{repo} belongs to the organisation {owner}, whose members may read it"
-    people = run(["gh", "api", f"repos/{repo}/collaborators", "--paginate", "--jq", ".[].login"])
+        return (
+            False,
+            f"{repo} belongs to the organisation {owner}, whose members may read it",
+        )
+    people = run(
+        ["gh", "api", f"repos/{repo}/collaborators", "--paginate", "--jq", ".[].login"]
+    )
     if people.returncode != 0:
         return False, f"could not list the collaborators of {repo}"
     others = sorted({p for p in (people.stdout or "").split() if p} - {owner})
@@ -160,7 +171,10 @@ def sole_access(repo: str, *, run: Runner = run_command) -> tuple[bool, str]:
         return False, f"{repo} has other collaborators: {', '.join(others)}"
     invited = run(["gh", "api", f"repos/{repo}/invitations", "--jq", ".[].invitee.login"])
     if invited.returncode != 0 or (invited.stdout or "").strip():
-        return False, f"{repo} has a pending invitation, or its invitations could not be read"
+        return (
+            False,
+            f"{repo} has a pending invitation, or its invitations could not be read",
+        )
     return True, f"{repo} is private and {owner} is its only collaborator"
 
 
