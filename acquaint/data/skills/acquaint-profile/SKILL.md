@@ -127,7 +127,21 @@ acquaint lint <id>          # must pass: no unsourced lines, nothing forbidden, 
 acquaint brief <id>         # read it as the next agent will
 ```
 
-Then spot-check three lines against their sources by opening the source, not by trusting the row. Show the operator the whole diff and apply it only once they approve it. If the store is synced, leave the changes uncommitted so `git diff` in the data root is the review.
+Then spot-check three lines against their sources by opening the source, not by trusting the row. Then decide who reviews the change, from the store itself:
+
+```bash
+acquaint sync status --json     # read auto_commit and auto_commit_reason
+```
+
+- **`auto_commit: true`**: the store is a private repository owned by the operator, with the operator as its only collaborator, so nobody else can read it. Commit and push now, with a message naming the records and what changed, and tell the operator the commit; `git revert` undoes it.
+
+  ```bash
+  acquaint sync push -m "acquaint: <id>, <id> — <what changed>"
+  ```
+
+- **otherwise** (not synced, not private, an organisation's repository, other collaborators or a pending invitation, or the check failed): show the operator the whole diff and apply it only once they approve it. If the store is synced, leave the changes uncommitted so `git diff` in the data root is the review, and quote `auto_commit_reason` so they know why.
+
+The check runs every time, against the live repository: a collaborator added since the last run turns automatic commits off.
 
 ## Consolidating observations
 
