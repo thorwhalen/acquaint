@@ -123,6 +123,8 @@ acquaint sync init --repo <owner>/<name>
 
 `sync init` creates the repository through `gh` as private, refuses to continue unless `gh` reports it `PRIVATE`, and installs a pre-push hook, active in every worktree, that allows a push only through `origin`, only when `origin` has exactly the one URL recorded at init (no `pushurl` or `pushInsteadOf` redirect), only when that URL names the checked repository on github.com, and only while `gh` still reports it private. `push`, `pull` and `status` check again. `sync init` takes over only an empty folder or a clone of that same repository.
 
+`sync status` also reports `auto_commit`: true only while the repository is private, owned by a person rather than an organisation, has that person as its only collaborator and no pending invitation. The `acquaint-profile` skill then commits and pushes profile edits straight away; otherwise it leaves them uncommitted for the operator to review. `auto_commit_reason` says which condition decided.
+
 What this does **not** protect: a private repository is access control, not encryption (the host can read everything); `git push --no-verify` skips the hook; whoever controls the repository's git config or the `gh` on `PATH` controls what the guard sees; moving the data root disables the hook until `sync init --existing-only` runs again; file names and commit messages contain people's names; deleting a folder does not remove it from history or other clones. `git-remote-gcrypt` would encrypt contents, names and history; it is the planned upgrade, but the guard does not support it yet, so `sync init` refuses `gcrypt::` URLs ([#13](https://github.com/thorwhalen/acquaint/issues/13)).
 
 ## Python

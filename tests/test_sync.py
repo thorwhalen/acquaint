@@ -73,6 +73,7 @@ class FakeGh:
 
     def __init__(self, visibility="PRIVATE", exists=True):
         self.visibility, self.exists, self.calls = visibility, exists, []
+        self.collaborators = [REPO.split("/")[0]]
 
     def __call__(self, args, *, cwd=None):
         args = list(args)
@@ -84,6 +85,13 @@ class FakeGh:
             assert "--private" in args, "a profile repository is only ever created private"
             self.exists = True
             return done(0)
+        if args[1] == "api":
+            path = args[2]
+            if path.endswith("/collaborators"):
+                return done(0, "\n".join(self.collaborators) + "\n")
+            if path.endswith("/invitations"):
+                return done(0, "")
+            return done(0, f"true\t{REPO.split('/')[0]}\tUser\n")
         if args[1:3] == ["repo", "view"]:
             if not self.exists:
                 return done(1)
@@ -169,6 +177,37 @@ def test_rejects_a_malformed_repo_name(store_root):
         sync.init(store_root, "profiles", dry_run=True)
 
 
+def _answers(**by_path):
+    """A runner answering ``gh api <path>`` from a table: path suffix -> (exit code, stdout)."""
+
+    def run(args, *, cwd=None):
+        path = args[2]
+        code, out = next(v for k, v in by_path.items() if path.endswith(k))
+        return subprocess.CompletedProcess(args, code, out, "")
+
+    return run
+
+
+SOLE = {"/invitations": (0, ""), "/collaborators": (0, "ada\n"), "/vault": (0, "true\tada\tUser\n")}
+
+
+def test_sole_access_only_for_a_private_personal_repository_with_one_collaborator():
+    assert sync.sole_access("ada/vault", run=_answers(**SOLE)) == (
+        True,
+        "ada/vault is private and ada is its only collaborator",
+    )
+    cases = {
+        "not private": {**SOLE, "/vault": (0, "false\tada\tUser\n")},
+        "organisation": {**SOLE, "/vault": (0, "true\tada\tOrganization\n")},
+        "other collaborators: grace": {**SOLE, "/collaborators": (0, "ada\ngrace\n")},
+        "pending invitation": {**SOLE, "/invitations": (0, "grace\n")},
+        "could not read": {**SOLE, "/vault": (1, "")},
+    }
+    for reason, table in cases.items():
+        sole, why = sync.sole_access("ada/vault", run=_answers(**table))
+        assert not sole and reason in why, (reason, why)
+
+
 def test_status_of_a_store_that_is_not_synced(store_root):
     assert sync.status(store_root, run=FakeGh())["synced"] is False
 
@@ -195,6 +234,7 @@ def test_init_creates_private_pushes_and_guards(store_root, github, scripted_gh)
 
     status = sync.status(store_root, run=gh)
     assert (status["hook_installed"], status["visibility"], status["ahead"], status["behind"]) == (True, "PRIVATE", 0, 0)
+    assert status["auto_commit"] is True, status["auto_commit_reason"]
 
 
 @posix_only

@@ -57,6 +57,7 @@ __all__ = [
     "pull",
     "push",
     "run_command",
+    "sole_access",
     "status",
     "visibility",
 ]
@@ -130,6 +131,37 @@ def visibility(repo: str, *, run: Runner = run_command) -> str:
         ["gh", "repo", "view", repo, "--json", "visibility", "-q", ".visibility"],
         what="reading visibility",
     ).upper()
+
+
+def sole_access(repo: str, *, run: Runner = run_command) -> tuple[bool, str]:
+    """Whether only the repository's owner can read it, and why not: private, owned by a person (not an organisation), that person its only collaborator, no invitation pending.
+
+    This decides whether profile edits may be committed and pushed without the operator
+    reviewing the diff first: nobody else will see them.
+    """
+    found = run(
+        ["gh", "api", f"repos/{repo}", "--jq", "[.private, .owner.login, .owner.type] | @tsv"]
+    )
+    if found.returncode != 0:
+        return False, f"could not read {repo} through gh"
+    fields = (found.stdout or "").strip().split("\t")
+    if len(fields) != 3:
+        return False, f"unexpected answer from gh about {repo}"
+    private, owner, owner_type = fields
+    if private != "true":
+        return False, f"{repo} is not private"
+    if owner_type != "User":
+        return False, f"{repo} belongs to the organisation {owner}, whose members may read it"
+    people = run(["gh", "api", f"repos/{repo}/collaborators", "--paginate", "--jq", ".[].login"])
+    if people.returncode != 0:
+        return False, f"could not list the collaborators of {repo}"
+    others = sorted({p for p in (people.stdout or "").split() if p} - {owner})
+    if others:
+        return False, f"{repo} has other collaborators: {', '.join(others)}"
+    invited = run(["gh", "api", f"repos/{repo}/invitations", "--jq", ".[].invitee.login"])
+    if invited.returncode != 0 or (invited.stdout or "").strip():
+        return False, f"{repo} has a pending invitation, or its invitations could not be read"
+    return True, f"{repo} is private and {owner} is its only collaborator"
 
 
 def _require_private(repo: str, run: Runner) -> str:
@@ -455,7 +487,12 @@ def pull(
 def status(
     root: str | os.PathLike, *, check_visibility: bool = True, run: Runner = run_command
 ) -> dict[str, Any]:
-    """Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility."""
+    """Whether the store is synced, where to, uncommitted changes, ahead/behind, the guard, and live visibility.
+
+    With ``check_visibility``, ``auto_commit`` says whether edits may be committed and pushed
+    without the operator reviewing them first (:func:`sole_access`), and
+    ``auto_commit_reason`` says why or why not.
+    """
     root = Path(root)
     if not (root / ".git").exists():
         return {
@@ -481,6 +518,8 @@ def status(
     }
     if check_visibility:
         result["visibility"] = visibility(repo, run=run)
+        sole, why = sole_access(repo, run=run)
+        result.update(auto_commit=sole, auto_commit_reason=why)
         if run(["git", "fetch", "-q", "origin", BRANCH], cwd=root).returncode == 0:
             counts = _ok(
                 run,
