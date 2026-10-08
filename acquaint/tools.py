@@ -20,6 +20,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
+from acquaint import meta as _meta
 from acquaint import sync as _sync
 from acquaint.brief import compose_brief
 from acquaint.deslop import lint_text, recipient_card
@@ -58,6 +59,7 @@ __all__ = [
     "sync_pull",
     "sync_push",
     "sync_status",
+    "todo_preflight",
     "who",
 ]
 
@@ -803,6 +805,22 @@ def sync_status(*, check_visibility: bool = True, data_dir: str | None = None) -
     }
 
 
+def todo_preflight(project: str, people: str, *, data_dir: str | None = None) -> dict:
+    """Before filing a meeting's todos as GitHub issues: is the project unambiguous, is every participant (comma-separated) registered and linked to it, and does it declare a meta repository that is private now? Returns the repository, each person's GitHub login, and a fix for every problem."""
+    found = _meta.todo_preflight(_store(data_dir), project, people.split(","))
+    lines = [f"project: {found['project'] or '?'}", f"meta repo: {found['meta_repo'] or '?'}"]
+    lines += [f"{p['ref']}: github {p['github'] or '(none)'}" for p in found["people"]]
+    lines += [f"PROBLEM ({p['check']}): {p['message']}\n  fix: {p['fix']}" for p in found["problems"]]
+    lines += [f"warning: {w}" for w in found["warnings"]]
+    return {
+        **found,
+        "summary": f"todos for {found['project']} go to {found['meta_repo']}"
+        if found["ok"]
+        else f"{len(found['problems'])} precondition(s) unmet; fix them before filing todos",
+        "text": "\n".join(lines),
+    }
+
+
 #: Every tool, in the order surfaces list them.
 TOOLS = [
     who,
@@ -822,6 +840,7 @@ TOOLS = [
     style_lint,
     disclosure,
     review,
+    todo_preflight,
 ]
 
 #: What each tool changes, for surfaces that must decide what to expose or confirm.
@@ -846,4 +865,5 @@ SIDE_EFFECTS = {
     "sync_status": "external-read",
     "sync_init": "external",
     "sync_push": "external",
+    "todo_preflight": "external-read",
 }
