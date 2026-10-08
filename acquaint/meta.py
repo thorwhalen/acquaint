@@ -72,9 +72,10 @@ def _linked_to(person, target_ref: str) -> bool:
 
 def _github_login(person) -> str | None:
     for identity in person.identities:
-        if str(identity.get("platform", "")).lower() == "github" and str(
-            identity.get("status") or "active"
-        ).lower() == "active":
+        if (
+            str(identity.get("platform", "")).lower() == "github"
+            and str(identity.get("status") or "active").lower() == "active"
+        ):
             return str(identity.get("value", "")).strip() or None
     return None
 
@@ -113,8 +114,8 @@ def todo_preflight(
         problem(
             "project",
             f"no single project or org record for {project!r} ({error})",
-            f"register it: `acquaint new org \"{project}\"` (a company) or "
-            f"`acquaint new project \"{project}\"`, or name the existing one by id (`org:<id>`)",
+            f'register it: `acquaint new org "{project}"` (a company) or '
+            f'`acquaint new project "{project}"`, or name the existing one by id (`org:<id>`)',
         )
     target = entity.ref if entity is not None else None
 
@@ -129,7 +130,11 @@ def todo_preflight(
                 f"(meaning <org>/{META_REPO_NAME}) to the frontmatter of {entity.key}/PROFILE.md",
             )
         elif not _REPO_RE.match(repo):
-            problem("meta_repo", f"{repo!r} is not an owner/name repository", f"fix the meta_repo value in {entity.key}/PROFILE.md")
+            problem(
+                "meta_repo",
+                f"{repo!r} is not an owner/name repository",
+                f"fix the meta_repo value in {entity.key}/PROFILE.md",
+            )
             repo = None
         else:
             private, why = repo_privacy(repo, run=run)
@@ -153,11 +158,15 @@ def todo_preflight(
             problem(
                 "person",
                 f"{name!r} is not one registered person ({error})",
-                f"register them (`acquaint new person \"{name}\"`) or name the existing record by id",
+                f'register them (`acquaint new person "{name}"`) or name the existing record by id',
             )
             continue
         if person.kind != "person":
-            problem("person", f"{name!r} is a {person.kind} record, not a person", "name the person")
+            problem(
+                "person",
+                f"{name!r} is a {person.kind} record, not a person",
+                "name the person",
+            )
             continue
         login = _github_login(person)
         if login is None:

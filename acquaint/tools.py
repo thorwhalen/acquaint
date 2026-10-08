@@ -808,9 +808,15 @@ def sync_status(*, check_visibility: bool = True, data_dir: str | None = None) -
 def todo_preflight(project: str, people: str, *, data_dir: str | None = None) -> dict:
     """Before filing a meeting's todos as GitHub issues: is the project unambiguous, is every participant (comma-separated) registered and linked to it, and does it declare a meta repository that is private now? Returns the repository, each person's GitHub login, and a fix for every problem."""
     found = _meta.todo_preflight(_store(data_dir), project, people.split(","))
-    lines = [f"project: {found['project'] or '?'}", f"meta repo: {found['meta_repo'] or '?'}"]
+    lines = [
+        f"project: {found['project'] or '?'}",
+        f"meta repo: {found['meta_repo'] or '?'}",
+    ]
     lines += [f"{p['ref']}: github {p['github'] or '(none)'}" for p in found["people"]]
-    lines += [f"PROBLEM ({p['check']}): {p['message']}\n  fix: {p['fix']}" for p in found["problems"]]
+    lines += [
+        f"PROBLEM ({p['check']}): {p['message']}\n  fix: {p['fix']}"
+        for p in found["problems"]
+    ]
     lines += [f"warning: {w}" for w in found["warnings"]]
     return {
         **found,
