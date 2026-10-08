@@ -45,7 +45,7 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 ## The verbs
 
-The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+The same eighteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
 | Verb | Does |
 |---|---|
@@ -57,6 +57,7 @@ The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and
 | `remember ENTITY TEXT [--source --kind --disclosed --reactivate]` | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate` |
 | `disclosure ID... [--project SLUG] [--audience-json - \| FILE]` | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps |
 | `review PERSON` | everything that names someone's disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier |
+| `todo-preflight PROJECT PEOPLE` | before filing a meeting's todos as issues: the project is unambiguous, every participant (comma-separated) is registered and linked to it, and its meta repository (`meta_repo: owner/name`, or `github_org: <org>` meaning `<org>/meta`, in the record's frontmatter) is private now; returns each person's GitHub login and a fix for every problem |
 | `lint [ENTITY]` | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires |
 | `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
 | `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
@@ -95,6 +96,7 @@ Six skills ship inside the package (`acquaint/data/skills/`) and install with `g
 | `acquaint-read` | interpreting a message from a known person; AI-processing as a likelihood with evidence |
 | `deslop` | prose without machine-writing tells, calibrated to the reader |
 | `acquaint-sync` | private sync, and what it does not protect |
+| `acquaint-meeting-todos` | a meeting's todos as one assigned `manual-task` issue per person in the project's private meta repository, after `todo-preflight` |
 
 ```bash
 gh skill install thorwhalen/acquaint acquaint --agent claude-code

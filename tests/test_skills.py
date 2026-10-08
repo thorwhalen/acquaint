@@ -14,7 +14,7 @@ from acquaint.tools import TOOLS
 REPO = Path(__file__).resolve().parent.parent
 SKILLS = REPO / "acquaint" / "data" / "skills"
 AGENTS = REPO / "acquaint" / "data" / "agents"
-EXPECTED_SKILLS = {"acquaint", "acquaint-profile", "acquaint-write", "acquaint-read", "deslop", "acquaint-sync"}
+EXPECTED_SKILLS = {"acquaint", "acquaint-profile", "acquaint-write", "acquaint-read", "deslop", "acquaint-sync", "acquaint-meeting-todos"}
 EXPECTED_AGENTS = {"profile-reader", "recipient-reader"}
 #: Top-level keys the Agent Skills specification allows.
 SPEC_KEYS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}

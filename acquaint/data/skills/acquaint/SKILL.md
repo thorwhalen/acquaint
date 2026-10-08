@@ -1,6 +1,6 @@
 ---
 name: acquaint
-description: Who someone is, how to reach them, and how to write to them, from the operator's local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on "who is X", "what's X's email/handle/GitHub", "is X the same person as Y", "how do I reach X", "remember that X…", "add X to my profiles", "brief me on X", and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync and deslop. Query one record; never read the whole store.
+description: Who someone is, how to reach them, and how to write to them, from the operator's local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on "who is X", "what's X's email/handle/GitHub", "is X the same person as Y", "how do I reach X", "remember that X…", "add X to my profiles", "brief me on X", and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.
 metadata:
   audience: users
 ---
@@ -71,6 +71,7 @@ acquaint remember ada-lovelace "email:ada@example.org" --kind identity --source 
 | Build, research, update or consolidate a profile | **acquaint-profile** |
 | Remove machine-writing tells from any prose | **deslop** |
 | Back up or share the store across machines, privately | **acquaint-sync** |
+| File a meeting's todos as GitHub issues for a project | **acquaint-meeting-todos** |
 
 ## Who may be told what
 
