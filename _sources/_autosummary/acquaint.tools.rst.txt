@@ -31,6 +31,7 @@ acquaint.tools
       sync_pull
       sync_push
       sync_status
+      todo_preflight
       who
    
    .. rubric:: Exceptions

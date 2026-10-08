@@ -2,18 +2,18 @@
 
 # About this build
 
-This documentation was built on **2026-10-07 07:27 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095"><code>66f070f</code></a> on branch <code>main</code>, for **acquaint 0.0.13** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-08 12:17 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/0d69851b720ab6a4ec56b84099b77449cd4ddc8d"><code>0d69851</code></a> on branch <code>main</code>, for **acquaint 0.0.14** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.13) is behind the latest release on PyPI (0.0.14): `pip install acquaint` gives newer code than these docs describe.
+- The documented version (0.0.14) is behind the latest release on PyPI (0.0.15): `pip install acquaint` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095"><code>66f070f9464f29b322a5da365df96d1a56020095</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/0d69851b720ab6a4ec56b84099b77449cd4ddc8d"><code>0d69851b720ab6a4ec56b84099b77449cd4ddc8d</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -24,9 +24,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37587287979">37587287979</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37775567770">37775567770</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>66f070f9464f29b322a5da365df96d1a56020095</code> (in the history of the built commit) |
+| Event commit | <code>0d69851b720ab6a4ec56b84099b77449cd4ddc8d</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -35,7 +35,7 @@ The documentation and the package may be misaligned:
 | epythet  | 0.2.12  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -51,13 +51,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.14/">0.0.14</a>, newer than the documented version (0.0.13).
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.15/">0.0.15</a>, newer than the documented version (0.0.14).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 66f070f9464f29b322a5da365df96d1a56020095
+git checkout 0d69851b720ab6a4ec56b84099b77449cd4ddc8d
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

@@ -69,6 +69,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.mcp.html">acquaint.mcp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.meta.html">acquaint.meta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.records.html">acquaint.records</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.render.html">acquaint.render</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.resources.html">acquaint.resources</a></li>
@@ -763,25 +764,28 @@ candidates and <code class="docutils literal notranslate"><span class="pre">ok:<
 <tr class="row-even"><td><p><a class="reference internal" href="acquaint.mcp.html#module-acquaint.mcp" title="acquaint.mcp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mcp</span></code></a></p></td>
 <td><p>MCP over stdio: the same tools, for Claude Desktop and other local MCP clients.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.records.html#module-acquaint.records" title="acquaint.records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">records</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.meta.html#module-acquaint.meta" title="acquaint.meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">meta</span></code></a></p></td>
+<td><p>Where a project's meeting todos may be filed: its declared private meta repository, and the people who belong to it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="acquaint.records.html#module-acquaint.records" title="acquaint.records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">records</span></code></a></p></td>
 <td><p>The text formats acquaint stores, as pure functions: frontmatter, sections, items, source tags, slugs, log entries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="acquaint.render.html#module-acquaint.render" title="acquaint.render"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.render.html#module-acquaint.render" title="acquaint.render"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code></a></p></td>
 <td><p>Turning a tool's result into terminal output: <code class="docutils literal notranslate"><span class="pre">(stdout,</span> <span class="pre">stderr,</span> <span class="pre">exit</span> <span class="pre">code)</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.resources.html#module-acquaint.resources" title="acquaint.resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resources</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="acquaint.resources.html#module-acquaint.resources" title="acquaint.resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resources</span></code></a></p></td>
 <td><p>Files shipped inside the package: record templates, the policy tripwires, purpose reminders, the tells catalogue, skills.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="acquaint.store.html#module-acquaint.store" title="acquaint.store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">store</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.store.html#module-acquaint.store" title="acquaint.store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">store</span></code></a></p></td>
 <td><p>Where records live and how code reaches them: the data root, <a class="reference internal" href="#acquaint.Store" title="acquaint.Store"><code class="xref py py-class docutils literal notranslate"><span class="pre">Store</span></code></a> and <a class="reference internal" href="#acquaint.Entity" title="acquaint.Entity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Entity</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.sync.html#module-acquaint.sync" title="acquaint.sync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sync</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="acquaint.sync.html#module-acquaint.sync" title="acquaint.sync"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sync</span></code></a></p></td>
 <td><p>Private-repository sync for the data root: create the repository private, refuse anything else, guard every push.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="acquaint.tools.html#module-acquaint.tools" title="acquaint.tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tools</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.tools.html#module-acquaint.tools" title="acquaint.tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tools</span></code></a></p></td>
 <td><p>The single source of truth for every surface: plain functions, flat arguments in, JSON-ready dicts out.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="acquaint.trust.html#module-acquaint.trust" title="acquaint.trust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trust</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="acquaint.trust.html#module-acquaint.trust" title="acquaint.trust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trust</span></code></a></p></td>
 <td><p>The disclosure vocabulary: tiers on people; labels, seals and clearances on records; and which tier is in force.</p></td>
 </tr>
 </tbody>
@@ -829,7 +833,7 @@ candidates and <code class="docutils literal notranslate"><span class="pre">ok:<
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=9fc46840"></script>
+      <script src="../_static/documentation_options.js?v=544df88d"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

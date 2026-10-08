@@ -41,6 +41,7 @@ with a [`Store`](acquaint.store.md#acquaint.store.Store).
 | [`sync_pull`](#acquaint.tools.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
 | [`sync_push`](#acquaint.tools.sync_push)(\*[, message, dry_run, data_dir])        | Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility.                                                                                                                                                                                                                           |
 | [`sync_status`](#acquaint.tools.sync_status)(\*[, check_visibility, data_dir])      | Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.                                                                                                                                                                                                                     |
+| [`todo_preflight`](#acquaint.tools.todo_preflight)(project, people, \*[, data_dir])    | Before filing a meeting's todos as GitHub issues: is the project unambiguous, is every participant (comma-separated) registered and linked to it, and does it declare a meta repository that is private now? Returns the repository, each person's GitHub login, and a fix for every problem.                                            |
 | [`who`](#acquaint.tools.who)(name, \*[, field, brief, data_dir])            | Look up one person, project, org or group by exact id, name, alias, handle or email.                                                                                                                                                                                                                                                     |
 
 ### Exceptions
@@ -54,14 +55,14 @@ Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exceptio
 
 An expected failure with a message meant for the person or agent that asked.
 
-### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
+### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'todo_preflight': 'external-read', 'who': 'read'}*
 
 What each tool changes, for surfaces that must decide what to expose or confirm.
 `read` changes nothing and stays local; `append` adds to a log; `create` adds a
 record; `rewrite` changes existing records; `destructive` removes data;
 `external-read` queries a remote service; `external` acts on one.
 
-### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>]*
+### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>, <function todo_preflight>]*
 
 Every tool, in the order surfaces list them.
 
@@ -177,6 +178,13 @@ Commit, rebase onto the remote and push the store, after re-checking the remote,
 ### acquaint.tools.sync_status(, check_visibility=True, data_dir=None)
 
 Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.todo_preflight(project, people, , data_dir=None)
+
+Before filing a meeting’s todos as GitHub issues: is the project unambiguous, is every participant (comma-separated) registered and linked to it, and does it declare a meta repository that is private now? Returns the repository, each person’s GitHub login, and a fix for every problem.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)

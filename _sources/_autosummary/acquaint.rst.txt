@@ -50,6 +50,7 @@
    edit
    lookup
    mcp
+   meta
    records
    render
    resources

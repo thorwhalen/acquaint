@@ -1,0 +1,20 @@
+acquaint.meta
+=============
+
+.. automodule:: acquaint.meta
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      META_REPO_NAME
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      meta_repo_of
+      repo_privacy
+      todo_preflight
+   

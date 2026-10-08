@@ -1,4 +1,4 @@
-> built 2026-10-07 07:27 UTC from 66f070f (main) · acquaint 0.0.13. Details: build_info.json
+> built 2026-10-08 12:17 UTC from 0d69851 (main) · acquaint 0.0.14. Details: build_info.json
 
 # index.html.md
 
@@ -51,7 +51,7 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 ## The verbs
 
-The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+The same eighteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
 | Verb                                                                               | Does                                                                                                                                                                                                                                                                                                                                                         |
 |------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -63,6 +63,7 @@ The same seventeen functions are the Python API (`acquaint.tools`), the CLI, and
 | `remember ENTITY TEXT [--source --kind --disclosed --reactivate]`                  | append a dated, sourced observation (or identity, preference, view, rule); an `interaction` may list the records a message identified (`--disclosed project:heron`); an identity equal to an inactive one is refused, naming that entry, unless `--reactivate`                                                                                               |
 | `disclosure ID... [--project SLUG] [--audience-json - | FILE]`                     | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps                                                                                                                                                                              |
 | `review PERSON`                                                                    | everything that names someone’s disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier                      |
+| `todo-preflight PROJECT PEOPLE`                                                    | before filing a meeting’s todos as issues: the project is unambiguous, every participant (comma-separated) is registered and linked to it, and its meta repository (`meta_repo: owner/name`, or `github_org: <org>` meaning `<org>/meta`, in the record’s frontmatter) is private now; returns each person’s GitHub login and a fix for every problem        |
 | `lint [ENTITY]`                                                                    | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires                                                                                                                                                                                           |
 | `style-lint TEXT [--recipient --tolerance]`                                        | machine-writing tells, enforced by the reader’s tolerance of AI-sounding text                                                                                                                                                                                                                                                                                |
 | `new KIND NAME [--qualifier --description]`                                        | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`)                                                                                                                                                                                                                                                                      |
@@ -93,14 +94,15 @@ A source is a permalink, a log or research anchor, the person’s own words, `op
 
 Six skills ship inside the package (`acquaint/data/skills/`) and install with `gh skill`:
 
-| Skill              | For                                                                                       |
-|--------------------|-------------------------------------------------------------------------------------------|
-| `acquaint`         | the router: lookups at the right cost, `check` before publishing, `remember` with sources |
-| `acquaint-profile` | building a profile from someone’s own writing, with parallel `profile-reader` agents      |
-| `acquaint-write`   | writing for a known reader, and sparring with a simulated one (`recipient-reader` agent)  |
-| `acquaint-read`    | interpreting a message from a known person; AI-processing as a likelihood with evidence   |
-| `deslop`           | prose without machine-writing tells, calibrated to the reader                             |
-| `acquaint-sync`    | private sync, and what it does not protect                                                |
+| Skill                    | For                                                                                                                               |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `acquaint`               | the router: lookups at the right cost, `check` before publishing, `remember` with sources                                         |
+| `acquaint-profile`       | building a profile from someone’s own writing, with parallel `profile-reader` agents                                              |
+| `acquaint-write`         | writing for a known reader, and sparring with a simulated one (`recipient-reader` agent)                                          |
+| `acquaint-read`          | interpreting a message from a known person; AI-processing as a likelihood with evidence                                           |
+| `deslop`                 | prose without machine-writing tells, calibrated to the reader                                                                     |
+| `acquaint-sync`          | private sync, and what it does not protect                                                                                        |
+| `acquaint-meeting-todos` | a meeting’s todos as one assigned `manual-task` issue per person in the project’s private meta repository, after `todo-preflight` |
 ```bash
 gh skill install thorwhalen/acquaint acquaint --agent claude-code
 ```
@@ -740,6 +742,7 @@ candidates and `ok: false`.
 | [`edit`](_autosummary/acquaint.edit.html.md#module-acquaint.edit)           | Changing the store: create an entity, append an observation, rename with relinking, forget with a tombstone.                                                                     |
 | [`lookup`](_autosummary/acquaint.lookup.html.md#module-acquaint.lookup)       | Finding the right record: exact references, handle resolution, the conflation check, and channel choice.                                                                         |
 | [`mcp`](_autosummary/acquaint.mcp.html.md#module-acquaint.mcp)             | MCP over stdio: the same tools, for Claude Desktop and other local MCP clients.                                                                                                  |
+| [`meta`](_autosummary/acquaint.meta.html.md#module-acquaint.meta)           | Where a project's meeting todos may be filed: its declared private meta repository, and the people who belong to it.                                                             |
 | [`records`](_autosummary/acquaint.records.html.md#module-acquaint.records)     | The text formats acquaint stores, as pure functions: frontmatter, sections, items, source tags, slugs, log entries.                                                              |
 | [`render`](_autosummary/acquaint.render.html.md#module-acquaint.render)       | Turning a tool's result into terminal output: `(stdout, stderr, exit code)`.                                                                                                     |
 | [`resources`](_autosummary/acquaint.resources.html.md#module-acquaint.resources) | Files shipped inside the package: record templates, the policy tripwires, purpose reminders, the tells catalogue, skills.                                                        |
@@ -943,6 +946,77 @@ A FastMCP server over the selected tools, with `HIDDEN_PARAMETERS` hidden (not s
 >>> "acquaint.tools:brief" in refs(), "acquaint.tools:forget" in refs(), "acquaint.tools:sync_status" in refs()
 (True, False, False)
 ```
+
+
+# _autosummary/acquaint.meta.html.md
+
+# acquaint.meta
+
+Where a project’s meeting todos may be filed: its declared private meta repository, and the people who belong to it.
+
+Before agents file todos from a meeting as GitHub issues, three things must hold, and
+[`todo_preflight()`](_autosummary/acquaint.meta.html.md#acquaint.meta.todo_preflight) checks them against the store and the live repository:
+
+1. **the project is unambiguous**: exactly one `project` or `org` record matches;
+2. **every participant is registered and belongs to it**: each resolves to exactly one
+   person whose `links.yaml` links them to that project or org;
+3. **the project declares a private meta repository**: `meta_repo: owner/name` in the
+   record’s frontmatter, or `github_org: <org>`, which means `<org>/meta`; and `gh`
+   reports that repository private now.
+
+Every failed check comes back as a problem with a concrete fix, so the skill can tell the
+user how to proceed instead of guessing. Each participant’s GitHub login (an active
+`github` identity) is returned for assigning issues, with a warning when there is none.
+
+```pycon
+>>> meta_repo_of({"github_org": "example-org"})
+'example-org/meta'
+>>> meta_repo_of({"meta_repo": "ada-lovelace/notes", "github_org": "example-org"})
+'ada-lovelace/notes'
+>>> meta_repo_of({}) is None
+True
+```
+
+### Module Attributes
+
+| [`META_REPO_NAME`](_autosummary/acquaint.meta.html.md#acquaint.meta.META_REPO_NAME)   | The repository name a declared `github_org` implies.   |
+|-------------------------------------------------------------------|--------------------------------------------------------|
+
+### Functions
+
+| [`meta_repo_of`](_autosummary/acquaint.meta.html.md#acquaint.meta.meta_repo_of)(meta)                                | The meta repository a record's frontmatter declares: `meta_repo`, else `<github_org>/meta`, else `None`.         |
+|----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| [`repo_privacy`](_autosummary/acquaint.meta.html.md#acquaint.meta.repo_privacy)(repo, \*[, run])                     | `(True, …)` if `gh` reports the repository private now, `(False, …)` if not, `(None, why)` if it could not tell. |
+| [`todo_preflight`](_autosummary/acquaint.meta.html.md#acquaint.meta.todo_preflight)(store, project, people, \*[, run]) | Check that meeting todos for `project` and `people` may be filed, and where.                                     |
+
+### acquaint.meta.META_REPO_NAME *= 'meta'*
+
+The repository name a declared `github_org` implies.
+
+### acquaint.meta.meta_repo_of(meta)
+
+The meta repository a record’s frontmatter declares: `meta_repo`, else `<github_org>/meta`, else `None`.
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)
+
+### acquaint.meta.repo_privacy(repo, \*, run=<function run_command>)
+
+`(True, …)` if `gh` reports the repository private now, `(False, …)` if not, `(None, why)` if it could not tell.
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`bool`](https://docs.python.org/3/builtins/functions.html#bool) | [`None`](https://docs.python.org/3/builtins/constants.html#None), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
+
+### acquaint.meta.todo_preflight(store, project, people, \*, run=<function run_command>)
+
+Check that meeting todos for `project` and `people` may be filed, and where.
+
+Returns `ok`, the resolved `project` reference, the `meta_repo`, one row per
+participant (`ref`, `github`), `problems` (each a `check`, a `message` and a
+`fix`) and `warnings`. `ok` is false whenever any problem is found.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 
 # _autosummary/acquaint.records.html.md
@@ -1881,6 +1955,7 @@ with a [`Store`](_autosummary/acquaint.store.html.md#acquaint.store.Store).
 | [`sync_pull`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_pull)(\*[, dry_run, data_dir])                 | Pull the store from its private remote, rebasing local work on top.                                                                                                                                                                                                                                                                      |
 | [`sync_push`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_push)(\*[, message, dry_run, data_dir])        | Commit, rebase onto the remote and push the store, after re-checking the remote, the guard and the visibility.                                                                                                                                                                                                                           |
 | [`sync_status`](_autosummary/acquaint.tools.html.md#acquaint.tools.sync_status)(\*[, check_visibility, data_dir])      | Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.                                                                                                                                                                                                                     |
+| [`todo_preflight`](_autosummary/acquaint.tools.html.md#acquaint.tools.todo_preflight)(project, people, \*[, data_dir])    | Before filing a meeting's todos as GitHub issues: is the project unambiguous, is every participant (comma-separated) registered and linked to it, and does it declare a meta repository that is private now? Returns the repository, each person's GitHub login, and a fix for every problem.                                            |
 | [`who`](_autosummary/acquaint.tools.html.md#acquaint.tools.who)(name, \*[, field, brief, data_dir])            | Look up one person, project, org or group by exact id, name, alias, handle or email.                                                                                                                                                                                                                                                     |
 
 ### Exceptions
@@ -1894,14 +1969,14 @@ Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exceptio
 
 An expected failure with a message meant for the person or agent that asked.
 
-### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'who': 'read'}*
+### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'todo_preflight': 'external-read', 'who': 'read'}*
 
 What each tool changes, for surfaces that must decide what to expose or confirm.
 `read` changes nothing and stays local; `append` adds to a log; `create` adds a
 record; `rewrite` changes existing records; `destructive` removes data;
 `external-read` queries a remote service; `external` acts on one.
 
-### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>]*
+### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>, <function todo_preflight>]*
 
 Every tool, in the order surfaces list them.
 
@@ -2017,6 +2092,13 @@ Commit, rebase onto the remote and push the store, after re-checking the remote,
 ### acquaint.tools.sync_status(, check_visibility=True, data_dir=None)
 
 Whether the store is synced, to which repository, uncommitted changes, ahead/behind, the guard, and live visibility.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.todo_preflight(project, people, , data_dir=None)
+
+Before filing a meeting’s todos as GitHub issues: is the project unambiguous, is every participant (comma-separated) registered and linked to it, and does it declare a meta repository that is private now? Returns the repository, each person’s GitHub login, and a fix for every problem.
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
@@ -2230,18 +2312,18 @@ True
 
 # About this build
 
-This documentation was built on **2026-10-07 07:27 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095"><code>66f070f</code></a> on branch <code>main</code>, for **acquaint 0.0.13** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-08 12:17 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/0d69851b720ab6a4ec56b84099b77449cd4ddc8d"><code>0d69851</code></a> on branch <code>main</code>, for **acquaint 0.0.14** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.0.13) is behind the latest release on PyPI (0.0.14): `pip install acquaint` gives newer code than these docs describe.
+- The documented version (0.0.14) is behind the latest release on PyPI (0.0.15): `pip install acquaint` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/66f070f9464f29b322a5da365df96d1a56020095"><code>66f070f9464f29b322a5da365df96d1a56020095</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/0d69851b720ab6a4ec56b84099b77449cd4ddc8d"><code>0d69851b720ab6a4ec56b84099b77449cd4ddc8d</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2252,9 +2334,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37587287979">37587287979</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/37775567770">37775567770</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>66f070f9464f29b322a5da365df96d1a56020095</code> (in the history of the built commit) |
+| Event commit | <code>0d69851b720ab6a4ec56b84099b77449cd4ddc8d</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2263,7 +2345,7 @@ The documentation and the package may be misaligned:
 | epythet  | 0.2.12  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -2279,13 +2361,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.14/">0.0.14</a>, newer than the documented version (0.0.13).
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.15/">0.0.15</a>, newer than the documented version (0.0.14).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout 66f070f9464f29b322a5da365df96d1a56020095
+git checkout 0d69851b720ab6a4ec56b84099b77449cd4ddc8d
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
@@ -2309,13 +2391,23 @@ Skills are folders holding a `SKILL.md` (the [Agent Skills](https://agentskills.
 
 ### `acquaint`
 
-Who someone is, how to reach them, and how to write to them, from the operator’s local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on “who is X”, “what’s X’s email/handle/GitHub”, “is X the same person as Y”, “how do I reach X”, “remember that X…”, “add X to my profiles”, “brief me on X”, and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync and deslop. Query one record; never read the whole store.
+Who someone is, how to reach them, and how to write to them, from the operator’s local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on “who is X”, “what’s X’s email/handle/GitHub”, “is X the same person as Y”, “how do I reach X”, “remember that X…”, “add X to my profiles”, “brief me on X”, and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.
 
 ```bash
 gh skill install thorwhalen/acquaint acquaint --agent claude-code
 ```
 
 Source: [`acquaint/data/skills/acquaint`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint) (bundled with the pip package).
+
+### `acquaint-meeting-todos`
+
+Turn the todos from a meeting into GitHub issues for a company or project the operator works on — one manual-task issue per participant in the project’s private meta repository, items copied verbatim, each linked to the notes and to the issue or page it concerns. Use when given meeting notes, minutes, a transcript, a Slack thread or an email with “next steps”, “action items” or “todos” and asked to “put these in issues”, “file the meeting todos”, “make issues from the next steps”, “assign the action items”, or “track what everyone said they’d do”. Checks first, through acquaint, that the project is unambiguous, that every participant is registered and belongs to it, and that its declared meta repository is private; when any of these fails, it tells the user what is missing and how to fix it, and files nothing.
+
+```bash
+gh skill install thorwhalen/acquaint acquaint-meeting-todos --agent claude-code
+```
+
+Source: [`acquaint/data/skills/acquaint-meeting-todos`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint-meeting-todos) (bundled with the pip package).
 
 ### `acquaint-profile`
 

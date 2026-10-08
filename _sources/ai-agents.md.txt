@@ -13,13 +13,23 @@ Skills are folders holding a `SKILL.md` (the [Agent Skills](https://agentskills.
 
 ### `acquaint`
 
-Who someone is, how to reach them, and how to write to them, from the operator's local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on "who is X", "what's X's email/handle/GitHub", "is X the same person as Y", "how do I reach X", "remember that X…", "add X to my profiles", "brief me on X", and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync and deslop. Query one record; never read the whole store.
+Who someone is, how to reach them, and how to write to them, from the operator's local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on "who is X", "what's X's email/handle/GitHub", "is X the same person as Y", "how do I reach X", "remember that X…", "add X to my profiles", "brief me on X", and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.
 
 ```bash
 gh skill install thorwhalen/acquaint acquaint --agent claude-code
 ```
 
 Source: [`acquaint/data/skills/acquaint`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint) (bundled with the pip package).
+
+### `acquaint-meeting-todos`
+
+Turn the todos from a meeting into GitHub issues for a company or project the operator works on — one manual-task issue per participant in the project's private meta repository, items copied verbatim, each linked to the notes and to the issue or page it concerns. Use when given meeting notes, minutes, a transcript, a Slack thread or an email with "next steps", "action items" or "todos" and asked to "put these in issues", "file the meeting todos", "make issues from the next steps", "assign the action items", or "track what everyone said they'd do". Checks first, through acquaint, that the project is unambiguous, that every participant is registered and belongs to it, and that its declared meta repository is private; when any of these fails, it tells the user what is missing and how to fix it, and files nothing.
+
+```bash
+gh skill install thorwhalen/acquaint acquaint-meeting-todos --agent claude-code
+```
+
+Source: [`acquaint/data/skills/acquaint-meeting-todos`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint-meeting-todos) (bundled with the pip package).
 
 ### `acquaint-profile`
 
