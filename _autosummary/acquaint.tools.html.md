@@ -27,6 +27,9 @@ with a [`Store`](acquaint.store.html.md#acquaint.store.Store).
 | [`brief`](#acquaint.tools.brief)(person, \*[, purpose, project, ref, ...])    | Everything to know before writing to someone: card, writing style, reach, project norms, recent observations, gaps.                                                                                                                                                                                                                      |
 |-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`check`](#acquaint.tools.check)(text, \*[, data_dir])                        | Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.                                                                                                                                                                                                              |
+| [`digest`](#acquaint.tools.digest)(entity[, ref, data_dir])                    | The digests of an entity's conversations (notes on what each said, kept in `digests/`) and their watermarks: how far each was processed, per scope (`content`, `style`).                                                                                                                                                                 |
+| [`digest_mark`](#acquaint.tools.digest_mark)(entity, ref, \*, through[, ...])       | Record that a conversation has been processed through `through` (the ISO time of the last message processed), for `scope` (`content` or `style`).                                                                                                                                                                                        |
+| [`digest_new`](#acquaint.tools.digest_new)(entity, ref, \*[, archive, data_dir])   | Create the digest of one conversation (`ref`, a correspond reference) for an entity, from the template: Orientation, Takeaways, Themes, Index, Open threads, and an empty watermark.                                                                                                                                                     |
 | [`disclosure`](#acquaint.tools.disclosure)(people, \*[, projects, audience, ...])  | Who may be told what, before writing to a set of readers (ids or channel identities, plus an optional correspond `audience` record as JSON): the tier and clearance in force for each, the least clearance, which records each is cleared for, the seals, the vocabulary a gate must scan for, what each was already told, and the gaps. |
 | [`forget`](#acquaint.tools.forget)(entity, \*[, confirm, data_dir])            | Remove an entity's folder and leave a salted tombstone.                                                                                                                                                                                                                                                                                  |
 | [`lint`](#acquaint.tools.lint)([entity, data_dir])                           | Check records: every preference, view and rule sourced; tiers, labels and seals set by the operator; nothing POLICY.md forbids; files parse; entry files within budget.                                                                                                                                                                  |
@@ -55,14 +58,14 @@ Bases: [`Exception`](https://docs.python.org/3/builtins/exceptions.html#Exceptio
 
 An expected failure with a message meant for the person or agent that asked.
 
-### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'todo_preflight': 'external-read', 'who': 'read'}*
+### acquaint.tools.SIDE_EFFECTS *= {'brief': 'read', 'check': 'read', 'digest': 'read', 'digest_mark': 'rewrite', 'digest_new': 'create', 'disclosure': 'read', 'forget': 'destructive', 'lint': 'read', 'new': 'create', 'reach': 'read', 'remember': 'append', 'rename': 'rewrite', 'resolve': 'read', 'review': 'read', 'style_lint': 'read', 'sync_init': 'external', 'sync_pull': 'rewrite', 'sync_push': 'external', 'sync_status': 'external-read', 'todo_preflight': 'external-read', 'who': 'read'}*
 
 What each tool changes, for surfaces that must decide what to expose or confirm.
 `read` changes nothing and stays local; `append` adds to a log; `create` adds a
 record; `rewrite` changes existing records; `destructive` removes data;
 `external-read` queries a remote service; `external` acts on one.
 
-### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>, <function todo_preflight>]*
+### acquaint.tools.TOOLS *= [<function who>, <function resolve>, <function check>, <function reach>, <function brief>, <function remember>, <function lint>, <function new>, <function rename>, <function forget>, <function sync_init>, <function sync_push>, <function sync_pull>, <function sync_status>, <function style_lint>, <function disclosure>, <function review>, <function todo_preflight>, <function digest>, <function digest_new>, <function digest_mark>]*
 
 Every tool, in the order surfaces list them.
 
@@ -76,6 +79,27 @@ Everything to know before writing to someone: card, writing style, reach, projec
 ### acquaint.tools.check(text, , data_dir=None)
 
 Scan prose that names people before publishing it: conflations (one person written as two), ambiguous names, unknown names.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.digest(entity, ref=None, , data_dir=None)
+
+The digests of an entity’s conversations (notes on what each said, kept in `digests/`) and their watermarks: how far each was processed, per scope (`content`, `style`). With `ref` (a correspond reference, e.g. `whatsapp:ada-lovelace`), that one digest and `since`, the time to hand to `correspond read <ref> --since` for what is new. Reads only.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.digest_mark(entity, ref, , through, scope='content', force=False, data_dir=None)
+
+Record that a conversation has been processed through `through` (the ISO time of the last message processed), for `scope` (`content` or `style`). Moving a watermark back needs `force`.
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+### acquaint.tools.digest_new(entity, ref, , archive='correspond', data_dir=None)
+
+Create the digest of one conversation (`ref`, a correspond reference) for an entity, from the template: Orientation, Takeaways, Themes, Index, Open threads, and an empty watermark. `archive` names where the messages themselves live (never this store).
 
 * **Return type:**
   [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)

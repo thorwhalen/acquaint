@@ -92,13 +92,13 @@ A handle’s comparable form: an email lowercased, with Gmail dots and `+tags` f
 
 Lowercase ASCII letters and digits only, for comparing names and handles.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> normalize("Zoë O'Example")
 'zoeoexample'
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### acquaint.lookup.reach_channels(store, key, , defaults_text='', \*\*context)
 

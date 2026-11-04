@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -63,6 +64,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../_autosummary/acquaint.html">acquaint</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../_autosummary/acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../_autosummary/acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../_autosummary/acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../_autosummary/acquaint.mcp.html">acquaint.mcp</a></li>
@@ -204,120 +206,129 @@ data-aria-dark="Switch to auto color mode">
 </span><span data-line="72">
 </span><span data-line="73"><span class="k">def</span><span class="w"> </span><span class="nf">_github_login</span><span class="p">(</span><span class="n">person</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 </span><span data-line="74">    <span class="k">for</span> <span class="n">identity</span> <span class="ow">in</span> <span class="n">person</span><span class="o">.</span><span class="n">identities</span><span class="p">:</span>
-</span><span data-line="75">        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"github"</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span>
-</span><span data-line="76">            <span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"status"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"active"</span>
-</span><span data-line="77">        <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"active"</span><span class="p">:</span>
-</span><span data-line="78">            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span>
-</span><span data-line="79">    <span class="k">return</span> <span class="kc">None</span>
-</span><span data-line="80">
+</span><span data-line="75">        <span class="k">if</span> <span class="p">(</span>
+</span><span data-line="76">            <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"platform"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"github"</span>
+</span><span data-line="77">            <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"status"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"active"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"active"</span>
+</span><span data-line="78">        <span class="p">):</span>
+</span><span data-line="79">            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">identity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"value"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span>
+</span><span data-line="80">    <span class="k">return</span> <span class="kc">None</span>
 </span><span data-line="81">
+</span><span data-line="82">
 <div class="viewcode-block" id="todo_preflight">
 <a class="viewcode-back" href="../../_autosummary/acquaint.meta.html#acquaint.meta.todo_preflight">[docs]</a>
-</span><span data-line="82"><span class="k">def</span><span class="w"> </span><span class="nf">todo_preflight</span><span class="p">(</span>
-</span><span data-line="83">    <span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span>
-</span><span data-line="84">    <span class="n">project</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span data-line="85">    <span class="n">people</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-</span><span data-line="86">    <span class="o">*</span><span class="p">,</span>
-</span><span data-line="87">    <span class="n">run</span><span class="p">:</span> <span class="n">Runner</span> <span class="o">=</span> <span class="n">run_command</span><span class="p">,</span>
-</span><span data-line="88"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span data-line="89"><span class="w">    </span><span class="sd">"""Check that meeting todos for ``project`` and ``people`` may be filed, and where.</span>
-</span><span data-line="90">
-</span><span data-line="91"><span class="sd">    Returns ``ok``, the resolved ``project`` reference, the ``meta_repo``, one row per</span>
-</span><span data-line="92"><span class="sd">    participant (``ref``, ``github``), ``problems`` (each a ``check``, a ``message`` and a</span>
-</span><span data-line="93"><span class="sd">    ``fix``) and ``warnings``. ``ok`` is false whenever any problem is found.</span>
-</span><span data-line="94"><span class="sd">    """</span>
-</span><span data-line="95">    <span class="n">problems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span data-line="96">    <span class="n">warnings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span data-line="97">
-</span><span data-line="98">    <span class="k">def</span><span class="w"> </span><span class="nf">problem</span><span class="p">(</span><span class="n">check</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span data-line="99">        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"check"</span><span class="p">:</span> <span class="n">check</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span> <span class="s2">"fix"</span><span class="p">:</span> <span class="n">fix</span><span class="p">})</span>
-</span><span data-line="100">
-</span><span data-line="101">    <span class="n">entity</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span data-line="102">    <span class="k">try</span><span class="p">:</span>
-</span><span data-line="103">        <span class="n">key</span> <span class="o">=</span> <span class="n">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
-</span><span data-line="104">        <span class="n">entity</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span data-line="105">        <span class="k">if</span> <span class="n">entity</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_PROJECT_KINDS</span><span class="p">:</span>
-</span><span data-line="106">            <span class="n">problem</span><span class="p">(</span>
-</span><span data-line="107">                <span class="s2">"project"</span><span class="p">,</span>
-</span><span data-line="108">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project</span><span class="si">!r}</span><span class="s2"> is a </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2"> record, not a project or org"</span><span class="p">,</span>
-</span><span data-line="109">                <span class="sa">f</span><span class="s2">"name the project or company itself (`acquaint who </span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s2">` lists what matched)"</span><span class="p">,</span>
-</span><span data-line="110">            <span class="p">)</span>
-</span><span data-line="111">            <span class="n">entity</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span data-line="112">    <span class="k">except</span> <span class="p">(</span><span class="n">AcquaintError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-</span><span data-line="113">        <span class="n">problem</span><span class="p">(</span>
-</span><span data-line="114">            <span class="s2">"project"</span><span class="p">,</span>
-</span><span data-line="115">            <span class="sa">f</span><span class="s2">"no single project or org record for </span><span class="si">{</span><span class="n">project</span><span class="si">!r}</span><span class="s2"> (</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
-</span><span data-line="116">            <span class="sa">f</span><span class="s2">"register it: `acquaint new org </span><span class="se">\"</span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="se">\"</span><span class="s2">` (a company) or "</span>
-</span><span data-line="117">            <span class="sa">f</span><span class="s2">"`acquaint new project </span><span class="se">\"</span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="se">\"</span><span class="s2">`, or name the existing one by id (`org:&lt;id&gt;`)"</span><span class="p">,</span>
-</span><span data-line="118">        <span class="p">)</span>
-</span><span data-line="119">    <span class="n">target</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-</span><span data-line="120">
-</span><span data-line="121">    <span class="n">repo</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span data-line="122">    <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span data-line="123">        <span class="n">repo</span> <span class="o">=</span> <span class="n">meta_repo_of</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
-</span><span data-line="124">        <span class="k">if</span> <span class="n">repo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span data-line="125">            <span class="n">problem</span><span class="p">(</span>
-</span><span data-line="126">                <span class="s2">"meta_repo"</span><span class="p">,</span>
-</span><span data-line="127">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> declares no meta repository"</span><span class="p">,</span>
-</span><span data-line="128">                <span class="sa">f</span><span class="s2">"add `meta_repo: &lt;owner&gt;/&lt;name&gt;` (any private repository) or `github_org: &lt;org&gt;` "</span>
-</span><span data-line="129">                <span class="sa">f</span><span class="s2">"(meaning &lt;org&gt;/</span><span class="si">{</span><span class="n">META_REPO_NAME</span><span class="si">}</span><span class="s2">) to the frontmatter of </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/PROFILE.md"</span><span class="p">,</span>
-</span><span data-line="130">            <span class="p">)</span>
-</span><span data-line="131">        <span class="k">elif</span> <span class="ow">not</span> <span class="n">_REPO_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
-</span><span data-line="132">            <span class="n">problem</span><span class="p">(</span><span class="s2">"meta_repo"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">repo</span><span class="si">!r}</span><span class="s2"> is not an owner/name repository"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"fix the meta_repo value in </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/PROFILE.md"</span><span class="p">)</span>
-</span><span data-line="133">            <span class="n">repo</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span data-line="134">        <span class="k">else</span><span class="p">:</span>
-</span><span data-line="135">            <span class="n">private</span><span class="p">,</span> <span class="n">why</span> <span class="o">=</span> <span class="n">repo_privacy</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="n">run</span><span class="p">)</span>
-</span><span data-line="136">            <span class="k">if</span> <span class="n">private</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
-</span><span data-line="137">                <span class="n">problem</span><span class="p">(</span>
-</span><span data-line="138">                    <span class="s2">"meta_repo"</span><span class="p">,</span>
-</span><span data-line="139">                    <span class="n">why</span><span class="p">,</span>
-</span><span data-line="140">                    <span class="sa">f</span><span class="s2">"create it private (`gh repo create </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2"> --private`) or make it private "</span>
-</span><span data-line="141">                    <span class="sa">f</span><span class="s2">"(`gh repo edit </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2"> --visibility private --accept-visibility-change-consequences`); "</span>
-</span><span data-line="142">                    <span class="s2">"todos are never filed in a repository that is not private"</span><span class="p">,</span>
-</span><span data-line="143">                <span class="p">)</span>
-</span><span data-line="144">
-</span><span data-line="145">    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span data-line="146">    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
-</span><span data-line="147">        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span data-line="148">        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
-</span><span data-line="149">            <span class="k">continue</span>
-</span><span data-line="150">        <span class="k">try</span><span class="p">:</span>
-</span><span data-line="151">            <span class="n">person</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">)]</span>
-</span><span data-line="152">        <span class="k">except</span> <span class="p">(</span><span class="n">AcquaintError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-</span><span data-line="153">            <span class="n">problem</span><span class="p">(</span>
-</span><span data-line="154">                <span class="s2">"person"</span><span class="p">,</span>
-</span><span data-line="155">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not one registered person (</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
-</span><span data-line="156">                <span class="sa">f</span><span class="s2">"register them (`acquaint new person </span><span class="se">\"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\"</span><span class="s2">`) or name the existing record by id"</span><span class="p">,</span>
-</span><span data-line="157">            <span class="p">)</span>
-</span><span data-line="158">            <span class="k">continue</span>
-</span><span data-line="159">        <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">"person"</span><span class="p">:</span>
-</span><span data-line="160">            <span class="n">problem</span><span class="p">(</span><span class="s2">"person"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is a </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2"> record, not a person"</span><span class="p">,</span> <span class="s2">"name the person"</span><span class="p">)</span>
-</span><span data-line="161">            <span class="k">continue</span>
-</span><span data-line="162">        <span class="n">login</span> <span class="o">=</span> <span class="n">_github_login</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
-</span><span data-line="163">        <span class="k">if</span> <span class="n">login</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span data-line="164">            <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span data-line="165">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2"> has no active github identity: their issue cannot be assigned "</span>
-</span><span data-line="166">                <span class="sa">f</span><span class="s2">"(add one to </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/identities.yaml)"</span>
-</span><span data-line="167">            <span class="p">)</span>
-</span><span data-line="168">        <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_linked_to</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-</span><span data-line="169">            <span class="n">problem</span><span class="p">(</span>
-</span><span data-line="170">                <span class="s2">"membership"</span><span class="p">,</span>
-</span><span data-line="171">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2"> is not linked to </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-</span><span data-line="172">                <span class="sa">f</span><span class="s2">"add to </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/links.yaml: `- </span><span class="se">{{</span><span class="s2">to: </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">, relation: &lt;their role&gt;, since: &lt;date&gt;, source: &lt;where you learned it&gt;</span><span class="se">}}</span><span class="s2">`"</span><span class="p">,</span>
-</span><span data-line="173">            <span class="p">)</span>
-</span><span data-line="174">        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"ref"</span><span class="p">:</span> <span class="n">person</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"github"</span><span class="p">:</span> <span class="n">login</span><span class="p">})</span>
-</span><span data-line="175">
-</span><span data-line="176">    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">"check"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"person"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">):</span>
-</span><span data-line="177">        <span class="n">problem</span><span class="p">(</span><span class="s2">"person"</span><span class="p">,</span> <span class="s2">"no participants given"</span><span class="p">,</span> <span class="s2">"list the people the todos belong to"</span><span class="p">)</span>
-</span><span data-line="178">
-</span><span data-line="179">    <span class="k">return</span> <span class="p">{</span>
-</span><span data-line="180">        <span class="s2">"ok"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">,</span>
-</span><span data-line="181">        <span class="s2">"project"</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
-</span><span data-line="182">        <span class="s2">"meta_repo"</span><span class="p">:</span> <span class="n">repo</span><span class="p">,</span>
-</span><span data-line="183">        <span class="s2">"people"</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
-</span><span data-line="184">        <span class="s2">"problems"</span><span class="p">:</span> <span class="n">problems</span><span class="p">,</span>
-</span><span data-line="185">        <span class="s2">"warnings"</span><span class="p">:</span> <span class="n">warnings</span><span class="p">,</span>
-</span><span data-line="186">    <span class="p">}</span></div>
+</span><span data-line="83"><span class="k">def</span><span class="w"> </span><span class="nf">todo_preflight</span><span class="p">(</span>
+</span><span data-line="84">    <span class="n">store</span><span class="p">:</span> <span class="n">Store</span><span class="p">,</span>
+</span><span data-line="85">    <span class="n">project</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span data-line="86">    <span class="n">people</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+</span><span data-line="87">    <span class="o">*</span><span class="p">,</span>
+</span><span data-line="88">    <span class="n">run</span><span class="p">:</span> <span class="n">Runner</span> <span class="o">=</span> <span class="n">run_command</span><span class="p">,</span>
+</span><span data-line="89"><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+</span><span data-line="90"><span class="w">    </span><span class="sd">"""Check that meeting todos for ``project`` and ``people`` may be filed, and where.</span>
+</span><span data-line="91">
+</span><span data-line="92"><span class="sd">    Returns ``ok``, the resolved ``project`` reference, the ``meta_repo``, one row per</span>
+</span><span data-line="93"><span class="sd">    participant (``ref``, ``github``), ``problems`` (each a ``check``, a ``message`` and a</span>
+</span><span data-line="94"><span class="sd">    ``fix``) and ``warnings``. ``ok`` is false whenever any problem is found.</span>
+</span><span data-line="95"><span class="sd">    """</span>
+</span><span data-line="96">    <span class="n">problems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span data-line="97">    <span class="n">warnings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span data-line="98">
+</span><span data-line="99">    <span class="k">def</span><span class="w"> </span><span class="nf">problem</span><span class="p">(</span><span class="n">check</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span data-line="100">        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"check"</span><span class="p">:</span> <span class="n">check</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span> <span class="s2">"fix"</span><span class="p">:</span> <span class="n">fix</span><span class="p">})</span>
+</span><span data-line="101">
+</span><span data-line="102">    <span class="n">entity</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span data-line="103">    <span class="k">try</span><span class="p">:</span>
+</span><span data-line="104">        <span class="n">key</span> <span class="o">=</span> <span class="n">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+</span><span data-line="105">        <span class="n">entity</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span data-line="106">        <span class="k">if</span> <span class="n">entity</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_PROJECT_KINDS</span><span class="p">:</span>
+</span><span data-line="107">            <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="108">                <span class="s2">"project"</span><span class="p">,</span>
+</span><span data-line="109">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project</span><span class="si">!r}</span><span class="s2"> is a </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2"> record, not a project or org"</span><span class="p">,</span>
+</span><span data-line="110">                <span class="sa">f</span><span class="s2">"name the project or company itself (`acquaint who </span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s2">` lists what matched)"</span><span class="p">,</span>
+</span><span data-line="111">            <span class="p">)</span>
+</span><span data-line="112">            <span class="n">entity</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span data-line="113">    <span class="k">except</span> <span class="p">(</span><span class="n">AcquaintError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span data-line="114">        <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="115">            <span class="s2">"project"</span><span class="p">,</span>
+</span><span data-line="116">            <span class="sa">f</span><span class="s2">"no single project or org record for </span><span class="si">{</span><span class="n">project</span><span class="si">!r}</span><span class="s2"> (</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+</span><span data-line="117">            <span class="sa">f</span><span class="s1">'register it: `acquaint new org "</span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s1">"` (a company) or '</span>
+</span><span data-line="118">            <span class="sa">f</span><span class="s1">'`acquaint new project "</span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s1">"`, or name the existing one by id (`org:&lt;id&gt;`)'</span><span class="p">,</span>
+</span><span data-line="119">        <span class="p">)</span>
+</span><span data-line="120">    <span class="n">target</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span data-line="121">
+</span><span data-line="122">    <span class="n">repo</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span data-line="123">    <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span data-line="124">        <span class="n">repo</span> <span class="o">=</span> <span class="n">meta_repo_of</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+</span><span data-line="125">        <span class="k">if</span> <span class="n">repo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span data-line="126">            <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="127">                <span class="s2">"meta_repo"</span><span class="p">,</span>
+</span><span data-line="128">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> declares no meta repository"</span><span class="p">,</span>
+</span><span data-line="129">                <span class="sa">f</span><span class="s2">"add `meta_repo: &lt;owner&gt;/&lt;name&gt;` (any private repository) or `github_org: &lt;org&gt;` "</span>
+</span><span data-line="130">                <span class="sa">f</span><span class="s2">"(meaning &lt;org&gt;/</span><span class="si">{</span><span class="n">META_REPO_NAME</span><span class="si">}</span><span class="s2">) to the frontmatter of </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/PROFILE.md"</span><span class="p">,</span>
+</span><span data-line="131">            <span class="p">)</span>
+</span><span data-line="132">        <span class="k">elif</span> <span class="ow">not</span> <span class="n">_REPO_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+</span><span data-line="133">            <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="134">                <span class="s2">"meta_repo"</span><span class="p">,</span>
+</span><span data-line="135">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">repo</span><span class="si">!r}</span><span class="s2"> is not an owner/name repository"</span><span class="p">,</span>
+</span><span data-line="136">                <span class="sa">f</span><span class="s2">"fix the meta_repo value in </span><span class="si">{</span><span class="n">entity</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/PROFILE.md"</span><span class="p">,</span>
+</span><span data-line="137">            <span class="p">)</span>
+</span><span data-line="138">            <span class="n">repo</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span data-line="139">        <span class="k">else</span><span class="p">:</span>
+</span><span data-line="140">            <span class="n">private</span><span class="p">,</span> <span class="n">why</span> <span class="o">=</span> <span class="n">repo_privacy</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="n">run</span><span class="p">)</span>
+</span><span data-line="141">            <span class="k">if</span> <span class="n">private</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+</span><span data-line="142">                <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="143">                    <span class="s2">"meta_repo"</span><span class="p">,</span>
+</span><span data-line="144">                    <span class="n">why</span><span class="p">,</span>
+</span><span data-line="145">                    <span class="sa">f</span><span class="s2">"create it private (`gh repo create </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2"> --private`) or make it private "</span>
+</span><span data-line="146">                    <span class="sa">f</span><span class="s2">"(`gh repo edit </span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2"> --visibility private --accept-visibility-change-consequences`); "</span>
+</span><span data-line="147">                    <span class="s2">"todos are never filed in a repository that is not private"</span><span class="p">,</span>
+</span><span data-line="148">                <span class="p">)</span>
+</span><span data-line="149">
+</span><span data-line="150">    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span data-line="151">    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+</span><span data-line="152">        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span data-line="153">        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+</span><span data-line="154">            <span class="k">continue</span>
+</span><span data-line="155">        <span class="k">try</span><span class="p">:</span>
+</span><span data-line="156">            <span class="n">person</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">find_entity</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">)]</span>
+</span><span data-line="157">        <span class="k">except</span> <span class="p">(</span><span class="n">AcquaintError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span data-line="158">            <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="159">                <span class="s2">"person"</span><span class="p">,</span>
+</span><span data-line="160">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not one registered person (</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+</span><span data-line="161">                <span class="sa">f</span><span class="s1">'register them (`acquaint new person "</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">"`) or name the existing record by id'</span><span class="p">,</span>
+</span><span data-line="162">            <span class="p">)</span>
+</span><span data-line="163">            <span class="k">continue</span>
+</span><span data-line="164">        <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">"person"</span><span class="p">:</span>
+</span><span data-line="165">            <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="166">                <span class="s2">"person"</span><span class="p">,</span>
+</span><span data-line="167">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is a </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s2"> record, not a person"</span><span class="p">,</span>
+</span><span data-line="168">                <span class="s2">"name the person"</span><span class="p">,</span>
+</span><span data-line="169">            <span class="p">)</span>
+</span><span data-line="170">            <span class="k">continue</span>
+</span><span data-line="171">        <span class="n">login</span> <span class="o">=</span> <span class="n">_github_login</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+</span><span data-line="172">        <span class="k">if</span> <span class="n">login</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span data-line="173">            <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span data-line="174">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2"> has no active github identity: their issue cannot be assigned "</span>
+</span><span data-line="175">                <span class="sa">f</span><span class="s2">"(add one to </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/identities.yaml)"</span>
+</span><span data-line="176">            <span class="p">)</span>
+</span><span data-line="177">        <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_linked_to</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+</span><span data-line="178">            <span class="n">problem</span><span class="p">(</span>
+</span><span data-line="179">                <span class="s2">"membership"</span><span class="p">,</span>
+</span><span data-line="180">                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">ref</span><span class="si">}</span><span class="s2"> is not linked to </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+</span><span data-line="181">                <span class="sa">f</span><span class="s2">"add to </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">/links.yaml: `- </span><span class="se">{{</span><span class="s2">to: </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">, relation: &lt;their role&gt;, since: &lt;date&gt;, source: &lt;where you learned it&gt;</span><span class="se">}}</span><span class="s2">`"</span><span class="p">,</span>
+</span><span data-line="182">            <span class="p">)</span>
+</span><span data-line="183">        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"ref"</span><span class="p">:</span> <span class="n">person</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"github"</span><span class="p">:</span> <span class="n">login</span><span class="p">})</span>
+</span><span data-line="184">
+</span><span data-line="185">    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s2">"check"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"person"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">problems</span><span class="p">):</span>
+</span><span data-line="186">        <span class="n">problem</span><span class="p">(</span><span class="s2">"person"</span><span class="p">,</span> <span class="s2">"no participants given"</span><span class="p">,</span> <span class="s2">"list the people the todos belong to"</span><span class="p">)</span>
+</span><span data-line="187">
+</span><span data-line="188">    <span class="k">return</span> <span class="p">{</span>
+</span><span data-line="189">        <span class="s2">"ok"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">problems</span><span class="p">,</span>
+</span><span data-line="190">        <span class="s2">"project"</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+</span><span data-line="191">        <span class="s2">"meta_repo"</span><span class="p">:</span> <span class="n">repo</span><span class="p">,</span>
+</span><span data-line="192">        <span class="s2">"people"</span><span class="p">:</span> <span class="n">rows</span><span class="p">,</span>
+</span><span data-line="193">        <span class="s2">"problems"</span><span class="p">:</span> <span class="n">problems</span><span class="p">,</span>
+</span><span data-line="194">        <span class="s2">"warnings"</span><span class="p">:</span> <span class="n">warnings</span><span class="p">,</span>
+</span><span data-line="195">    <span class="p">}</span></div>
 
 </span></pre></div>
         </article><button class="back-to-top" type="button">
@@ -346,7 +357,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="../../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

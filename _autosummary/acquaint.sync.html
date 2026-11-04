@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="acquaint.html">acquaint</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.mcp.html">acquaint.mcp</a></li>
@@ -209,15 +211,15 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 <dt class="sig sig-object py" id="acquaint.sync.github_urls">
 <span class="sig-prename descclassname"><span class="pre">acquaint.sync.</span></span><span class="sig-name descname"><span class="pre">github_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/sync.html#github_urls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.sync.github_urls" title="Link to this definition">#</a></dt>
 <dd><p>Every remote URL accepted for a GitHub repository. The pre-push hook spells out the same six forms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">github_urls</span><span class="p">(</span><span class="s2">"example/profiles"</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">['git@github.com:example/profiles.git', 'git@github.com:example/profiles', 'ssh://git@github.com/example/profiles.git', 'ssh://git@github.com/example/profiles', 'https://github.com/example/profiles.git', 'https://github.com/example/profiles']</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -226,7 +228,7 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 <dd><p>Make <code class="docutils literal notranslate"><span class="pre">root</span></code> a checkout of the private GitHub repository <code class="docutils literal notranslate"><span class="pre">repo</span></code>, creating it (private) if needed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -237,7 +239,7 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 <dd><p>Re-check the remote and its visibility, then rebase local work onto it (uncommitted edits are stashed and restored).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -248,7 +250,7 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 <dd><p>Commit everything, rebase onto the remote, and push, after re-checking the remote, the guard and the visibility.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -259,7 +261,7 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 <dd><p>Run <code class="docutils literal notranslate"><span class="pre">git</span></code> or <code class="docutils literal notranslate"><span class="pre">gh</span></code> (<code class="docutils literal notranslate"><span class="pre">gh</span></code> pinned to github.com), capturing text output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompletedProcess</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompletedProcess</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -272,7 +274,7 @@ yet: the guard does not recognise its internal push, so <code class="docutils li
 reviewing the diff first: nobody else will see them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -286,7 +288,7 @@ without the operator reviewing them first (<a class="reference internal" href="#
 <code class="docutils literal notranslate"><span class="pre">auto_commit_reason</span></code> says why or why not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -297,7 +299,7 @@ without the operator reviewing them first (<a class="reference internal" href="#
 <dd><p><code class="docutils literal notranslate"><span class="pre">PRIVATE</span></code>, <code class="docutils literal notranslate"><span class="pre">PUBLIC</span></code> or <code class="docutils literal notranslate"><span class="pre">INTERNAL</span></code>, as <code class="docutils literal notranslate"><span class="pre">gh</span></code> reports it now for the repository on github.com.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -344,7 +346,7 @@ without the operator reviewing them first (<a class="reference internal" href="#
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

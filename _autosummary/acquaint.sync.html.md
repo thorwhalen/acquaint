@@ -52,13 +52,13 @@ Every `git` and `gh` call goes through `run`, so tests can script `gh` while
 
 Every remote URL accepted for a GitHub repository. The pre-push hook spells out the same six forms.
 
-* **Return type:**
-  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
-
 ```pycon
 >>> github_urls("example/profiles")
 ['git@github.com:example/profiles.git', 'git@github.com:example/profiles', 'ssh://git@github.com/example/profiles.git', 'ssh://git@github.com/example/profiles', 'https://github.com/example/profiles.git', 'https://github.com/example/profiles']
 ```
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 ### acquaint.sync.init(root, repo, \*, remote_url=None, create=True, dry_run=False, run=<function run_command>)
 

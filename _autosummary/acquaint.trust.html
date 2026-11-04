@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="acquaint.html">acquaint</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.mcp.html">acquaint.mcp</a></li>
@@ -277,15 +279,15 @@ records, and <a class="reference internal" href="acquaint.html#acquaint.lint" ti
 <p><code class="docutils literal notranslate"><span class="pre">None</span></code> when no entry covers today (what applies then, a linked org’s
 <code class="docutils literal notranslate"><span class="pre">default_tier</span></code> or the default, is the disclosure computation’s question). An
 unknown tier value reads as <code class="docutils literal notranslate"><span class="pre">reviewed</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">effective_tier</span><span class="p">([{</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"trusted"</span><span class="p">}],</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">),</span> <span class="n">effective_tier</span><span class="p">([],</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">(('reviewed', False), (None, False))</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -294,16 +296,16 @@ unknown tier value reads as <code class="docutils literal notranslate"><span cla
 <dd><p>Links that ended while a permissive tier recorded before their end is still in force: <code class="docutils literal notranslate"><span class="pre">{to,</span> <span class="pre">until,</span> <span class="pre">tier,</span> <span class="pre">tier_recorded}</span></code>.</p>
 <p>A tier recorded (or starting) after the link ended was set with the end in view, so it
 is not reported; a lapsed tier already counts as <a class="reference internal" href="#acquaint.trust.DEFAULT_TIER" title="acquaint.trust.DEFAULT_TIER"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_TIER</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">tiers</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"open"</span><span class="p">,</span> <span class="s2">"valid_from"</span><span class="p">:</span> <span class="s2">"2026-09-01"</span><span class="p">,</span> <span class="s2">"recorded"</span><span class="p">:</span> <span class="s2">"2026-09-01"</span><span class="p">,</span> <span class="s2">"review_by"</span><span class="p">:</span> <span class="s2">"2026-11-01"</span><span class="p">}]</span>
 </span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="n">ended_affiliations</span><span class="p">(</span><span class="n">tiers</span><span class="p">,</span> <span class="p">[{</span><span class="s2">"to"</span><span class="p">:</span> <span class="s2">"project:heron"</span><span class="p">,</span> <span class="s2">"until"</span><span class="p">:</span> <span class="s2">"2026-09-10"</span><span class="p">}],</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span>
 </span><span data-line="3"><span class="go">[{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -313,7 +315,7 @@ is not reported; a lapsed tier already counts as <a class="reference internal" h
 <p>A label that is not one of <a class="reference internal" href="#acquaint.trust.LABELS" title="acquaint.trust.LABELS"><code class="xref py py-data docutils literal notranslate"><span class="pre">LABELS</span></code></a> reads as <code class="docutils literal notranslate"><span class="pre">red</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -323,62 +325,62 @@ is not reported; a lapsed tier already counts as <a class="reference internal" h
 <span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">fact_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#fact_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.fact_label" title="Link to this definition">#</a></dt>
 <dd><p>One fact’s label: its own <code class="docutils literal notranslate"><span class="pre">[label:</span> <span class="pre">…]</span></code> tag, else the label of the record it sits in.</p>
 <p>A malformed or unknown tag reads as <code class="docutils literal notranslate"><span class="pre">red</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">fact_label</span><span class="p">(</span><span class="s2">"- Heron ships in October. [label: amber] [source: operator]"</span><span class="p">,</span> <span class="s2">"green"</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">'amber'</span>
 </span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">fact_label</span><span class="p">(</span><span class="s2">"- Prefers email. [source: operator]"</span><span class="p">,</span> <span class="s2">"green"</span><span class="p">),</span> <span class="n">fact_label</span><span class="p">(</span><span class="s2">"- x [label: purple]"</span><span class="p">,</span> <span class="s2">"green"</span><span class="p">)</span>
 </span><span data-line="4"><span class="go">('green', 'red')</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="acquaint.trust.is_iso_date">
 <span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">is_iso_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#is_iso_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.is_iso_date" title="Link to this definition">#</a></dt>
 <dd><p>Whether a value is a date written <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">is_iso_date</span><span class="p">(</span><span class="s2">"2026-09-15"</span><span class="p">),</span> <span class="n">is_iso_date</span><span class="p">(</span><span class="s2">"2026-9-1"</span><span class="p">),</span> <span class="n">is_iso_date</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">(True, False, False)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="acquaint.trust.is_lapsed">
 <span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">is_lapsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#is_lapsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.is_lapsed" title="Link to this definition">#</a></dt>
 <dd><p>Whether a permissive tier’s review is overdue, or was never scheduled. Restrictive tiers never lapse.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">is_lapsed</span><span class="p">({</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"involved"</span><span class="p">},</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">),</span> <span class="n">is_lapsed</span><span class="p">({</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"reviewed"</span><span class="p">},</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">(True, False)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="acquaint.trust.link_state">
 <span class="sig-prename descclassname"><span class="pre">acquaint.trust.</span></span><span class="sig-name descname"><span class="pre">link_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">today</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/trust.html#link_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.trust.link_state" title="Link to this definition">#</a></dt>
 <dd><p>Where a <code class="docutils literal notranslate"><span class="pre">links.yaml</span></code> link stands today: <code class="docutils literal notranslate"><span class="pre">current</span></code>, <code class="docutils literal notranslate"><span class="pre">ended</span></code> (<code class="docutils literal notranslate"><span class="pre">until</span></code> today or earlier), <code class="docutils literal notranslate"><span class="pre">future</span></code> (<code class="docutils literal notranslate"><span class="pre">since</span></code> after today), or <code class="docutils literal notranslate"><span class="pre">unreadable</span></code> (a date not written <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">link_state</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">({},</span> <span class="p">{</span><span class="s2">"until"</span><span class="p">:</span> <span class="s2">"2026-09-15"</span><span class="p">},</span> <span class="p">{</span><span class="s2">"since"</span><span class="p">:</span> <span class="s2">"2026-10-01"</span><span class="p">},</span> <span class="p">{</span><span class="s2">"until"</span><span class="p">:</span> <span class="s2">"soon"</span><span class="p">})]</span>
 </span><span data-line="2"><span class="go">['current', 'ended', 'future', 'unreadable']</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -387,15 +389,15 @@ is not reported; a lapsed tier already counts as <a class="reference internal" h
 <dd><p>The entry whose validity covers <code class="docutils literal notranslate"><span class="pre">today</span></code> (from <code class="docutils literal notranslate"><span class="pre">valid_from</span></code>, up to but not including <code class="docutils literal notranslate"><span class="pre">valid_to</span></code>).</p>
 <p>Superseded entries stay in the file with their <code class="docutils literal notranslate"><span class="pre">valid_to</span></code>; when two still overlap,
 the later <code class="docutils literal notranslate"><span class="pre">valid_from</span></code> wins, then the later entry.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">tier_in_force</span><span class="p">([{</span><span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"open"</span><span class="p">,</span> <span class="s2">"valid_from"</span><span class="p">:</span> <span class="s2">"2026-10-01"</span><span class="p">}],</span> <span class="n">today</span><span class="o">=</span><span class="s2">"2026-09-15"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
 </span><span data-line="2"><span class="go">True</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -440,7 +442,7 @@ the later <code class="docutils literal notranslate"><span class="pre">valid_fro
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

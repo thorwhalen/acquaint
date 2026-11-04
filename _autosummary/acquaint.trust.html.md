@@ -85,13 +85,13 @@ the operator, or the person’s own quoted words.
 `default_tier` or the default, is the disclosure computation’s question). An
 unknown tier value reads as `reviewed`.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None), [`bool`](https://docs.python.org/3/builtins/functions.html#bool)]
-
 ```pycon
 >>> effective_tier([{"tier": "trusted"}], today="2026-09-15"), effective_tier([], today="2026-09-15")
 (('reviewed', False), (None, False))
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None), [`bool`](https://docs.python.org/3/builtins/functions.html#bool)]
 
 ### acquaint.trust.ended_affiliations(tiers, links, , today)
 
@@ -100,14 +100,14 @@ Links that ended while a permissive tier recorded before their end is still in f
 A tier recorded (or starting) after the link ended was set with the end in view, so it
 is not reported; a lapsed tier already counts as [`DEFAULT_TIER`](#acquaint.trust.DEFAULT_TIER).
 
-* **Return type:**
-  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]
-
 ```pycon
 >>> tiers = [{"tier": "open", "valid_from": "2026-09-01", "recorded": "2026-09-01", "review_by": "2026-11-01"}]
 >>> ended_affiliations(tiers, [{"to": "project:heron", "until": "2026-09-10"}], today="2026-09-15")
 [{'to': 'project:heron', 'until': '2026-09-10', 'tier': 'open', 'tier_recorded': '2026-09-01'}]
 ```
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]
 
 ### acquaint.trust.entity_label(meta, kind)
 
@@ -124,9 +124,6 @@ One fact’s label: its own `[label: …]` tag, else the label of the record it 
 
 A malformed or unknown tag reads as `red`.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> fact_label("- Heron ships in October. [label: amber] [source: operator]", "green")
 'amber'
@@ -134,41 +131,44 @@ A malformed or unknown tag reads as `red`.
 ('green', 'red')
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### acquaint.trust.is_iso_date(value)
 
 Whether a value is a date written `YYYY-MM-DD`.
-
-* **Return type:**
-  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
 
 ```pycon
 >>> is_iso_date("2026-09-15"), is_iso_date("2026-9-1"), is_iso_date(None)
 (True, False, False)
 ```
 
+* **Return type:**
+  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
+
 ### acquaint.trust.is_lapsed(entry, , today)
 
 Whether a permissive tier’s review is overdue, or was never scheduled. Restrictive tiers never lapse.
-
-* **Return type:**
-  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
 
 ```pycon
 >>> is_lapsed({"tier": "involved"}, today="2026-09-15"), is_lapsed({"tier": "reviewed"}, today="2026-09-15")
 (True, False)
 ```
 
+* **Return type:**
+  [`bool`](https://docs.python.org/3/builtins/functions.html#bool)
+
 ### acquaint.trust.link_state(link, , today)
 
 Where a `links.yaml` link stands today: `current`, `ended` (`until` today or earlier), `future` (`since` after today), or `unreadable` (a date not written `YYYY-MM-DD`).
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ```pycon
 >>> [link_state(l, today="2026-09-15") for l in ({}, {"until": "2026-09-15"}, {"since": "2026-10-01"}, {"until": "soon"})]
 ['current', 'ended', 'future', 'unreadable']
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### acquaint.trust.tier_in_force(tiers, , today)
 
@@ -177,10 +177,10 @@ The entry whose validity covers `today` (from `valid_from`, up to but not includ
 Superseded entries stay in the file with their `valid_to`; when two still overlap,
 the later `valid_from` wins, then the later entry.
 
-* **Return type:**
-  [`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping) | [`None`](https://docs.python.org/3/builtins/constants.html#None)
-
 ```pycon
 >>> tier_in_force([{"tier": "open", "valid_from": "2026-10-01"}], today="2026-09-15") is None
 True
 ```
+
+* **Return type:**
+  [`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping) | [`None`](https://docs.python.org/3/builtins/constants.html#None)

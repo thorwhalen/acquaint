@@ -13,13 +13,23 @@ Skills are folders holding a `SKILL.md` (the [Agent Skills](https://agentskills.
 
 ### `acquaint`
 
-Who someone is, how to reach them, and how to write to them, from the operator's local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on "who is X", "what's X's email/handle/GitHub", "is X the same person as Y", "how do I reach X", "remember that X…", "add X to my profiles", "brief me on X", and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.
+Who someone is, how to reach them, and how to write to them, from the operator's local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on "who is X", "what's X's email/handle/GitHub", "is X the same person as Y", "how do I reach X", "remember that X…", "brief me on X", "process my chat with X", and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-digest (process a conversation into notes), acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.
 
 ```bash
 gh skill install thorwhalen/acquaint acquaint --agent claude-code
 ```
 
 Source: [`acquaint/data/skills/acquaint`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint) (bundled with the pip package).
+
+### `acquaint-digest`
+
+Process a communication with a person or an organisation into their acquaint record - a WhatsApp export, an email thread, a GitHub or Slack conversation - so agents can find what was said later. Extract it with correspond, keep the raw messages in correspond's local archive, find what is new since the last time (the digest's watermark), and write takeaways, themes, an index of dated sections and open threads, each anchored to a message time. Use when asked to "process this chat/export/thread/conversation with X", "what's new from X", "catch up on my messages with X", "what did X and I agree", "digest", "take notes on", "index this conversation", "key takeaways from my chat with X", or when a file named like "WhatsApp Chat - <name>" or an email export about a known person or company shows up. Routes style mining to acquaint-profile.
+
+```bash
+gh skill install thorwhalen/acquaint acquaint-digest --agent claude-code
+```
+
+Source: [`acquaint/data/skills/acquaint-digest`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint-digest) (bundled with the pip package).
 
 ### `acquaint-meeting-todos`
 

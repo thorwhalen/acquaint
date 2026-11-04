@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="acquaint.html">acquaint</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">acquaint.mcp</a></li>
@@ -173,7 +175,7 @@ elsewhere with <code class="docutils literal notranslate"><span class="pre">ACQU
 <dd><p>Serve the default tools over stdio.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -190,15 +192,15 @@ elsewhere with <code class="docutils literal notranslate"><span class="pre">ACQU
 <dt class="sig sig-object py" id="acquaint.mcp.refs">
 <span class="sig-prename descclassname"><span class="pre">acquaint.mcp.</span></span><span class="sig-name descname"><span class="pre">refs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">effects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('read',</span> <span class="pre">'append',</span> <span class="pre">'create')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/mcp.html#refs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.mcp.refs" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">acquaint.tools:&lt;name&gt;</span></code> references for the tools whose side effects are in <code class="docutils literal notranslate"><span class="pre">effects</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="s2">"acquaint.tools:brief"</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">(),</span> <span class="s2">"acquaint.tools:forget"</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">(),</span> <span class="s2">"acquaint.tools:sync_status"</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">()</span>
 </span><span data-line="2"><span class="go">(True, False, False)</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -243,7 +245,7 @@ elsewhere with <code class="docutils literal notranslate"><span class="pre">ACQU
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

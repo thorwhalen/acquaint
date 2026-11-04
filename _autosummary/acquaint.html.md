@@ -255,13 +255,13 @@ An explicit argument may be relative (it is resolved now). The environment varia
 and the config file must hold absolute paths: a relative one would put profiles
 wherever the current directory happens to be.
 
-* **Return type:**
-  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
-
 ```pycon
 >>> data_dir("profiles").is_absolute()
 True
 ```
+
+* **Return type:**
+  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
 
 ### acquaint.disclosure(people, , projects=None, audience=None, today=None, data_dir=None)
 
@@ -381,6 +381,7 @@ candidates and `ok: false`.
 
 | [`deslop`](acquaint.deslop.html.md#module-acquaint.deslop)       | The deterministic half of deslop: find the patterns that make prose read as machine-written, scaled to the reader.                                                               |
 |--------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`digests`](acquaint.digests.html.md#module-acquaint.digests)     | Digests: what a conversation with an entity said, written up through a watermark.                                                                                                |
 | [`edit`](acquaint.edit.html.md#module-acquaint.edit)           | Changing the store: create an entity, append an observation, rename with relinking, forget with a tombstone.                                                                     |
 | [`lookup`](acquaint.lookup.html.md#module-acquaint.lookup)       | Finding the right record: exact references, handle resolution, the conflation check, and channel choice.                                                                         |
 | [`mcp`](acquaint.mcp.html.md#module-acquaint.mcp)             | MCP over stdio: the same tools, for Claude Desktop and other local MCP clients.                                                                                                  |

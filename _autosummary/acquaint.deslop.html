@@ -2,11 +2,12 @@
 <html lang="en" data-accent-color="plum" data-content_root="../">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>acquaint.deslop - acquaint</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="acquaint.edit" href="acquaint.edit.html" /><link rel="prev" title="acquaint" href="acquaint.html" /><script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>acquaint.deslop - acquaint</title><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="acquaint.digests" href="acquaint.digests.html" /><link rel="prev" title="acquaint" href="acquaint.html" /><script>
     function setColorMode(t){let e=document.documentElement;e.setAttribute("data-color-mode",t);let a=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches,s=t;"auto"===t&&(s=a?"dark":"light"),"light"===s?(e.classList.remove("dark"),e.classList.add("light")):(e.classList.remove("light"),e.classList.add("dark"))}
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="../_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="acquaint.html">acquaint</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="acquaint.mcp.html">acquaint.mcp</a></li>
@@ -193,7 +195,7 @@ An unrecognised <code class="docutils literal notranslate"><span class="pre">tol
 with <a class="reference internal" href="#acquaint.deslop.normalize_tolerance" title="acquaint.deslop.normalize_tolerance"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize_tolerance()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -202,17 +204,17 @@ with <a class="reference internal" href="#acquaint.deslop.normalize_tolerance" t
 <dt class="sig sig-object py" id="acquaint.deslop.normalize_tolerance">
 <span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">normalize_tolerance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/deslop.html#normalize_tolerance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.normalize_tolerance" title="Link to this definition">#</a></dt>
 <dd><p>A recorded <code class="docutils literal notranslate"><span class="pre">ai_tolerance</span></code> as one of <code class="xref py py-data docutils literal notranslate"><span class="pre">TOLERANCES</span></code>, with a warning when it was something else.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_tolerance</span><span class="p">(</span><span class="s2">"Averse"</span><span class="p">),</span> <span class="n">normalize_tolerance</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 </span><span data-line="2"><span class="go">(('averse', None), ('unknown', None))</span>
 </span><span data-line="3"><span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_tolerance</span><span class="p">(</span><span class="s2">"low"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </span><span data-line="4"><span class="go">'unknown'</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -224,7 +226,7 @@ phrases are the items of its <code class="docutils literal notranslate"><span cl
 quotes one, else the item without its source tag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -237,11 +239,6 @@ quotes one, else the item without its source tag.</p>
 side, and a catalogue that disagreed with the one used to <em>find</em> machine writing
 would be worse than useless. What this package adds is the part <code class="docutils literal notranslate"><span class="pre">ductus</span></code>
 deliberately lacks: who tolerates what.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">catalogue</span> <span class="o">=</span> <span class="n">shipped_catalogue</span><span class="p">()</span>
 </span><span data-line="2"><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">catalogue</span><span class="p">)</span>
 </span><span data-line="3"><span class="go">['metrics', 'relational', 'rules', 'tolerance']</span>
@@ -249,21 +246,26 @@ deliberately lacks: who tolerates what.</p>
 </span><span data-line="5"><span class="go">True</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="acquaint.deslop.text_metrics">
 <span class="sig-prename descclassname"><span class="pre">acquaint.deslop.</span></span><span class="sig-name descname"><span class="pre">text_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/acquaint/deslop.html#text_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#acquaint.deslop.text_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span data-line="1"><span class="gp">&gt;&gt;&gt; </span><span class="n">text_metrics</span><span class="p">(</span><span class="s2">"One two three. Four five!"</span><span class="p">)[</span><span class="s2">"sentences"</span><span class="p">]</span>
 </span><span data-line="2"><span class="go">2</span>
 </span></pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -280,10 +282,10 @@ deliberately lacks: who tolerates what.</p>
         <span>Previous</span><div class="title">acquaint</div></div>
     </a>
   </div><div class="navigation-next">
-    <a href="acquaint.edit.html">
+    <a href="acquaint.digests.html">
       <div class="page-info">
         <span>Next</span>
-        <div class="title">acquaint.edit</div>
+        <div class="title">acquaint.digests</div>
       </div>
       <i class="i-lucide chevron-right"></i>
     </a>
@@ -308,7 +310,7 @@ deliberately lacks: who tolerates what.</p>
     </div>
   </div>
 </footer>
-      <script src="../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>

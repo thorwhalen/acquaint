@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/acquaint.html">acquaint</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.mcp.html">acquaint.mcp</a></li>
@@ -96,6 +98,7 @@ data-aria-dark="Switch to auto color mode">
     <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4"><div class="localtoc"><h3>On this page</h3><ul>
 <li><a class="reference internal" href="#skills">Skills</a><ul>
 <li><a class="reference internal" href="#acquaint"><code class="docutils literal notranslate"><span class="pre">acquaint</span></code></a></li>
+<li><a class="reference internal" href="#acquaint-digest"><code class="docutils literal notranslate"><span class="pre">acquaint-digest</span></code></a></li>
 <li><a class="reference internal" href="#acquaint-meeting-todos"><code class="docutils literal notranslate"><span class="pre">acquaint-meeting-todos</span></code></a></li>
 <li><a class="reference internal" href="#acquaint-profile"><code class="docutils literal notranslate"><span class="pre">acquaint-profile</span></code></a></li>
 <li><a class="reference internal" href="#acquaint-read"><code class="docutils literal notranslate"><span class="pre">acquaint-read</span></code></a></li>
@@ -152,11 +155,19 @@ machine-readable copies of this documentation.</p>
 <p>Skills are folders holding a <code class="docutils literal notranslate"><span class="pre">SKILL.md</span></code> (the <a class="reference external" href="https://agentskills.io">Agent Skills</a> format): a description that tells an agent when to use it and a body with the procedure. Install one into your agent with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">skill</span></code> (any host: <code class="docutils literal notranslate"><span class="pre">--agent</span> <span class="pre">claude-code</span></code>, <code class="docutils literal notranslate"><span class="pre">copilot</span></code>, <code class="docutils literal notranslate"><span class="pre">cursor</span></code>, <code class="docutils literal notranslate"><span class="pre">codex</span></code>, <code class="docutils literal notranslate"><span class="pre">gemini</span></code>), or use the copy bundled in the wheel.</p>
 <section id="acquaint">
 <h3><code class="docutils literal notranslate"><span class="pre">acquaint</span></code><a class="headerlink" href="#acquaint" title="Link to this heading">#</a></h3>
-<p>Who someone is, how to reach them, and how to write to them, from the operator’s local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on “who is X”, “what’s X’s email/handle/GitHub”, “is X the same person as Y”, “how do I reach X”, “remember that X…”, “add X to my profiles”, “brief me on X”, and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.</p>
+<p>Who someone is, how to reach them, and how to write to them, from the operator’s local people records (acquaint). Use whenever a person, project, org or group is named in a task — to get a handle, email or alias; to check whether two names are the same person before writing them as two; before drafting anything a specific person will read; and to record something learned about someone, with its source. Triggers on “who is X”, “what’s X’s email/handle/GitHub”, “is X the same person as Y”, “how do I reach X”, “remember that X…”, “brief me on X”, “process my chat with X”, and on any name in prose about to be published. Routes heavier work to acquaint-write, acquaint-read, acquaint-profile, acquaint-digest (process a conversation into notes), acquaint-sync, acquaint-meeting-todos and deslop. Query one record; never read the whole store.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">gh<span class="w"> </span>skill<span class="w"> </span>install<span class="w"> </span>thorwhalen/acquaint<span class="w"> </span>acquaint<span class="w"> </span>--agent<span class="w"> </span>claude-code
 </span></pre></div>
 </div>
 <p>Source: <a class="reference external" href="https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint"><code class="docutils literal notranslate"><span class="pre">acquaint/data/skills/acquaint</span></code></a> (bundled with the pip package).</p>
+</section>
+<section id="acquaint-digest">
+<h3><code class="docutils literal notranslate"><span class="pre">acquaint-digest</span></code><a class="headerlink" href="#acquaint-digest" title="Link to this heading">#</a></h3>
+<p>Process a communication with a person or an organisation into their acquaint record - a WhatsApp export, an email thread, a GitHub or Slack conversation - so agents can find what was said later. Extract it with correspond, keep the raw messages in correspond’s local archive, find what is new since the last time (the digest’s watermark), and write takeaways, themes, an index of dated sections and open threads, each anchored to a message time. Use when asked to “process this chat/export/thread/conversation with X”, “what’s new from X”, “catch up on my messages with X”, “what did X and I agree”, “digest”, “take notes on”, “index this conversation”, “key takeaways from my chat with X”, or when a file named like “WhatsApp Chat - <name>” or an email export about a known person or company shows up. Routes style mining to acquaint-profile.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">gh<span class="w"> </span>skill<span class="w"> </span>install<span class="w"> </span>thorwhalen/acquaint<span class="w"> </span>acquaint-digest<span class="w"> </span>--agent<span class="w"> </span>claude-code
+</span></pre></div>
+</div>
+<p>Source: <a class="reference external" href="https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/skills/acquaint-digest"><code class="docutils literal notranslate"><span class="pre">acquaint/data/skills/acquaint-digest</span></code></a> (bundled with the pip package).</p>
 </section>
 <section id="acquaint-meeting-todos">
 <h3><code class="docutils literal notranslate"><span class="pre">acquaint-meeting-todos</span></code><a class="headerlink" href="#acquaint-meeting-todos" title="Link to this heading">#</a></h3>
@@ -273,7 +284,7 @@ machine-readable copies of this documentation.</p>
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=544df88d"></script>
+      <script src="_static/documentation_options.js?v=f0357c94"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>

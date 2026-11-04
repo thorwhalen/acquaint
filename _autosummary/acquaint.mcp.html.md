@@ -40,10 +40,10 @@ A FastMCP server over the selected tools, with `HIDDEN_PARAMETERS` hidden (not s
 
 `acquaint.tools:<name>` references for the tools whose side effects are in `effects`.
 
-* **Return type:**
-  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
-
 ```pycon
 >>> "acquaint.tools:brief" in refs(), "acquaint.tools:forget" in refs(), "acquaint.tools:sync_status" in refs()
 (True, False, False)
 ```
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]

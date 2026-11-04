@@ -9,7 +9,8 @@ POLICY.md                    what may be recorded
 _tombstones.yaml             salted hashes of forgotten entities' identifiers
 people/<slug>/PROFILE.md     the entry file (required)
 people/<slug>/identities.yaml, rules.yaml, links.yaml, trust.yaml, style.md, views.md,
-              sources.md, log/YYYY-MM.md, research/…   (each optional)
+              sources.md, log/YYYY-MM.md, digests/<conversation>.md,
+              research/…   (each optional)
 projects/<slug>/PROFILE.md   (and orgs/, groups/, or any other kind)
 ```
 
@@ -265,25 +266,25 @@ An explicit argument may be relative (it is resolved now). The environment varia
 and the config file must hold absolute paths: a relative one would put profiles
 wherever the current directory happens to be.
 
-* **Return type:**
-  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
-
 ```pycon
 >>> data_dir("profiles").is_absolute()
 True
 ```
 
+* **Return type:**
+  [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+
 ### acquaint.store.kind_dir(kind)
 
 The folder for a kind: `person`/`people` -> `people`; an unknown kind is used as given, pluralised.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ```pycon
 >>> [kind_dir(k) for k in ("person", "people", "org", "community", "teams")]
 ['people', 'people', 'orgs', 'communities', 'teams']
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### acquaint.store.text_files(root)
 
@@ -301,9 +302,6 @@ write and never on read, and permanent deletes (never to a trash folder, where
 
 Return `key` if it is `<kind dir>/<slug>` of lowercase letters, digits and hyphens; refuse anything else.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> validate_key("people/ada-lovelace")
 'people/ada-lovelace'
@@ -313,3 +311,6 @@ Return `key` if it is `<kind dir>/<slug>` of lowercase letters, digits and hyphe
 ...     print(error)
 not a store key: '../outside/people/someone' (expected <kind>/<id>, e.g. people/ada-lovelace)
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)

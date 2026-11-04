@@ -50,15 +50,15 @@ with [`normalize_tolerance()`](#acquaint.deslop.normalize_tolerance).
 
 A recorded `ai_tolerance` as one of `TOLERANCES`, with a warning when it was something else.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)]
-
 ```pycon
 >>> normalize_tolerance("Averse"), normalize_tolerance(None)
 (('averse', None), ('unknown', None))
 >>> normalize_tolerance("low")[0]
 'unknown'
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`str`](https://docs.python.org/3/builtins/stdtypes.html#str) | [`None`](https://docs.python.org/3/builtins/constants.html#None)]
 
 ### acquaint.deslop.recipient_card(entity)
 
@@ -80,9 +80,6 @@ side, and a catalogue that disagreed with the one used to *find* machine writing
 would be worse than useless. What this package adds is the part `ductus`
 deliberately lacks: who tolerates what.
 
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
-
 ```pycon
 >>> catalogue = shipped_catalogue()
 >>> sorted(catalogue)
@@ -91,14 +88,17 @@ deliberately lacks: who tolerates what.
 True
 ```
 
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
 ### acquaint.deslop.text_metrics(text)
 
 Counts the checks use: words, sentences, sentence-length variation, em-dash rate, headers, bold.
-
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`float`](https://docs.python.org/3/builtins/functions.html#float)]
 
 ```pycon
 >>> text_metrics("One two three. Four five!")["sentences"]
 2
 ```
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`float`](https://docs.python.org/3/builtins/functions.html#float)]

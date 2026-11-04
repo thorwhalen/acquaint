@@ -17,6 +17,9 @@ acquaint.tools
    
       brief
       check
+      digest
+      digest_mark
+      digest_new
       disclosure
       forget
       lint

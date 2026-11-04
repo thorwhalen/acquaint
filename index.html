@@ -7,6 +7,7 @@
     setColorMode(localStorage._theme||"auto");
   </script><link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d88b86f9" />
     <link rel="stylesheet" type="text/css" href="_static/shibuya.css?v=2ceb65ce" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link media="print" rel="stylesheet" type="text/css" href="_static/print.css?v=20ff2c19" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,7 @@ data-aria-dark="Switch to auto color mode">
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/acquaint.html">acquaint</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.deslop.html">acquaint.deslop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.digests.html">acquaint.digests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.edit.html">acquaint.edit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.lookup.html">acquaint.lookup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/acquaint.mcp.html">acquaint.mcp</a></li>
@@ -170,7 +172,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 <section id="the-verbs">
 <h2>The verbs<a class="headerlink" href="#the-verbs" title="Link to this heading">#</a></h2>
-<p>The same eighteen functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
+<p>The same twenty-one functions are the Python API (<code class="docutils literal notranslate"><span class="pre">acquaint.tools</span></code>), the CLI, and the MCP tools. Each returns a JSON-ready dict.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -206,22 +208,25 @@ data-aria-dark="Switch to auto color mode">
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">todo-preflight</span> <span class="pre">PROJECT</span> <span class="pre">PEOPLE</span></code></p></td>
 <td><p>before filing a meeting’s todos as issues: the project is unambiguous, every participant (comma-separated) is registered and linked to it, and its meta repository (<code class="docutils literal notranslate"><span class="pre">meta_repo:</span> <span class="pre">owner/name</span></code>, or <code class="docutils literal notranslate"><span class="pre">github_org:</span> <span class="pre">&lt;org&gt;</span></code> meaning <code class="docutils literal notranslate"><span class="pre">&lt;org&gt;/meta</span></code>, in the record’s frontmatter) is private now; returns each person’s GitHub login and a fix for every problem</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">digest</span> <span class="pre">ENTITY</span> <span class="pre">[REF]</span></code> · <code class="docutils literal notranslate"><span class="pre">digest-new</span> <span class="pre">ENTITY</span> <span class="pre">REF</span></code> · <code class="docutils literal notranslate"><span class="pre">digest-mark</span> <span class="pre">ENTITY</span> <span class="pre">REF</span> <span class="pre">--through</span> <span class="pre">TIME</span> <span class="pre">[--scope</span> <span class="pre">content|style</span> <span class="pre">--force]</span></code></p></td>
+<td><p>notes on what a conversation said (<code class="docutils literal notranslate"><span class="pre">digests/&lt;conversation&gt;.md</span></code>: orientation, takeaways, themes, a dated index, open threads, every item anchored to a message time) and its watermark per scope; <code class="docutils literal notranslate"><span class="pre">digest</span> <span class="pre">ENTITY</span> <span class="pre">REF</span></code> gives <code class="docutils literal notranslate"><span class="pre">since</span></code>, the time to hand to <code class="docutils literal notranslate"><span class="pre">correspond</span> <span class="pre">read</span> <span class="pre">REF</span> <span class="pre">--since</span></code> for what is new. The messages stay in correspond’s local archive</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span> <span class="pre">[ENTITY]</span></code></p></td>
 <td><p>sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">style-lint</span> <span class="pre">TEXT</span> <span class="pre">[--recipient</span> <span class="pre">--tolerance]</span></code></p></td>
 <td><p>machine-writing tells, enforced by the reader’s tolerance of AI-sounding text</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">KIND</span> <span class="pre">NAME</span> <span class="pre">[--qualifier</span> <span class="pre">--description]</span></code></p></td>
 <td><p>scaffold from a template; readable slug ids (<code class="docutils literal notranslate"><span class="pre">ada-lovelace</span></code>, <code class="docutils literal notranslate"><span class="pre">john-smith--example-org</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rename</span> <span class="pre">ID</span> <span class="pre">TO</span></code></p></td>
 <td><p>new id or name; links elsewhere rewritten (never inside URLs or logs); old forms kept as aliases</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forget</span> <span class="pre">ID</span> <span class="pre">[--confirm]</span></code></p></td>
 <td><p>remove the whole folder, leaving a salted tombstone so the person is not silently re-created</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">init</span> <span class="pre">--repo</span> <span class="pre">OWNER/NAME</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">push</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">pull</span></code> · <code class="docutils literal notranslate"><span class="pre">sync</span> <span class="pre">status</span></code></p></td>
 <td><p>private-repository sync, below</p></td>
 </tr>
 </tbody>
@@ -244,7 +249,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 <section id="agent-skills">
 <h2>Agent skills<a class="headerlink" href="#agent-skills" title="Link to this heading">#</a></h2>
-<p>Six skills ship inside the package (<code class="docutils literal notranslate"><span class="pre">acquaint/data/skills/</span></code>) and install with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">skill</span></code>:</p>
+<p>Eight skills ship inside the package (<code class="docutils literal notranslate"><span class="pre">acquaint/data/skills/</span></code>) and install with <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">skill</span></code>:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -262,16 +267,19 @@ data-aria-dark="Switch to auto color mode">
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-write</span></code></p></td>
 <td><p>writing for a known reader, and sparring with a simulated one (<code class="docutils literal notranslate"><span class="pre">recipient-reader</span></code> agent)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-read</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-digest</span></code></p></td>
+<td><p>processing a conversation (a WhatsApp export, a thread, emails) with a person or an org: what is new since the watermark, then takeaways, themes, an index and open threads</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-read</span></code></p></td>
 <td><p>interpreting a message from a known person; AI-processing as a likelihood with evidence</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deslop</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">deslop</span></code></p></td>
 <td><p>prose without machine-writing tells, calibrated to the reader</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-sync</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-sync</span></code></p></td>
 <td><p>private sync, and what it does not protect</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-meeting-todos</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">acquaint-meeting-todos</span></code></p></td>
 <td><p>a meeting’s todos as one assigned <code class="docutils literal notranslate"><span class="pre">manual-task</span></code> issue per person in the project’s private meta repository, after <code class="docutils literal notranslate"><span class="pre">todo-preflight</span></code></p></td>
 </tr>
 </tbody>
@@ -327,7 +335,7 @@ data-aria-dark="Switch to auto color mode">
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-10-08 12:17 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/0d69851b720ab6a4ec56b84099b77449cd4ddc8d">0d69851</a> (main) · acquaint 0.0.14 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-04 11:49 UTC from <a href="https://github.com/thorwhalen/acquaint/commit/d8b701513d10b8342cb568c9592b97324f537765">d8b7015</a> (main) · acquaint 0.0.15 · <a href="about-this-build.html">about this build</a></p>
         </article><button class="back-to-top" type="button">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
@@ -362,7 +370,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=544df88d"></script>
+      <script src="_static/documentation_options.js?v=f0357c94"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>

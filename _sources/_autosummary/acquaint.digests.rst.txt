@@ -1,0 +1,24 @@
+acquaint.digests
+================
+
+.. automodule:: acquaint.digests
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      SCOPES
+      ANCHORED_SECTIONS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      digest_name
+      digest_problems
+      digests
+      find_digest
+      mark_digest
+      new_digest
+   

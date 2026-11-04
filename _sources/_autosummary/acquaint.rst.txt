@@ -47,6 +47,7 @@
    :recursive:
 
    deslop
+   digests
    edit
    lookup
    mcp
