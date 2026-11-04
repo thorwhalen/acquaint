@@ -6,7 +6,8 @@ Layout under the data root (one folder per entity, one entry file each)::
     _tombstones.yaml             salted hashes of forgotten entities' identifiers
     people/<slug>/PROFILE.md     the entry file (required)
     people/<slug>/identities.yaml, rules.yaml, links.yaml, trust.yaml, style.md, views.md,
-                  sources.md, log/YYYY-MM.md, research/…   (each optional)
+                  sources.md, log/YYYY-MM.md, digests/<conversation>.md,
+                  research/…   (each optional)
     projects/<slug>/PROFILE.md   (and orgs/, groups/, or any other kind)
 
 :class:`Store` is a ``MutableMapping[str, Entity]`` keyed ``"<kind dir>/<slug>"``, where

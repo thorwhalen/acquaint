@@ -33,6 +33,7 @@ from collections.abc import Callable, Mapping
 from datetime import date
 from typing import Any
 
+from acquaint.digests import digests
 from acquaint.deslop import recipient_card
 from acquaint.disclosure import disclose, may_see, parse_audience, person_key
 from acquaint.lint import lint_store
@@ -406,6 +407,10 @@ def compose_brief(
         "observations": observations,
         "reminders": reminders,
         "gaps": gaps,
+        "digests": [
+            {"ref": d["ref"], "through": d["through"], "path": d["path"]}
+            for d in digests(entity)
+        ],
         "lint": {"errors": len(lint["errors"]), "warnings": len(lint["warnings"])},
         "warnings": warnings,
         **at_write_time,
@@ -503,6 +508,13 @@ def _render(entity, brief: dict[str, Any]) -> str:
         out += ["## Positions and standing objections", brief["views"], ""]
     if brief["project_norms"]:
         out += [f"## Norms of {brief['project']}", brief["project_norms"], ""]
+    if brief["digests"]:
+        out.append("## Conversations on record (notes in the digest; read what is new since `through`)")
+        out += [
+            f"- {d['ref']}: content through {d['through'].get('content', '(nothing)')} · {d['path']}"
+            for d in brief["digests"]
+        ]
+        out.append("")
     if brief["observations"]:
         out.append("## Recent observations (evidence, not yet profile facts)")
         for entry in brief["observations"]:

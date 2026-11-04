@@ -28,6 +28,10 @@ Errors fail ``acquaint lint``; warnings ask a person to look. The rules:
   vocabulary, and a person's link that ended while a permissive tier recorded before
   that end is still in force ("affiliation ended; permissive tier still in force") are
   **warnings**;
+- a digest (``digests/*.md``, :mod:`acquaint.digests`) whose frontmatter has no
+  conversation ``ref`` or a ``through`` watermark that is not an ISO time per known scope,
+  or an item under Takeaways, Themes, Index or Open threads without an ``[at: …]`` or
+  ``[source: …]`` anchor (**error**); a quote longer than 25 words in one (**warning**);
 - a file that does not parse, or is not valid UTF-8, an entry file the store cannot
   address (a capitalised or linked folder, ``profile.md``), and a broken
   ``_tombstones.yaml`` are **errors**, reported and skipped, never a crash;
@@ -58,6 +62,7 @@ from acquaint.records import (
     source_problem,
     split_frontmatter,
 )
+from acquaint.digests import digest_problems
 from acquaint.resources import data_yaml
 from acquaint.store import ENTRY_FILE, UNREADABLE, AcquaintError, Entity, Store, kind_dir
 from acquaint.trust import (
@@ -503,6 +508,9 @@ def _lint_entity(
         for _, number, item in sectioned_items(blank_frontmatter(entity.text(file))):
             if problem := source_problem(item):
                 add("error", file, number, "unsourced", problem)
+    for name in (n for n in entity if n.startswith("digests/") and n.endswith(".md")):
+        for severity, number, rule, message in digest_problems(entity[name]):
+            add(severity, name, number, rule, message)
     if "style.md" in entity:
         tolerance = split_frontmatter(entity["style.md"])[0].get("ai_tolerance")
         if (
