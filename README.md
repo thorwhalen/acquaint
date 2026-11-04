@@ -45,7 +45,7 @@ Only `PROFILE.md` is required. A malformed file is reported and skipped; it neve
 
 ## The verbs
 
-The same eighteen functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
+The same twenty-one functions are the Python API (`acquaint.tools`), the CLI, and the MCP tools. Each returns a JSON-ready dict.
 
 | Verb | Does |
 |---|---|
@@ -58,6 +58,7 @@ The same eighteen functions are the Python API (`acquaint.tools`), the CLI, and 
 | `disclosure ID... [--project SLUG] [--audience-json - \| FILE]` | who may be told what: the tier and clearance in force for each reader, the least clearance, the seals, the terms a gate must scan for, what each was already told, and the gaps |
 | `review PERSON` | everything that names someone's disclosure standing, with sources and dates: tier entries, links, default tiers and clearances reached through links, seals, rules; exits 1 when an affiliation ended while a permissive tier is still in force. Run it when a collaboration ends, when someone changes role, or before changing a tier |
 | `todo-preflight PROJECT PEOPLE` | before filing a meeting's todos as issues: the project is unambiguous, every participant (comma-separated) is registered and linked to it, and its meta repository (`meta_repo: owner/name`, or `github_org: <org>` meaning `<org>/meta`, in the record's frontmatter) is private now; returns each person's GitHub login and a fix for every problem |
+| `digest ENTITY [REF]` · `digest-new ENTITY REF` · `digest-mark ENTITY REF --through TIME [--scope content\|style --force]` | notes on what a conversation said (`digests/<conversation>.md`: orientation, takeaways, themes, a dated index, open threads, every item anchored to a message time) and its watermark per scope; `digest ENTITY REF` gives `since`, the time to hand to `correspond read REF --since` for what is new. The messages stay in correspond's local archive |
 | `lint [ENTITY]` | sources on every preference; tiers, labels and seals set by the operator, with known values and review dates; parseable files; entry-file budget; policy tripwires |
 | `style-lint TEXT [--recipient --tolerance]` | machine-writing tells, enforced by the reader's tolerance of AI-sounding text |
 | `new KIND NAME [--qualifier --description]` | scaffold from a template; readable slug ids (`ada-lovelace`, `john-smith--example-org`) |
@@ -86,13 +87,14 @@ A source is a permalink, a log or research anchor, the person's own words, `oper
 
 ## Agent skills
 
-Six skills ship inside the package (`acquaint/data/skills/`) and install with `gh skill`:
+Eight skills ship inside the package (`acquaint/data/skills/`) and install with `gh skill`:
 
 | Skill | For |
 |---|---|
 | `acquaint` | the router: lookups at the right cost, `check` before publishing, `remember` with sources |
 | `acquaint-profile` | building a profile from someone's own writing, with parallel `profile-reader` agents |
 | `acquaint-write` | writing for a known reader, and sparring with a simulated one (`recipient-reader` agent) |
+| `acquaint-digest` | processing a conversation (a WhatsApp export, a thread, emails) with a person or an org: what is new since the watermark, then takeaways, themes, an index and open threads |
 | `acquaint-read` | interpreting a message from a known person; AI-processing as a likelihood with evidence |
 | `deslop` | prose without machine-writing tells, calibrated to the reader |
 | `acquaint-sync` | private sync, and what it does not protect |

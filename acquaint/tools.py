@@ -24,6 +24,8 @@ from acquaint import meta as _meta
 from acquaint import sync as _sync
 from acquaint.brief import compose_brief
 from acquaint.deslop import lint_text, recipient_card
+from acquaint.digests import digests as _digests
+from acquaint.digests import find_digest, mark_digest, new_digest
 from acquaint.disclosure import disclose as _disclose
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
@@ -45,6 +47,9 @@ __all__ = [
     "TOOLS",
     "brief",
     "check",
+    "digest",
+    "digest_mark",
+    "digest_new",
     "disclosure",
     "forget",
     "lint",
@@ -826,6 +831,75 @@ def todo_preflight(project: str, people: str, *, data_dir: str | None = None) ->
         "text": "\n".join(lines),
     }
 
+# ------------------------------------------------------------------------ digests
+
+
+def digest(entity: str, ref: str | None = None, *, data_dir: str | None = None) -> dict:
+    """The digests of an entity's conversations (notes on what each said, kept in ``digests/``) and their watermarks: how far each was processed, per scope (``content``, ``style``). With ``ref`` (a correspond reference, e.g. ``whatsapp:ada-lovelace``), that one digest and ``since``, the time to hand to ``correspond read <ref> --since`` for what is new. Reads only."""
+    store = _store(data_dir)
+    found = Entity(store, find_entity(store, entity))
+    if ref is None:
+        listed = _digests(found)
+        lines = [
+            f"{d['ref']}: content through {d['through'].get('content', '(nothing)')}, style through {d['through'].get('style', '(nothing)')} · {d['path']}"
+            for d in listed
+        ]
+        return {
+            "ok": True,
+            "id": found.slug,
+            "digests": listed,
+            "summary": f"{len(listed)} digest(s) for {found.slug}",
+            "text": "\n".join(lines) or f"no digests for {found.slug}",
+        }
+    one = find_digest(found, ref)
+    if one is None:
+        return {
+            "ok": False,
+            "id": found.slug,
+            "ref": ref,
+            "since": None,
+            "summary": f"{found.slug} has no digest of {ref}: nothing processed yet; create one with acquaint digest-new {found.slug} {ref}",
+        }
+    since = one["through"].get("content")
+    return {
+        "ok": True,
+        "id": found.slug,
+        **one,
+        "since": since,
+        "summary": f"{ref}: content through {since or '(nothing)'}; style through {one['through'].get('style', '(nothing)')} · {one['path']}",
+    }
+
+
+def digest_new(
+    entity: str, ref: str, *, archive: str = "correspond", data_dir: str | None = None
+) -> dict:
+    """Create the digest of one conversation (``ref``, a correspond reference) for an entity, from the template: Orientation, Takeaways, Themes, Index, Open threads, and an empty watermark. ``archive`` names where the messages themselves live (never this store)."""
+    store = _store(data_dir)
+    found = new_digest(Entity(store, find_entity(store, entity)), ref, archive=archive)
+    return {"ok": True, **found, "summary": f"created {found['path']}"}
+
+
+def digest_mark(
+    entity: str,
+    ref: str,
+    *,
+    through: str,
+    scope: str = "content",
+    force: bool = False,
+    data_dir: str | None = None,
+) -> dict:
+    """Record that a conversation has been processed through ``through`` (the ISO time of the last message processed), for ``scope`` (``content`` or ``style``). Moving a watermark back needs ``force``."""
+    store = _store(data_dir)
+    found = mark_digest(
+        Entity(store, find_entity(store, entity)), ref, through, scope=scope, force=force
+    )
+    return {
+        "ok": True,
+        **found,
+        "summary": f"{ref}: {scope} processed through {through} (was {found['previous'] or 'nothing'})",
+    }
+
+
 
 #: Every tool, in the order surfaces list them.
 TOOLS = [
@@ -847,6 +921,9 @@ TOOLS = [
     disclosure,
     review,
     todo_preflight,
+    digest,
+    digest_new,
+    digest_mark,
 ]
 
 #: What each tool changes, for surfaces that must decide what to expose or confirm.
@@ -872,4 +949,7 @@ SIDE_EFFECTS = {
     "sync_init": "external",
     "sync_push": "external",
     "todo_preflight": "external-read",
+    "digest": "read",
+    "digest_new": "create",
+    "digest_mark": "rewrite",
 }
