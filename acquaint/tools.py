@@ -831,6 +831,7 @@ def todo_preflight(project: str, people: str, *, data_dir: str | None = None) ->
         "text": "\n".join(lines),
     }
 
+
 # ------------------------------------------------------------------------ digests
 
 
@@ -898,7 +899,6 @@ def digest_mark(
         **found,
         "summary": f"{ref}: {scope} processed through {through} (was {found['previous'] or 'nothing'})",
     }
-
 
 
 #: Every tool, in the order surfaces list them.

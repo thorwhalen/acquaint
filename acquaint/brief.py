@@ -509,7 +509,9 @@ def _render(entity, brief: dict[str, Any]) -> str:
     if brief["project_norms"]:
         out += [f"## Norms of {brief['project']}", brief["project_norms"], ""]
     if brief["digests"]:
-        out.append("## Conversations on record (notes in the digest; read what is new since `through`)")
+        out.append(
+            "## Conversations on record (notes in the digest; read what is new since `through`)"
+        )
         out += [
             f"- {d['ref']}: content through {d['through'].get('content', '(nothing)')} · {d['path']}"
             for d in brief["digests"]

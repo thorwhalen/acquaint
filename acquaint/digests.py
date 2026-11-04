@@ -193,16 +193,28 @@ def digest_problems(text: str) -> list[tuple[str, int | None, str, str]]:
         return found
     if not isinstance(meta.get("ref"), str) or ":" not in meta.get("ref", ""):
         found.append(
-            ("error", None, "digest-ref", "ref must be a conversation reference, <channel>:<id>")
+            (
+                "error",
+                None,
+                "digest-ref",
+                "ref must be a conversation reference, <channel>:<id>",
+            )
         )
     through = meta.get("through") or {}
     if not isinstance(through, dict):
-        found.append(("error", None, "digest-through", "through must map scopes to times"))
+        found.append(
+            ("error", None, "digest-through", "through must map scopes to times")
+        )
         through = {}
     for scope, value in through.items():
         if scope not in SCOPES:
             found.append(
-                ("error", None, "digest-through", f"unknown scope {scope!r}; use {', '.join(SCOPES)}")
+                (
+                    "error",
+                    None,
+                    "digest-through",
+                    f"unknown scope {scope!r}; use {', '.join(SCOPES)}",
+                )
             )
         try:
             _time(value, f"through.{scope}")
