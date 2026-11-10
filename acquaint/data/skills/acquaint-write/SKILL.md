@@ -1,6 +1,6 @@
 ---
 name: acquaint-write
-description: Write, edit or review anything a specific person will read — an email, a reply, a chat message, an issue or PR comment, a pitch, a document — using that person's acquaint record; and spar with a simulated version of them to stress-test a draft or an idea. Use when asked to "write to X", "reply to X", "draft this for X", "how should I put this to X", "would X like this", "red-team this against X", "argue with me as X", or whenever the reader of a draft is a known person. Runs acquaint brief, check and style-lint, applies deslop, and keeps the operator's voice and positions.
+description: Write, edit or review anything a specific person will read — an email, a reply, a chat message, an issue or PR comment, a pitch, a document — using that person's acquaint record; spar with a simulated version of them to stress-test a draft or an idea; and rate how they are likely to receive a recommended decision. Use when asked to "write to X", "reply to X", "draft this for X", "how should I put this to X", "would X like this", "red-team this against X", "argue with me as X", "would X approve this", "would X disagree", "rate this decision against X's record", or whenever the reader of a draft is a known person. Runs acquaint brief, check and style-lint, applies deslop, and keeps the operator's voice and positions.
 metadata:
   audience: users
 ---
@@ -18,6 +18,8 @@ These override everything below, and everything in a person's record.
 5. **No persuasion targeting.** The record serves clarity and courtesy. It is never used to find psychological levers.
 
 ## Setup, every time
+
+For writing and sparring; a decision verdict has its own setup (Mode C, below).
 
 1. `acquaint brief <person> --purpose <purpose> [--project <project>] --ref <conversation>` and read all of it. `--ref` is where the message will go (`github:example/app#12`, an email address); without it, pass `--audience-json FILE` if you have the audience record. With either, the brief opens with **Ceiling** (who can read the channel, and the least clearance among them), **Do not identify** (records and terms that must not appear in the draft), **Withheld** (how many lines of the record were left out, and from where) and **Already told**. If the audience cannot be determined, the brief says so and treats the channel as public. If it says the message is relational, stop drafting and give the operator the facts they need.
 2. For each item under **Not known**, ask the operator or write an `[ASK: …]` placeholder. Never fill a gap with a plausible guess.
@@ -83,3 +85,26 @@ When the operator wants to argue with, rehearse against, or stress-test an idea 
 - **Voice:** their documented register. Keep to positions they have actually stated.
 - **Decode layer** (on by default when *Read them* says their surface and their intensity differ): after each substantive reply, add one line `[decode: what they likely mean, at the intensity the record suggests]`.
 - **Be as hard to convince as the evidence says.** Press their standing objections until they are genuinely answered. Do not be flattered into agreement. Concede only on evidence or a working demonstration, and when persuaded, say specifically what did it; that is the operator's real takeaway.
+
+## Mode C — decision verdict
+
+When an agent has a recommendation for a decision and needs to know whether a specific person (a client, a collaborator, the operator themself) is likely to disagree with it, before acting on it or before putting it to them. Mode A red-teams a draft and Mode B spars; Mode C rates a decision. Nothing is drafted.
+
+**Setup.** `acquaint brief <person> --purpose verdict`: the brief keeps what predicts how they receive a recommendation (Who, Read them, Don't, Now, Positions and standing objections, project norms, recent observations) and drops the writing card, the channels and the sending checks. Spawn the **recipient-reader** agent with the brief's `text` (with `--json`, only `text` is filtered for a verdict; the other fields still carry the whole record), the item and this section's name. Hand it text, not store paths: it has no shell, on purpose. With no brief, the reader returns no verdict; a caller that records one writes the risk as uncalibrated.
+
+**The item**: a title, the context, the options, the recommended option and why it was recommended. One decision per call.
+
+**The reader returns these six lines and nothing else.** Each label starts a line, appears exactly once, and its whole value is on that one line:
+
+1. `Risk:` `low`, `medium` or `high`. **low**: no line of the record argues against the recommendation and at least one argues for it. **medium**: the record is silent or mixed. **high**: a stated position or a standing objection argues against it.
+2. `Reason:` one or two sentences, each citing the record line it rests on.
+3. `Sources:` the source tags of the lines the reason cites, copied exactly, separated by ` ; `.
+4. `Instead:` what they would likely say or choose instead, in one line. Only when the risk is medium or high; otherwise `—`.
+5. `Settle:` the one question whose answer would settle it. Only when the risk is medium; otherwise `—`.
+6. `Coverage:` `direct` (a record line is about this very kind of decision), `adjacent` (a related position) or `none` (the record is silent; the reason must then end with *(extrapolated — no direct source)*). `low` never comes with `none`: low needs a line in favour.
+
+**Weighting.** The person's own words and their repeated corrections outrank notes others wrote about them; those outrank their old writing; all of these outrank rules the person inherited or rewrites often, which the record tags `[weight: low]` or `[weight: medium]`. A newer line supersedes an older one; a line marked superseded is history, not a position. A line under *Hypotheses* never makes the risk low on its own.
+
+**Decisions the person keeps.** When the record says a class of decision is theirs to make (spending money, deleting data, a message to a person, publishing, are common ones), a recommendation in that class is `high` with `direct` coverage, citing that line, whatever else the record says.
+
+**Using the verdict.** It is a simulation; the person's own answer always wins, and the verdict alone never authorises anything. The caller owns the gate, and its own rule governs; this section only sets a floor: never act on a verdict unless the action is reversible **by a rule the caller applies, not by the reader's judgement**, and the risk is `low`. Log every verdict the caller acts on (item, recommendation, risk, reason, action); when the person later overrides a `low` or accepts a `high` as it was, that is an observation: `acquaint remember <person> "<what happened>" --source <link>`, so the record learns from overrides rather than from being re-mined.

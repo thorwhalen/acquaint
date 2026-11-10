@@ -3,6 +3,10 @@
 # Generic writing guidance only: nothing here is about any person. What a specific
 # recipient needs comes from their own records, which always outrank these lines.
 # `relational: true` marks messages the operator writes themself.
+# `sections: [...]` shows only those sections of the brief (names in
+# acquaint.brief.BRIEF_SECTIONS; the ceiling sections and a lint failure always show).
+# `default_reminders: false` drops the `default` reminders, for a purpose that is not
+# a message at all.
 
 default:
   reminders:
@@ -53,6 +57,24 @@ purposes:
     relational: true
     reminders:
       - "Performance feedback is the operator's to write. Supply observations with sources."
+  verdict:
+    # Not a message: the brief feeds a decision verdict (acquaint-write § Mode C), so it
+    # keeps what predicts how the person receives a recommendation and drops the
+    # writing card, the channels and the sending checks. "Not known" is dropped too:
+    # its gaps are about writing (no card, no address, no channel); a verdict's own gap
+    # is a silent record, which Mode C reports as coverage.
+    default_reminders: false
+    sections:
+      - Who
+      - Read them
+      - Don't
+      - Now
+      - Positions and standing objections
+      - Norms
+      - Recent observations
+      - For this message
+    reminders:
+      - "This brief feeds a decision verdict (acquaint-write § Mode C). Rate the recommendation against these lines; draft nothing."
 
 # Decision recorded for the default disclosure stance when a recipient's tolerance of
 # AI-assisted writing is unknown.

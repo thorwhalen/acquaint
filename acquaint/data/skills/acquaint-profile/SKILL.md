@@ -63,6 +63,10 @@ Dimensions to extract:
 
 Do **not** extract: personality traits, mood, health, religion, politics, ethnicity, sexuality, family details, or anything about third parties. Do not summarise the person; return rows. Mark any row you inferred rather than read as `inferred`.
 
+### The operator's own record
+
+To profile the **operator** (their positions, preferences and standing objections, so an agent can predict which recommendations they would disagree with) use [references/operator-views-brief.md](references/operator-views-brief.md) instead of the brief above: other dimensions, a corpus of what they typed to their agents, and weight tags by source tier. Hand that file's extraction brief to every reader, unchanged, and apply its synthesis additions in Step 3.
+
 ## Step 3 — synthesis
 
 - Pool the rows. A **style or reading note needs two or more independent observations**; a single one stays in the log or under *Hypotheses*.

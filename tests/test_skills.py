@@ -81,3 +81,40 @@ def test_skills_only_mention_commands_the_cli_has():
             assert command in commands, f"{skill.parent.name} mentions `acquaint {command}`"
         for command in re.findall(r"acquaint sync ([a-z]+)", code + "\n" + "\n".join(re.findall(r"`([^`]+)`", text))):
             assert command in sync_commands, f"{skill.parent.name} mentions `acquaint sync {command}`"
+
+
+def _mode_c():
+    text = (SKILLS / "acquaint-write" / "SKILL.md").read_text(encoding="utf-8")
+    return text.split("## Mode C", 1)[1].split("\n## ", 1)[0]
+
+
+LABELS = ("Risk:", "Reason:", "Sources:", "Instead:", "Settle:", "Coverage:")
+
+
+def test_mode_c_keeps_the_labels_callers_parse_in_order_one_per_line():
+    section = _mode_c()
+    numbered = re.findall(r"^\d\. `([A-Za-z]+:)`", section, re.M)
+    assert tuple(numbered) == LABELS, f"Mode C's labelled lines changed: {numbered}"
+    assert "appears exactly once" in section and "on that one line" in section, "the one-line-per-label rule is the parse contract"
+    risk = re.search(r"^\d\. `Risk:`(.*)$", section, re.M).group(1)
+    assert risk.index("**low**") < risk.index("**medium**") < risk.index("**high**")
+    assert "argues against" in risk.split("**high**")[1] and "at least one argues for" in risk.split("**medium**")[0]
+    for value in ("direct", "adjacent", "none"):
+        assert f"`{value}`" in section, value
+
+
+def test_recipient_reader_points_at_mode_c():
+    _, body = _split(AGENTS / "recipient-reader.md")
+    assert "acquaint-write § Mode C — decision verdict" in re.search(r"^Method: (.+)$", body, re.M).group(1)
+
+
+def test_the_operator_views_brief_ships_with_its_extraction_brief():
+    brief = data_path("skills", "acquaint-profile", "references", "operator-views-brief.md")
+    assert brief.is_file() and "## Extraction brief" in brief.read_text(encoding="utf-8")
+    assert "](references/operator-views-brief.md)" in (SKILLS / "acquaint-profile" / "SKILL.md").read_text(encoding="utf-8")
+
+
+def test_every_relative_reference_link_in_a_skill_resolves():
+    for skill in SKILLS.glob("*/SKILL.md"):
+        for target in re.findall(r"\]\((references/[^)#\s]+)", skill.read_text(encoding="utf-8")):
+            assert (skill.parent / target).is_file(), f"{skill.parent.name} links {target}, which does not exist"
