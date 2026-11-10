@@ -183,3 +183,11 @@ def test_already_told_comes_from_interaction_entries(store, put):
 def test_a_ref_and_an_audience_together_are_refused(store, put):
     with pytest.raises(AcquaintError, match="not both"):
         compose_brief(_fixture(store, put), ADA, ref="github:example/app#12", audience=PUBLIC, today=TODAY)
+
+
+def test_a_verdict_brief_never_drops_the_ceiling_sections(store, put):
+    """``sections`` narrows a brief, but never what bounds its audience."""
+    text = compose_brief(_fixture(store, put), ADA, purpose="verdict", audience=PUBLIC, today=TODAY)["text"]
+    for always in ("## Ceiling", "## Do not identify", "## Withheld", "## Already told"):
+        assert always in text, always
+    assert "## Writing card" not in text

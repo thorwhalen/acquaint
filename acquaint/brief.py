@@ -43,10 +43,32 @@ from acquaint.resources import data_yaml
 from acquaint.store import AcquaintError, Store
 from acquaint.trust import LABELS
 
-__all__ = ["CARD_SECTIONS", "compose_brief"]
+__all__ = ["BRIEF_SECTIONS", "CARD_SECTIONS", "compose_brief"]
 
 #: Entry-file sections a brief carries, in the order it shows them.
 CARD_SECTIONS = ("Who", "Write to them", "Read them", "Don't", "Now")
+#: Every section a brief can show, by the name a purpose's ``sections`` list uses
+#: (``purposes.yaml``). A purpose that lists them shows only those, plus ALWAYS_SHOWN.
+BRIEF_SECTIONS = (
+    "Ceiling",
+    "Do not identify",
+    "Withheld",
+    "Already told",
+    "How to reach them",
+    *CARD_SECTIONS,
+    "Affiliations",
+    "Writing card",
+    "Positions and standing objections",
+    "Norms",
+    "Conversations on record",
+    "Recent observations",
+    "For this message",
+    "Not known",
+    "Lint",
+    "Before sending",
+)
+#: Never left out, whatever the purpose: what bounds the audience, and a broken record.
+ALWAYS_SHOWN = frozenset({"Ceiling", "Do not identify", "Withheld", "Already told", "Lint"})
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 _UNTIL_RE = re.compile(r"\(until:\s*(\d{4}-\d{2}-\d{2})\)")
 #: An audience scope in words, when the audience record comes without them.
@@ -295,7 +317,14 @@ def compose_brief(
         tolerance, purposes["disclosure"]["unknown"]
     )
     spec = purposes["purposes"].get(str(purpose).lower(), {}) if purpose else {}
-    reminders = list(purposes["default"]["reminders"]) + list(spec.get("reminders", []))
+    sections = spec.get("sections")
+    if sections is not None and (unknown := set(sections) - set(BRIEF_SECTIONS)):
+        raise AcquaintError(
+            f"purpose {purpose!r} lists sections a brief does not have: {sorted(unknown)}; "
+            f"known: {', '.join(BRIEF_SECTIONS)}"
+        )
+    defaults = purposes["default"]["reminders"] if spec.get("default_reminders", True) else []
+    reminders = list(defaults) + list(spec.get("reminders", []))
 
     reach = reach_channels(
         store,
@@ -348,6 +377,11 @@ def compose_brief(
 
     at_write_time: dict[str, Any] = {}
     warnings = list(writing["warnings"])
+    if purpose and str(purpose).lower() not in purposes["purposes"]:
+        warnings.append(
+            f"unknown purpose {purpose!r}: only the default reminders apply; "
+            f"known: {', '.join(purposes['purposes'])}"
+        )
     if ref is not None or audience is not None:
         at_write_time = _ceiling(
             store,
@@ -396,6 +430,7 @@ def compose_brief(
         "purpose": purpose,
         "project": project,
         "relational": bool(spec.get("relational")),
+        "sections": list(sections) if sections is not None else None,
         "ai_tolerance": tolerance,
         "disclosure": " ".join(str(disclosure).split()),
         "reach": reach,
@@ -419,15 +454,9 @@ def compose_brief(
     return result
 
 
-def _render_ceiling(brief: dict[str, Any]) -> list[str]:
+def _render_ceiling(brief: dict[str, Any]) -> list[tuple[str, list[str]]]:
     ceiling = brief["ceiling"]
-    out = [
-        "## Ceiling",
-        f"{ceiling['line']} (least clearance: {ceiling['least_clearance']}).",
-        "",
-    ]
-    out.append("## Do not identify")
-    out += [
+    do_not_identify = [
         f"- {row['entity']} [{row['label']}]: {', '.join(row['terms'])}"
         + (
             f" (sealed from {', '.join(row['sealed_from'])})"
@@ -436,17 +465,115 @@ def _render_ceiling(brief: dict[str, Any]) -> list[str]:
         )
         for row in brief["do_not_identify"]
     ] or ["Nothing above the ceiling."]
-    out += ["", "## Withheld"]
-    out += [
+    withheld = [
         f"- {row['entity']}: {row['count']} fact{'' if row['count'] == 1 else 's'} above the ceiling, left out of this brief"
         for row in brief["withheld"]
     ] or ["Nothing."]
-    out += ["", "## Already told"]
-    out += [
+    already_told = [
         f"- {row['entity']} ({row['date']}, {row['entry']})"
         for row in brief["already_told"]
     ] or ["Nothing recorded."]
-    return out + [""]
+    return [
+        ("Ceiling", [f"{ceiling['line']} (least clearance: {ceiling['least_clearance']})."]),
+        ("Do not identify", do_not_identify),
+        ("Withheld", withheld),
+        ("Already told", already_told),
+    ]
+
+
+def _reach_lines(brief: dict[str, Any]) -> list[str]:
+    if not brief["reach"]:
+        return ["No active identities or channel rules recorded."]
+    lines = []
+    for n, ch in enumerate(brief["reach"], start=1):
+        what = ch["channel"] or ch["instruction"] or NO_CHANNEL_NAMED
+        # An address built from an identity is who the person *is*, not necessarily
+        # somewhere to send: a channel addressed by conversation does not take one.
+        # Say which it is in the prose, since that is what a writing agent reads.
+        derived = " (from their identities)" if ch.get("address_kind") == "identity" else ""
+        where = f" → {ch['address']}{derived}" if ch["address"] else ""
+        why = f"{ch['tier']} rule" if ch["tier"] != "none" else ch["instruction"]
+        source = f"; source: {ch['source']}" if ch.get("source") else ""
+        note = f"; {ch['note']}" if ch.get("note") else ""
+        lines.append(f"{n}. {what}{where} ({why}{source}{note})")
+    return lines
+
+
+def _sections(entity, brief: dict[str, Any]) -> list[tuple[str, str | None, list[str]]]:
+    """Every section the brief can show, in order, as ``(name, heading, lines)``; empty ones are left out.
+
+    ``name`` is what a purpose's ``sections`` list refers to (:data:`BRIEF_SECTIONS`);
+    ``heading`` is ``None`` for a section shown as a bare paragraph.
+    """
+    out: list[tuple[str, str | None, list[str]]] = []
+    if "ceiling" in brief:
+        out += [(name, name, lines) for name, lines in _render_ceiling(brief)]
+    out.append(("How to reach them", "How to reach them", _reach_lines(brief)))
+    out += [
+        (heading, heading, [brief["card"][heading]])
+        for heading in CARD_SECTIONS
+        if brief["card"][heading]
+    ]
+    if brief["affiliations"]:
+        out.append(("Affiliations", "Affiliations", [f"- {a}" for a in brief["affiliations"]]))
+    out.append(
+        (
+            "Writing card",
+            "Writing card",
+            [
+                f"AI tolerance: {brief['ai_tolerance']}"
+                + (" (treated as neutral)" if brief["ai_tolerance"] == "unknown" else "")
+                + f". Disclosure: {brief['disclosure']}",
+                *(["", brief["style"]] if brief["style"] else []),
+            ],
+        )
+    )
+    if brief["views"]:
+        out.append(("Positions and standing objections", "Positions and standing objections", [brief["views"]]))
+    if brief["project_norms"]:
+        out.append(("Norms", f"Norms of {brief['project']}", [brief["project_norms"]]))
+    if brief["digests"]:
+        out.append(
+            (
+                "Conversations on record",
+                "Conversations on record (notes in the digest; read what is new since `through`)",
+                [
+                    f"- {d['ref']}: content through {d['through'].get('content', '(nothing)')} · {d['path']}"
+                    for d in brief["digests"]
+                ],
+            )
+        )
+    if brief["observations"]:
+        out.append(
+            (
+                "Recent observations",
+                "Recent observations (evidence, not yet profile facts)",
+                [
+                    f"- {entry['date']} · {entry['kind']}: {entry['text']} (source: {entry.get('source', 'none given')}; {entry['ref']})"
+                    for entry in brief["observations"]
+                ],
+            )
+        )
+    purpose = f" ({brief['purpose']})" if brief["purpose"] else ""
+    out.append(("For this message", f"For this message{purpose}", [f"- {r}" for r in brief["reminders"]]))
+    if brief["gaps"]:
+        out.append(("Not known", "Not known (ask, don't guess)", [f"- {g}" for g in brief["gaps"]]))
+    if brief["lint"]["errors"]:
+        out.append(
+            (
+                "Lint",
+                None,
+                [f"**This record has {brief['lint']['errors']} lint error(s); run `acquaint lint {entity.slug}` before relying on it.**"],
+            )
+        )
+    out.append(
+        (
+            "Before sending",
+            None,
+            [f'Before sending: `acquaint style-lint --recipient {entity.slug} "<draft>"` and `acquaint check "<draft>"`.'],
+        )
+    )
+    return out
 
 
 def _render(entity, brief: dict[str, Any]) -> str:
@@ -468,75 +595,9 @@ def _render(entity, brief: dict[str, Any]) -> str:
             f"**This is a relational message ({brief['purpose']}). The operator writes it; do not draft the text.**",
             "",
         ]
-    if "ceiling" in brief:
-        out += _render_ceiling(brief)
-
-    out.append("## How to reach them")
-    if brief["reach"]:
-        for n, ch in enumerate(brief["reach"], start=1):
-            what = ch["channel"] or ch["instruction"] or NO_CHANNEL_NAMED
-            # An address built from an identity is who the person *is*, not necessarily
-            # somewhere to send: a channel addressed by conversation does not take one.
-            # Say which it is in the prose, since that is what a writing agent reads.
-            derived = (
-                " (from their identities)" if ch.get("address_kind") == "identity" else ""
-            )
-            where = f" → {ch['address']}{derived}" if ch["address"] else ""
-            why = f"{ch['tier']} rule" if ch["tier"] != "none" else ch["instruction"]
-            source = f"; source: {ch['source']}" if ch.get("source") else ""
-            note = f"; {ch['note']}" if ch.get("note") else ""
-            out.append(f"{n}. {what}{where} ({why}{source}{note})")
-    else:
-        out.append("No active identities or channel rules recorded.")
-    out.append("")
-
-    for heading in CARD_SECTIONS:
-        if brief["card"][heading]:
-            out += [f"## {heading}", brief["card"][heading], ""]
-    if brief["affiliations"]:
-        out += ["## Affiliations", *(f"- {a}" for a in brief["affiliations"]), ""]
-    out += [
-        "## Writing card",
-        f"AI tolerance: {brief['ai_tolerance']}"
-        + (" (treated as neutral)" if brief["ai_tolerance"] == "unknown" else "")
-        + f". Disclosure: {brief['disclosure']}",
-    ]
-    if brief["style"]:
-        out += ["", brief["style"]]
-    out.append("")
-    if brief["views"]:
-        out += ["## Positions and standing objections", brief["views"], ""]
-    if brief["project_norms"]:
-        out += [f"## Norms of {brief['project']}", brief["project_norms"], ""]
-    if brief["digests"]:
-        out.append(
-            "## Conversations on record (notes in the digest; read what is new since `through`)"
-        )
-        out += [
-            f"- {d['ref']}: content through {d['through'].get('content', '(nothing)')} · {d['path']}"
-            for d in brief["digests"]
-        ]
-        out.append("")
-    if brief["observations"]:
-        out.append("## Recent observations (evidence, not yet profile facts)")
-        for entry in brief["observations"]:
-            out.append(
-                f"- {entry['date']} · {entry['kind']}: {entry['text']} (source: {entry.get('source', 'none given')}; {entry['ref']})"
-            )
-        out.append("")
-    out += [
-        f"## For this message{' (' + brief['purpose'] + ')' if brief['purpose'] else ''}",
-        *(f"- {r}" for r in brief["reminders"]),
-        "",
-    ]
-    if brief["gaps"]:
-        out += ["## Not known (ask, don't guess)", *(f"- {g}" for g in brief["gaps"]), ""]
-    if brief["lint"]["errors"]:
-        out += [
-            f"**This record has {brief['lint']['errors']} lint error(s); run `acquaint lint {entity.slug}` before relying on it.**",
-            "",
-        ]
-    out.append(
-        f'Before sending: `acquaint style-lint --recipient {entity.slug} "<draft>"` and `acquaint check "<draft>"`.'
-    )
+    wanted = brief.get("sections")
+    for name, heading, lines in _sections(entity, brief):
+        if wanted is not None and name not in wanted and name not in ALWAYS_SHOWN:
+            continue
+        out += ([f"## {heading}"] if heading else []) + lines + [""]
     return "\n".join(out).rstrip() + "\n"

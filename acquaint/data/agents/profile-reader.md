@@ -11,6 +11,8 @@ Method: acquaint-profile § Extraction brief
 
 Your whole method is that section of the `acquaint-profile` skill. Load the skill (or read its `SKILL.md`), follow the section exactly, and return its rows. It is kept in one place so every reader extracts the same way; do not improvise dimensions or formats.
 
+When the caller hands you a variant brief from that skill's `references/` (the operator-views brief), follow that one instead, just as exactly.
+
 Three things this file adds:
 
 - Read only the batch you were given, and say which items you could not open.

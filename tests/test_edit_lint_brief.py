@@ -1,6 +1,8 @@
 """Creating, remembering, renaming and forgetting; the provenance lint; and the brief."""
 
+import copy
 import hashlib
+import importlib
 import os
 import sys
 
@@ -11,9 +13,11 @@ from acquaint.brief import compose_brief
 from acquaint.edit import append_observation, forget_entity, new_entity, rename_entity
 from acquaint.lint import lint_store
 from acquaint.lookup import normalize
+from acquaint.resources import data_yaml
 from acquaint.records import dump_yaml, load_yaml, parse_log
 from acquaint.store import AcquaintError, Store
 
+brief_module = importlib.import_module("acquaint.brief")
 TODAY = "2026-09-11"
 ADA = "people/ada-lovelace"
 posix_only = pytest.mark.skipif(sys.platform == "win32", reason="symlinks need privileges on Windows")
@@ -509,3 +513,69 @@ def test_lint_warns_about_a_bare_do_only_when_it_could_be_a_channel(ada):
         {"rules": [{"id": "r1", "when": {}, "do": "ask her on the weekly call", "source": "operator"}]}
     )
     assert not [w for w in lint_store(ada, ADA, today=TODAY)["warnings"] if w["rule"] == "do-is-a-bare-channel"]
+
+
+# ------------------------------------------------------------- brief: purposes with sections
+
+VERDICT_KEPT = ["## Positions and standing objections", "## Read them", "## Recent observations", "## For this message (verdict)", "decision verdict (acquaint-write"]
+VERDICT_DROPPED = ["## How to reach them", "## Writing card", "## Write to them", "Before sending:", "Voice is the operator's"]
+
+
+def _rich(store):
+    profile = store.files[f"{ADA}/PROFILE.md"]
+    profile = profile.replace("## Write to them\n", "## Write to them\n- Lead with the decision. [source: operator]\n")
+    store.files[f"{ADA}/PROFILE.md"] = profile.replace("## Read them\n", "## Read them\n- Wants the reason first. [source: operator]\n")
+    store.files[f"{ADA}/style.md"] = "## Blocklist\n- \"circle back\" [source: operator]\n"
+    store.files[f"{ADA}/views.md"] = "## Standing objections\n- Asks who maintains it. [source: operator]\n"
+    append_observation(store, ADA, "pushed back on the schedule", source="operator", today=TODAY)
+    return store
+
+
+def test_every_purpose_section_is_one_a_brief_has_and_verdict_declares_some():
+    purposes = data_yaml("purposes.yaml")["purposes"]
+    for name, spec in purposes.items():
+        unknown = set(spec.get("sections", [])) - set(brief_module.BRIEF_SECTIONS)
+        assert not unknown, f"purpose {name!r} lists unknown sections {unknown}"
+    assert purposes["verdict"]["sections"] and purposes["verdict"]["default_reminders"] is False
+
+
+def test_a_verdict_brief_keeps_what_predicts_a_reception_and_drops_the_writing_apparatus(ada):
+    text = compose_brief(_rich(ada), ADA, purpose="verdict", today=TODAY)["text"]
+    for kept in VERDICT_KEPT:
+        assert kept in text, kept
+    for dropped in VERDICT_DROPPED:
+        assert dropped not in text, dropped
+
+
+@pytest.mark.parametrize("purpose", ["ask", None])
+def test_other_purposes_still_show_every_section(ada, purpose):
+    text = compose_brief(_rich(ada), ADA, purpose=purpose, today=TODAY)["text"]
+    for heading in VERDICT_KEPT[:3] + VERDICT_DROPPED[:3] + ["Before sending:", "Voice is the operator's"]:
+        assert heading in text, heading
+    assert text.rstrip().splitlines()[-1].startswith("Before sending:")
+
+
+def test_a_verdict_brief_keeps_a_lint_error(ada):
+    ada.files[f"{ADA}/PROFILE.md"] += "\n## Write to them\n- Prefers short replies.\n"
+    assert "lint error(s)" in compose_brief(ada, ADA, purpose="verdict", today=TODAY)["text"]
+
+
+def test_every_rendered_section_has_a_name_purposes_can_use(ada):
+    rich = _rich(ada)
+    brief = compose_brief(rich, ADA, purpose="ask", today=TODAY)
+    names = [name for name, _, _ in brief_module._sections(rich[ADA], brief)]
+    assert set(names) <= set(brief_module.BRIEF_SECTIONS), set(names) - set(brief_module.BRIEF_SECTIONS)
+
+
+def test_an_unknown_purpose_is_named_in_the_warnings(ada):
+    brief = compose_brief(ada, ADA, purpose="verdit", today=TODAY)
+    assert any("unknown purpose 'verdit'" in w for w in brief["warnings"])
+    assert not any("unknown purpose" in w for w in compose_brief(ada, ADA, purpose="verdict", today=TODAY)["warnings"])
+
+
+def test_a_purpose_with_an_unknown_section_is_refused_by_name(ada, monkeypatch):
+    data = copy.deepcopy(data_yaml("purposes.yaml"))  # data_yaml is cached: never edit what it returns
+    data["purposes"]["verdict"] = {**data["purposes"]["verdict"], "sections": ["Who", "Nonesuch"]}
+    monkeypatch.setattr(brief_module, "data_yaml", lambda name: data if name == "purposes.yaml" else data_yaml(name))
+    with pytest.raises(AcquaintError, match="Nonesuch"):
+        compose_brief(ada, ADA, purpose="verdict", today=TODAY)
