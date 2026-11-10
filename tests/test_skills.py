@@ -106,6 +106,8 @@ def test_mode_c_keeps_the_labels_callers_parse_in_order_one_per_line():
 def test_recipient_reader_points_at_mode_c():
     _, body = _split(AGENTS / "recipient-reader.md")
     assert "acquaint-write § Mode C — decision verdict" in re.search(r"^Method: (.+)$", body, re.M).group(1)
+    words = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven"}
+    assert f"{words[len(LABELS)]}-line verdict" in body, "the agent's line count matches Mode C's labels"
 
 
 def test_the_operator_views_brief_ships_with_its_extraction_brief():
