@@ -1,4 +1,4 @@
-> built 2026-11-04 11:49 UTC from d8b7015 (main) · acquaint 0.0.15. Details: build_info.json
+> built 2026-11-10 07:29 UTC from 39d0a65 (main) · acquaint 0.0.16. Details: build_info.json
 
 # index.html.md
 
@@ -99,7 +99,7 @@ Eight skills ship inside the package (`acquaint/data/skills/`) and install with 
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `acquaint`               | the router: lookups at the right cost, `check` before publishing, `remember` with sources                                                                                   |
 | `acquaint-profile`       | building a profile from someone’s own writing, with parallel `profile-reader` agents                                                                                        |
-| `acquaint-write`         | writing for a known reader, and sparring with a simulated one (`recipient-reader` agent)                                                                                    |
+| `acquaint-write`         | writing for a known reader, sparring with a simulated one, and a verdict on how they would receive a recommended decision (`recipient-reader` agent)                        |
 | `acquaint-digest`        | processing a conversation (a WhatsApp export, a thread, emails) with a person or an org: what is new since the watermark, then takeaways, themes, an index and open threads |
 | `acquaint-read`          | interpreting a message from a known person; AI-processing as a likelihood with evidence                                                                                     |
 | `deslop`                 | prose without machine-writing tells, calibrated to the reader                                                                                                               |
@@ -2450,18 +2450,16 @@ True
 
 # About this build
 
-This documentation was built on **2026-11-04 11:49 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/d8b701513d10b8342cb568c9592b97324f537765"><code>d8b7015</code></a> on branch <code>main</code>, for **acquaint 0.0.15** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-10 07:29 UTC** from commit <a href="https://github.com/thorwhalen/acquaint/commit/39d0a650fe4a6f63dd6ba878fd146956eecf981d"><code>39d0a65</code></a> on branch <code>main</code>, for **acquaint 0.0.16** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.0.15) is behind the latest release on PyPI (0.0.16): `pip install acquaint` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                            |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/d8b701513d10b8342cb568c9592b97324f537765"><code>d8b701513d10b8342cb568c9592b97324f537765</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/acquaint/commit/39d0a650fe4a6f63dd6ba878fd146956eecf981d"><code>39d0a650fe4a6f63dd6ba878fd146956eecf981d</code></a> |
 | Branch              | <code>main</code>                                                                                                                                          |
 | Tags at this commit | none                                                                                                                                                       |
 | Working tree        | clean                                                                                                                                                      |
@@ -2472,9 +2470,9 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/acquaint</code>                                                           |
-| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/41823820817">41823820817</a>  |
+| Run          | <a href="https://github.com/thorwhalen/acquaint/actions/runs/42775469859">42775469859</a>  |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>d8b701513d10b8342cb568c9592b97324f537765</code> (in the history of the built commit) |
+| Event commit | <code>39d0a650fe4a6f63dd6ba878fd146956eecf981d</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -2483,7 +2481,7 @@ The documentation and the package may be misaligned:
 | epythet  | 0.2.22  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
-| Python   | 3.12.15 |
+| Python   | 3.12.16 |
 
 ## Configuration as resolved
 
@@ -2499,13 +2497,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/acquaint/0.0.16/">0.0.16</a>, newer than the documented version (0.0.15).
+Latest release: <a href="https://pypi.org/project/acquaint/0.0.16/">0.0.16</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/acquaint && cd acquaint
-git checkout d8b701513d10b8342cb568c9592b97324f537765
+git checkout 39d0a650fe4a6f63dd6ba878fd146956eecf981d
 pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
@@ -2589,7 +2587,7 @@ Source: [`acquaint/data/skills/acquaint-sync`](https://github.com/thorwhalen/acq
 
 ### `acquaint-write`
 
-Write, edit or review anything a specific person will read — an email, a reply, a chat message, an issue or PR comment, a pitch, a document — using that person’s acquaint record; and spar with a simulated version of them to stress-test a draft or an idea. Use when asked to “write to X”, “reply to X”, “draft this for X”, “how should I put this to X”, “would X like this”, “red-team this against X”, “argue with me as X”, or whenever the reader of a draft is a known person. Runs acquaint brief, check and style-lint, applies deslop, and keeps the operator’s voice and positions.
+Write, edit or review anything a specific person will read — an email, a reply, a chat message, an issue or PR comment, a pitch, a document — using that person’s acquaint record; spar with a simulated version of them to stress-test a draft or an idea; and rate how they are likely to receive a recommended decision. Use when asked to “write to X”, “reply to X”, “draft this for X”, “how should I put this to X”, “would X like this”, “red-team this against X”, “argue with me as X”, “would X approve this”, “would X disagree”, “rate this decision against X’s record”, or whenever the reader of a draft is a known person. Runs acquaint brief, check and style-lint, applies deslop, and keeps the operator’s voice and positions.
 
 ```bash
 gh skill install thorwhalen/acquaint acquaint-write --agent claude-code
@@ -2621,7 +2619,7 @@ Source: [`acquaint/data/agents/profile-reader.md`](https://github.com/thorwhalen
 
 ### `recipient-reader`
 
-Simulates how a specific, known person is likely to read a draft or answer an idea, grounded only in the acquaint brief it is handed. Used by the acquaint-write skill for its red-team check (a report on a draft, without rewriting it) and for sparring (arguing from the person’s documented positions). Always presented as a simulation; every point cites the brief line it rests on.
+Simulates how a specific, known person is likely to read a draft, answer an idea, or receive a recommended decision, grounded only in the acquaint brief it is handed. Used by the acquaint-write skill for its red-team check (a report on a draft, without rewriting it), for sparring (arguing from the person’s documented positions), and for a decision verdict (disagreement risk, cited reason, coverage). Always presented as a simulation; every point cites the brief line it rests on.
 
 Source: [`acquaint/data/agents/recipient-reader.md`](https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/agents/recipient-reader.md); tools: `Read`.
 

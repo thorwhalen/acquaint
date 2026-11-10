@@ -338,42 +338,54 @@ data-aria-dark="Switch to auto color mode">
 </span><span data-line="193">        <span class="k">return</span> <span class="n">found</span>
 </span><span data-line="194">    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ref"</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">":"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ref"</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
 </span><span data-line="195">        <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span data-line="196">            <span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"digest-ref"</span><span class="p">,</span> <span class="s2">"ref must be a conversation reference, &lt;channel&gt;:&lt;id&gt;"</span><span class="p">)</span>
-</span><span data-line="197">        <span class="p">)</span>
-</span><span data-line="198">    <span class="n">through</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"through"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-</span><span data-line="199">    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">through</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-</span><span data-line="200">        <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"digest-through"</span><span class="p">,</span> <span class="s2">"through must map scopes to times"</span><span class="p">))</span>
-</span><span data-line="201">        <span class="n">through</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span data-line="202">    <span class="k">for</span> <span class="n">scope</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">through</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span data-line="203">        <span class="k">if</span> <span class="n">scope</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SCOPES</span><span class="p">:</span>
-</span><span data-line="204">            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span data-line="205">                <span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"digest-through"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"unknown scope </span><span class="si">{</span><span class="n">scope</span><span class="si">!r}</span><span class="s2">; use </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCOPES</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span data-line="206">            <span class="p">)</span>
-</span><span data-line="207">        <span class="k">try</span><span class="p">:</span>
-</span><span data-line="208">            <span class="n">_time</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"through.</span><span class="si">{</span><span class="n">scope</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span data-line="209">        <span class="k">except</span> <span class="n">AcquaintError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-</span><span data-line="210">            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"digest-through"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)))</span>
-</span><span data-line="211">    <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sectioned_items</span><span class="p">(</span><span class="n">blank_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)):</span>
-</span><span data-line="212">        <span class="k">if</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">ANCHORED_SECTIONS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
-</span><span data-line="213">            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span data-line="214">                <span class="p">(</span>
-</span><span data-line="215">                    <span class="s2">"error"</span><span class="p">,</span>
-</span><span data-line="216">                    <span class="n">number</span><span class="p">,</span>
-</span><span data-line="217">                    <span class="s2">"unanchored"</span><span class="p">,</span>
-</span><span data-line="218">                    <span class="sa">f</span><span class="s2">"an item under </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2"> needs [at: &lt;ISO time&gt;] or [source: …]"</span><span class="p">,</span>
-</span><span data-line="219">                <span class="p">)</span>
-</span><span data-line="220">            <span class="p">)</span>
-</span><span data-line="221">        <span class="k">for</span> <span class="n">quote</span> <span class="ow">in</span> <span class="n">_QUOTE_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
-</span><span data-line="222">            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">MAX_QUOTE_WORDS</span><span class="p">:</span>
-</span><span data-line="223">                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span data-line="224">                    <span class="p">(</span>
-</span><span data-line="225">                        <span class="s2">"warning"</span><span class="p">,</span>
-</span><span data-line="226">                        <span class="n">number</span><span class="p">,</span>
-</span><span data-line="227">                        <span class="s2">"long-quote"</span><span class="p">,</span>
-</span><span data-line="228">                        <span class="sa">f</span><span class="s2">"a quote of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2"> words; keep </span><span class="si">{</span><span class="n">MAX_QUOTE_WORDS</span><span class="si">}</span><span class="s2"> or fewer and point at the message"</span><span class="p">,</span>
-</span><span data-line="229">                    <span class="p">)</span>
-</span><span data-line="230">                <span class="p">)</span>
-</span><span data-line="231">    <span class="k">return</span> <span class="n">found</span></div>
+</span><span data-line="196">            <span class="p">(</span>
+</span><span data-line="197">                <span class="s2">"error"</span><span class="p">,</span>
+</span><span data-line="198">                <span class="kc">None</span><span class="p">,</span>
+</span><span data-line="199">                <span class="s2">"digest-ref"</span><span class="p">,</span>
+</span><span data-line="200">                <span class="s2">"ref must be a conversation reference, &lt;channel&gt;:&lt;id&gt;"</span><span class="p">,</span>
+</span><span data-line="201">            <span class="p">)</span>
+</span><span data-line="202">        <span class="p">)</span>
+</span><span data-line="203">    <span class="n">through</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"through"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+</span><span data-line="204">    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">through</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+</span><span data-line="205">        <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span data-line="206">            <span class="p">(</span><span class="s2">"error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"digest-through"</span><span class="p">,</span> <span class="s2">"through must map scopes to times"</span><span class="p">)</span>
+</span><span data-line="207">        <span class="p">)</span>
+</span><span data-line="208">        <span class="n">through</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span data-line="209">    <span class="k">for</span> <span class="n">scope</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">through</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span data-line="210">        <span class="k">if</span> <span class="n">scope</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SCOPES</span><span class="p">:</span>
+</span><span data-line="211">            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span data-line="212">                <span class="p">(</span>
+</span><span data-line="213">                    <span class="s2">"error"</span><span class="p">,</span>
+</span><span data-line="214">                    <span class="kc">None</span><span class="p">,</span>
+</span><span data-line="215">                    <span class="s2">"digest-through"</span><span class="p">,</span>
+</span><span data-line="216">                    <span class="sa">f</span><span class="s2">"unknown scope </span><span class="si">{</span><span class="n">scope</span><span class="si">!r}</span><span class="s2">; use </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCOPES</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+</span><span data-line="217">                <span class="p">)</span>
+</span><span data-line="218">            <span class="p">)</span>
+</span><span data-line="219">        <span class="k">try</span><span class="p">:</span>
+</span><span data-line="220">            <span class="n">_time</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"through.</span><span class="si">{</span><span class="n">scope</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span data-line="221">        <span class="k">except</span> <span class="n">AcquaintError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span data-line="222">            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"error"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"digest-through"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)))</span>
+</span><span data-line="223">    <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sectioned_items</span><span class="p">(</span><span class="n">blank_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)):</span>
+</span><span data-line="224">        <span class="k">if</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">ANCHORED_SECTIONS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_ANCHOR_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+</span><span data-line="225">            <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span data-line="226">                <span class="p">(</span>
+</span><span data-line="227">                    <span class="s2">"error"</span><span class="p">,</span>
+</span><span data-line="228">                    <span class="n">number</span><span class="p">,</span>
+</span><span data-line="229">                    <span class="s2">"unanchored"</span><span class="p">,</span>
+</span><span data-line="230">                    <span class="sa">f</span><span class="s2">"an item under </span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2"> needs [at: &lt;ISO time&gt;] or [source: …]"</span><span class="p">,</span>
+</span><span data-line="231">                <span class="p">)</span>
+</span><span data-line="232">            <span class="p">)</span>
+</span><span data-line="233">        <span class="k">for</span> <span class="n">quote</span> <span class="ow">in</span> <span class="n">_QUOTE_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+</span><span data-line="234">            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">MAX_QUOTE_WORDS</span><span class="p">:</span>
+</span><span data-line="235">                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span data-line="236">                    <span class="p">(</span>
+</span><span data-line="237">                        <span class="s2">"warning"</span><span class="p">,</span>
+</span><span data-line="238">                        <span class="n">number</span><span class="p">,</span>
+</span><span data-line="239">                        <span class="s2">"long-quote"</span><span class="p">,</span>
+</span><span data-line="240">                        <span class="sa">f</span><span class="s2">"a quote of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">quote</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="si">}</span><span class="s2"> words; keep </span><span class="si">{</span><span class="n">MAX_QUOTE_WORDS</span><span class="si">}</span><span class="s2"> or fewer and point at the message"</span><span class="p">,</span>
+</span><span data-line="241">                    <span class="p">)</span>
+</span><span data-line="242">                <span class="p">)</span>
+</span><span data-line="243">    <span class="k">return</span> <span class="n">found</span></div>
 
 </span></pre></div>
         </article><button class="back-to-top" type="button">
@@ -402,7 +414,7 @@ data-aria-dark="Switch to auto color mode">
     </div>
   </div>
 </footer>
-      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/documentation_options.js?v=c7cdf6fe"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>

@@ -95,7 +95,7 @@ Eight skills ship inside the package (`acquaint/data/skills/`) and install with 
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `acquaint`               | the router: lookups at the right cost, `check` before publishing, `remember` with sources                                                                                   |
 | `acquaint-profile`       | building a profile from someone’s own writing, with parallel `profile-reader` agents                                                                                        |
-| `acquaint-write`         | writing for a known reader, and sparring with a simulated one (`recipient-reader` agent)                                                                                    |
+| `acquaint-write`         | writing for a known reader, sparring with a simulated one, and a verdict on how they would receive a recommended decision (`recipient-reader` agent)                        |
 | `acquaint-digest`        | processing a conversation (a WhatsApp export, a thread, emails) with a person or an org: what is new since the watermark, then takeaways, themes, an index and open threads |
 | `acquaint-read`          | interpreting a message from a known person; AI-processing as a likelihood with evidence                                                                                     |
 | `deslop`                 | prose without machine-writing tells, calibrated to the reader                                                                                                               |

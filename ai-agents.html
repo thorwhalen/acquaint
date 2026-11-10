@@ -203,7 +203,7 @@ machine-readable copies of this documentation.</p>
 </section>
 <section id="acquaint-write">
 <h3><code class="docutils literal notranslate"><span class="pre">acquaint-write</span></code><a class="headerlink" href="#acquaint-write" title="Link to this heading">#</a></h3>
-<p>Write, edit or review anything a specific person will read — an email, a reply, a chat message, an issue or PR comment, a pitch, a document — using that person’s acquaint record; and spar with a simulated version of them to stress-test a draft or an idea. Use when asked to “write to X”, “reply to X”, “draft this for X”, “how should I put this to X”, “would X like this”, “red-team this against X”, “argue with me as X”, or whenever the reader of a draft is a known person. Runs acquaint brief, check and style-lint, applies deslop, and keeps the operator’s voice and positions.</p>
+<p>Write, edit or review anything a specific person will read — an email, a reply, a chat message, an issue or PR comment, a pitch, a document — using that person’s acquaint record; spar with a simulated version of them to stress-test a draft or an idea; and rate how they are likely to receive a recommended decision. Use when asked to “write to X”, “reply to X”, “draft this for X”, “how should I put this to X”, “would X like this”, “red-team this against X”, “argue with me as X”, “would X approve this”, “would X disagree”, “rate this decision against X’s record”, or whenever the reader of a draft is a known person. Runs acquaint brief, check and style-lint, applies deslop, and keeps the operator’s voice and positions.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span data-line="1">gh<span class="w"> </span>skill<span class="w"> </span>install<span class="w"> </span>thorwhalen/acquaint<span class="w"> </span>acquaint-write<span class="w"> </span>--agent<span class="w"> </span>claude-code
 </span></pre></div>
 </div>
@@ -229,7 +229,7 @@ machine-readable copies of this documentation.</p>
 </section>
 <section id="recipient-reader">
 <h3><code class="docutils literal notranslate"><span class="pre">recipient-reader</span></code><a class="headerlink" href="#recipient-reader" title="Link to this heading">#</a></h3>
-<p>Simulates how a specific, known person is likely to read a draft or answer an idea, grounded only in the acquaint brief it is handed. Used by the acquaint-write skill for its red-team check (a report on a draft, without rewriting it) and for sparring (arguing from the person’s documented positions). Always presented as a simulation; every point cites the brief line it rests on.</p>
+<p>Simulates how a specific, known person is likely to read a draft, answer an idea, or receive a recommended decision, grounded only in the acquaint brief it is handed. Used by the acquaint-write skill for its red-team check (a report on a draft, without rewriting it), for sparring (arguing from the person’s documented positions), and for a decision verdict (disagreement risk, cited reason, coverage). Always presented as a simulation; every point cites the brief line it rests on.</p>
 <p>Source: <a class="reference external" href="https://github.com/thorwhalen/acquaint/tree/HEAD/acquaint/data/agents/recipient-reader.md"><code class="docutils literal notranslate"><span class="pre">acquaint/data/agents/recipient-reader.md</span></code></a>; tools: <code class="docutils literal notranslate"><span class="pre">Read</span></code>.</p>
 </section>
 </section>
@@ -284,7 +284,7 @@ machine-readable copies of this documentation.</p>
     </div>
   </div>
 </footer>
-      <script src="_static/documentation_options.js?v=f0357c94"></script>
+      <script src="_static/documentation_options.js?v=c7cdf6fe"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
