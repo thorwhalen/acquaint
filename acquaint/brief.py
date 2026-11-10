@@ -68,7 +68,9 @@ BRIEF_SECTIONS = (
     "Before sending",
 )
 #: Never left out, whatever the purpose: what bounds the audience, and a broken record.
-ALWAYS_SHOWN = frozenset({"Ceiling", "Do not identify", "Withheld", "Already told", "Lint"})
+ALWAYS_SHOWN = frozenset(
+    {"Ceiling", "Do not identify", "Withheld", "Already told", "Lint"}
+)
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 _UNTIL_RE = re.compile(r"\(until:\s*(\d{4}-\d{2}-\d{2})\)")
 #: An audience scope in words, when the audience record comes without them.
@@ -323,7 +325,9 @@ def compose_brief(
             f"purpose {purpose!r} lists sections a brief does not have: {sorted(unknown)}; "
             f"known: {', '.join(BRIEF_SECTIONS)}"
         )
-    defaults = purposes["default"]["reminders"] if spec.get("default_reminders", True) else []
+    defaults = (
+        purposes["default"]["reminders"] if spec.get("default_reminders", True) else []
+    )
     reminders = list(defaults) + list(spec.get("reminders", []))
 
     reach = reach_channels(
@@ -474,7 +478,10 @@ def _render_ceiling(brief: dict[str, Any]) -> list[tuple[str, list[str]]]:
         for row in brief["already_told"]
     ] or ["Nothing recorded."]
     return [
-        ("Ceiling", [f"{ceiling['line']} (least clearance: {ceiling['least_clearance']})."]),
+        (
+            "Ceiling",
+            [f"{ceiling['line']} (least clearance: {ceiling['least_clearance']})."],
+        ),
         ("Do not identify", do_not_identify),
         ("Withheld", withheld),
         ("Already told", already_told),
@@ -490,7 +497,9 @@ def _reach_lines(brief: dict[str, Any]) -> list[str]:
         # An address built from an identity is who the person *is*, not necessarily
         # somewhere to send: a channel addressed by conversation does not take one.
         # Say which it is in the prose, since that is what a writing agent reads.
-        derived = " (from their identities)" if ch.get("address_kind") == "identity" else ""
+        derived = (
+            " (from their identities)" if ch.get("address_kind") == "identity" else ""
+        )
         where = f" → {ch['address']}{derived}" if ch["address"] else ""
         why = f"{ch['tier']} rule" if ch["tier"] != "none" else ch["instruction"]
         source = f"; source: {ch['source']}" if ch.get("source") else ""
@@ -515,7 +524,9 @@ def _sections(entity, brief: dict[str, Any]) -> list[tuple[str, str | None, list
         if brief["card"][heading]
     ]
     if brief["affiliations"]:
-        out.append(("Affiliations", "Affiliations", [f"- {a}" for a in brief["affiliations"]]))
+        out.append(
+            ("Affiliations", "Affiliations", [f"- {a}" for a in brief["affiliations"]])
+        )
     out.append(
         (
             "Writing card",
@@ -529,7 +540,13 @@ def _sections(entity, brief: dict[str, Any]) -> list[tuple[str, str | None, list
         )
     )
     if brief["views"]:
-        out.append(("Positions and standing objections", "Positions and standing objections", [brief["views"]]))
+        out.append(
+            (
+                "Positions and standing objections",
+                "Positions and standing objections",
+                [brief["views"]],
+            )
+        )
     if brief["project_norms"]:
         out.append(("Norms", f"Norms of {brief['project']}", [brief["project_norms"]]))
     if brief["digests"]:
@@ -555,22 +572,38 @@ def _sections(entity, brief: dict[str, Any]) -> list[tuple[str, str | None, list
             )
         )
     purpose = f" ({brief['purpose']})" if brief["purpose"] else ""
-    out.append(("For this message", f"For this message{purpose}", [f"- {r}" for r in brief["reminders"]]))
+    out.append(
+        (
+            "For this message",
+            f"For this message{purpose}",
+            [f"- {r}" for r in brief["reminders"]],
+        )
+    )
     if brief["gaps"]:
-        out.append(("Not known", "Not known (ask, don't guess)", [f"- {g}" for g in brief["gaps"]]))
+        out.append(
+            (
+                "Not known",
+                "Not known (ask, don't guess)",
+                [f"- {g}" for g in brief["gaps"]],
+            )
+        )
     if brief["lint"]["errors"]:
         out.append(
             (
                 "Lint",
                 None,
-                [f"**This record has {brief['lint']['errors']} lint error(s); run `acquaint lint {entity.slug}` before relying on it.**"],
+                [
+                    f"**This record has {brief['lint']['errors']} lint error(s); run `acquaint lint {entity.slug}` before relying on it.**"
+                ],
             )
         )
     out.append(
         (
             "Before sending",
             None,
-            [f'Before sending: `acquaint style-lint --recipient {entity.slug} "<draft>"` and `acquaint check "<draft>"`.'],
+            [
+                f'Before sending: `acquaint style-lint --recipient {entity.slug} "<draft>"` and `acquaint check "<draft>"`.'
+            ],
         )
     )
     return out
